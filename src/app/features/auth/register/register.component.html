@@ -1,0 +1,80 @@
+<div class="register-container">
+  <mat-card class="register-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>library_books</mat-icon>
+        Unete a Nosotros
+      </mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form class="register-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Username</mat-label>
+          <input matInput [(ngModel)]="username" name="username" required [disabled]="isLoading">
+          <mat-icon matSuffix>person</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput [(ngModel)]="email" name="email" type="email" required [disabled]="isLoading">
+          <mat-icon matSuffix>email</mat-icon>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input matInput [(ngModel)]="password" name="password"
+                 [type]="hidePassword ? 'password' : 'text'" required [disabled]="isLoading">
+          <button mat-icon-button matSuffix (click)="togglePasswordVisibility($event, 'password')" type="button">
+            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+          <mat-label>Confirm Password</mat-label>
+          <input matInput [(ngModel)]="confirmPassword" name="confirmPassword"
+                 [type]="hideConfirmPassword ? 'password' : 'text'" required [disabled]="isLoading">
+          <button mat-icon-button matSuffix (click)="togglePasswordVisibility($event, 'confirmPassword')" type="button">
+            <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="password !== confirmPassword && confirmPassword">
+            Passwords do not match
+          </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+          <mat-label>Account Type</mat-label>
+          <mat-select [(ngModel)]="role" name="role" required [disabled]="isLoading">
+            <mat-option *ngFor="let roleOption of availableRoles" [value]="roleOption.value">
+              {{ roleOption.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" class="register-button"
+                (click)="register()" [disabled]="isLoading || !isFormValid()">
+          <mat-icon *ngIf="!isLoading">person_add</mat-icon>
+          <mat-icon *ngIf="isLoading" class="spinning">hourglass_empty</mat-icon>
+          {{ isLoading ? 'Creating Account...' : 'Create Account' }}
+        </button>
+
+        <div class="login-link">
+          <span>Already have an account?</span>
+          <button mat-button color="primary" routerLink="/auth/login">Sign In</button>
+        </div>
+      </form>
+    </mat-card-content>
+    
+    <mat-card-footer *ngIf="successMessage || errorMessage">
+      <div class="message success" *ngIf="successMessage">
+        <mat-icon>check_circle</mat-icon>
+        {{ successMessage }}
+      </div>
+      
+      <div class="message error" *ngIf="errorMessage">
+        <mat-icon>error</mat-icon>
+        {{ errorMessage }}
+      </div>
+    </mat-card-footer>
+  </mat-card>
+</div>

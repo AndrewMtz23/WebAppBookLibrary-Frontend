@@ -1,0 +1,5 @@
+{
+  "apiUrl": "https://localhost:7086",
+  "environment": "development",
+  "debug": true
+}

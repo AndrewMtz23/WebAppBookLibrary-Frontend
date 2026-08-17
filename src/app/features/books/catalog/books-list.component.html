@@ -1,0 +1,268 @@
+<!-- 📁 books-list.component.html -->
+<div class="book-list-container">
+  
+  <!-- ✅ NUEVO: Carrusel Hero -->
+  <section class="hero-carousel" *ngIf="!loading">
+    <div class="carousel-container">
+      <div class="carousel-slide" [class.active]="currentSlide === 0">
+        <div class="slide-content">
+          <img src="assets/images/imagencarrusel1.jpg" alt="Biblioteca Digital" class="slide-image">
+          <div class="slide-overlay">
+            <div class="slide-text">
+              <h1>Descubre tu próxima lectura</h1>
+              <p>Explora nuestra colección de libros digitales y encuentra historias que te inspiren</p> 
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="carousel-slide" [class.active]="currentSlide === 1">
+        <div class="slide-content">
+          <img src="assets/images/imagencarrusel2.jpg" alt="Gestión de Biblioteca" class="slide-image">
+          <div class="slide-overlay">
+            <div class="slide-text">
+              <h1>Gestiona tu biblioteca personal</h1>
+              <p>Aparta libros, gestiona préstamos y mantén un registro de tus lecturas favoritas</p>
+              <button mat-raised-button color="accent" class="cta-button" *ngIf="!isLoggedIn()" routerLink="/auth/login">
+                <mat-icon>login</mat-icon>
+                Iniciar Sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="carousel-slide" [class.active]="currentSlide === 0">
+        <div class="slide-content">
+          <img src="assets/images/imagencarrusel1.jpg" alt="Biblioteca Digital" class="slide-image">
+          <div class="slide-overlay">
+            <div class="slide-text">
+              <h1>Descubre tu próxima lectura</h1>
+              <p>Explora nuestra colección de libros digitales y encuentra historias que te inspiren</p> 
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="carousel-slide" [class.active]="currentSlide === 1">
+        <div class="slide-content">
+          <img src="assets/images/imagencarrusel2.jpg" alt="Gestión de Biblioteca" class="slide-image">
+          <div class="slide-overlay">
+            <div class="slide-text">
+              <h1>Gestiona tu biblioteca personal</h1>
+              <p>Aparta libros, gestiona préstamos y mantén un registro de tus lecturas favoritas</p>
+              <button mat-raised-button color="accent" class="cta-button" *ngIf="!isLoggedIn()" routerLink="/auth/login">
+                <mat-icon>login</mat-icon>
+                Iniciar Sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      
+      <!-- Controles del carrusel -->
+      <div class="carousel-controls">
+        <button mat-icon-button (click)="previousSlide()" class="carousel-btn prev">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        
+        <div class="carousel-indicators">
+          <button 
+            *ngFor="let slide of slides; let i = index" 
+            class="indicator" 
+            [class.active]="currentSlide === i"
+            (click)="goToSlide(i)">
+          </button>
+        </div>
+        
+        <button mat-icon-button (click)="nextSlide()" class="carousel-btn next">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ MEJORADO: Header del catálogo -->
+  <div class="catalog-header" id="catalog-section">
+    <div class="header-content">
+      <div class="title-section">
+        <h2>
+          <mat-icon class="catalog-icon">auto_stories</mat-icon>
+          Catálogo de Libros
+        </h2>
+        <p class="subtitle">{{ books.length }} libros disponibles</p>
+      </div>
+      
+      <!-- ✅ Filtros rápidos -->
+      <div class="quick-filters" *ngIf="!loading && books.length">
+        <mat-chip-set>
+          <mat-chip-option 
+            *ngFor="let genre of uniqueGenres" 
+            [selected]="selectedGenre === genre"
+            (click)="filterByGenre(genre)">
+            {{ genre }}
+          </mat-chip-option>
+          <mat-chip-option 
+            [selected]="showOnlyAvailable"
+            (click)="toggleAvailableFilter()">
+            Solo Disponibles
+          </mat-chip-option>
+        </mat-chip-set>
+      </div>
+    </div>
+    
+    <!-- ✅ Botón flotante para crear libro (solo admin/librarian) -->
+    <button 
+      mat-fab 
+      color="primary" 
+      (click)="onCreateBook()" 
+      *ngIf="isAdminOrLibrarian"
+      class="create-book-btn"
+      matTooltip="Crear nuevo libro">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+
+  <!-- Loading y errores -->
+  <mat-progress-bar *ngIf="loading" mode="indeterminate" class="loading-bar"></mat-progress-bar>
+
+  <mat-card class="error-card" *ngIf="error">
+    <mat-card-content>
+      <mat-icon color="warn">error</mat-icon>
+      {{ error }}
+      <button mat-button color="primary" (click)="loadBooks()">
+        <mat-icon>refresh</mat-icon>
+        Reintentar
+      </button>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ✅ MEJORADO: Grid de libros con filtros -->
+  <div class="catalog-content">
+    <div class="card-grid" *ngIf="!loading && filteredBooks.length">
+      <mat-card *ngFor="let book of filteredBooks; trackBy: trackByBookId" class="book-card mat-elevation-z2">
+        
+        <!-- ✅ Imagen placeholder del libro -->
+        <div class="book-cover">
+          <mat-icon class="book-icon">menu_book</mat-icon>
+          <div class="availability-badge" [class.available]="book.isAvailable" [class.unavailable]="!book.isAvailable">
+            {{ book.isAvailable ? 'Disponible' : 'No disponible' }}
+          </div>
+        </div>
+        
+        <mat-card-header>
+          <mat-card-title class="book-title">{{ book.title }}</mat-card-title>
+          <mat-card-subtitle class="book-subtitle">
+            <span class="author">{{ book.author }}</span>
+            <span class="year" *ngIf="book.year">• {{ book.year }}</span>
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="book-details">
+            <div class="genre-tag">
+              <mat-icon>local_offer</mat-icon>
+              {{ book.genre }}
+            </div>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions align="end" class="book-actions">
+          <!-- Botón de Apartar para usuarios normales -->
+          <button
+            mat-flat-button
+            color="primary"
+            (click)="apartar(book.id!)"
+            *ngIf="isUser && book.isAvailable"
+            class="action-btn primary">
+            <mat-icon>bookmark_add</mat-icon>
+            Apartar
+          </button>
+          
+          <button
+            mat-stroked-button
+            disabled
+            *ngIf="isUser && !book.isAvailable"
+            class="action-btn disabled">
+            <mat-icon>bookmark_remove</mat-icon>
+            No disponible
+          </button>
+
+          <!-- Botones para admin o librarian -->
+          <ng-container *ngIf="isAdminOrLibrarian">
+             <button mat-icon-button color="accent" (click)="onEdit(book)" matTooltip="Editar libro" class="icon-btn">
+              <mat-icon>edit</mat-icon>
+             </button>
+
+            <button mat-icon-button color="warn" (click)="onDelete(book.id!)" matTooltip="Eliminar libro" class="icon-btn">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </ng-container>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+
+    <!-- ✅ MEJORADO: Estado vacío -->
+    <div class="empty-state" *ngIf="!loading && filteredBooks.length === 0 && books.length > 0">
+      <mat-icon class="empty-icon">search_off</mat-icon>
+      <h3>No se encontraron libros</h3>
+      <p>Intenta cambiar los filtros de búsqueda</p>
+      <button mat-flat-button color="primary" (click)="clearFilters()">
+        <mat-icon>clear</mat-icon>
+        Limpiar Filtros
+      </button>
+    </div>
+    
+    <div class="empty-state" *ngIf="!loading && books.length === 0">
+      <mat-icon class="empty-icon">library_books</mat-icon>
+      <h3>No hay libros en la biblioteca</h3>
+      <p>¡Sé el primero en agregar un libro al catálogo!</p>
+      
+      <button 
+        mat-flat-button 
+        color="primary" 
+        (click)="onCreateBook()" 
+        *ngIf="isAdminOrLibrarian">
+        <mat-icon>add</mat-icon>
+        Crear primer libro
+      </button>
+    </div>
+  </div>
+
+    <!-- ✅ MODAL DE CONFIRMACIÓN MEJORADO PARA LIBROS -->
+  <ng-template #confirmTpl>
+    <div class="confirmation-dialog">
+      
+      <!-- Header con icono -->
+      <div class="dialog-header" 
+          [class.warning]="dialogData?.type === 'warning'" 
+          [class.danger]="dialogData?.type === 'danger'"
+          [class.info]="dialogData?.type === 'info'">
+        <mat-icon class="dialog-icon">{{ dialogData?.icon || 'help_outline' }}</mat-icon>
+        <h2 mat-dialog-title class="dialog-title">{{ dialogData?.title || 'Confirmación' }}</h2>
+      </div>
+
+      <!-- Contenido -->
+      <mat-dialog-content class="dialog-content">
+        <p class="dialog-message">{{ dialogData?.message || 'Por favor confirma esta acción' }}</p>
+      </mat-dialog-content>
+
+      <!-- Acciones -->
+      <mat-dialog-actions class="dialog-actions" align="end">
+        <button mat-button 
+                [mat-dialog-close]="false" 
+                class="cancel-button">
+          Cancelar
+        </button>
+        <button mat-flat-button 
+                [color]="dialogData?.confirmColor || 'primary'" 
+                [mat-dialog-close]="true"
+                class="confirm-button">
+          {{ dialogData?.confirmText || 'Confirmar' }}
+        </button>
+      </mat-dialog-actions>
+      
+    </div>
+  </ng-template>
+</div>

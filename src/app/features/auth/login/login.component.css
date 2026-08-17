@@ -1,0 +1,113 @@
+.login-container {
+  max-width: 500px;
+  margin: 3rem auto;
+  padding: 2rem;
+}
+
+.login-card {
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.login-card mat-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 1.8rem;
+  color: #1976d2;
+  text-align: center;
+}
+
+.login-card mat-card-title mat-icon {
+  font-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+}
+
+.login-card mat-card-subtitle {
+  text-align: center;
+  color: #666;
+  margin-top: 8px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.login-form mat-form-field {
+  width: 100%;
+}
+
+.login-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.register-link {
+  text-align: center;
+  margin-top: 1rem;
+  color: #666;
+}
+
+.guest-access {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.guest-access button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto;
+}
+
+.message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.message.success {
+  color: #2e7d32;
+  background-color: #e8f5e9;
+}
+
+.message.error {
+  color: #c62828;
+  background-color: #ffebee;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .login-container {
+    margin: 1rem;
+    padding: 1rem;
+  }
+  
+  .login-card {
+    padding: 1.5rem;
+  }
+}

@@ -1,0 +1,144 @@
+<!-- 📁 app.component.html -->
+<mat-toolbar color="primary" class="app-toolbar">
+  <div class="toolbar-content">
+    
+    <!-- ✅ SECCIÓN IZQUIERDA: Logo y Título -->
+    <div class="toolbar-left">
+      <mat-icon class="logo-icon">library_books</mat-icon>
+      <span class="toolbar-title">Book Library</span>
+    </div>
+
+    <!-- ✅ SECCIÓN CENTRO: Navegación (solo si está logueado) -->
+    <div class="toolbar-center" *ngIf="isLoggedIn()">
+      <button mat-button routerLink="/catalog" routerLinkActive="active-link" class="nav-button">
+        <mat-icon>book</mat-icon>
+        <span>Catálogo</span>
+      </button>
+
+      <!-- ✅ SOLO USUARIOS NORMALES VEN "MIS PRÉSTAMOS" -->
+      <button mat-button routerLink="/loans" routerLinkActive="active-link" class="nav-button" *ngIf="isUser()">
+        <mat-icon>bookmark</mat-icon>
+        <span>Mis Préstamos</span>
+      </button>
+
+      <!-- ✅ ADMIN Y LIBRARIAN VEN "GESTIONAR PRÉSTAMOS" -->
+      <button mat-button routerLink="/loans" routerLinkActive="active-link" class="nav-button" *ngIf="isAdminOrLibrarian()">
+        <mat-icon>manage_accounts</mat-icon>
+        <span>Gestionar Préstamos</span>
+      </button>
+
+      <!-- ✅ SOLO ADMIN VE LOGS -->
+      <button mat-button routerLink="/logs" routerLinkActive="active-link" class="nav-button" *ngIf="isAdmin()">
+        <mat-icon>assignment</mat-icon>
+        <span>Logs</span>
+      </button>
+
+      <!-- ✅ NUEVO: SOLO ADMIN VE SECURITY DASHBOARD -->
+      <button mat-button routerLink="/security-dashboard" routerLinkActive="active-link" class="nav-button" *ngIf="isAdmin()">
+        <mat-icon>security</mat-icon>
+        <span>Seguridad</span>
+      </button>
+    </div>
+
+    <!-- ✅ SECCIÓN DERECHA: Usuario Mejorado -->
+    <div class="toolbar-right">
+      
+      <!-- ✅ USUARIO LOGUEADO - DISEÑO MEJORADO -->
+      <div class="user-section" *ngIf="isLoggedIn()">
+        
+        <!-- Avatar y info del usuario -->
+        <div class="user-avatar-section">
+          <div class="user-avatar">
+            <mat-icon class="avatar-icon">account_circle</mat-icon>
+          </div>
+          
+          <div class="user-info">
+            <div class="user-name">{{ username }}</div>
+            <div class="user-role">{{ getRoleDisplayName() }}</div>
+          </div>
+        </div>
+        
+        <!-- Menú desplegable -->
+        <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-menu-trigger">
+          <mat-icon class="dropdown-icon">keyboard_arrow_down</mat-icon>
+        </button>
+      </div>
+
+      <!-- ✅ BOTÓN LOGIN SI NO ESTÁ LOGUEADO -->
+      <div class="login-section" *ngIf="!isLoggedIn()">
+        <button mat-raised-button color="accent" routerLink="/auth/login" class="login-btn">
+          <mat-icon>login</mat-icon>
+          <span>Iniciar Sesión</span>
+        </button>
+      </div>
+    </div>
+    
+  </div>
+</mat-toolbar>
+
+<!-- ✅ MENÚ DESPLEGABLE MEJORADO -->
+<mat-menu #userMenu="matMenu" class="user-dropdown" yPosition="below" xPosition="after">
+  
+  <!-- Header del menú con info del usuario -->
+  <div class="menu-header" mat-menu-item disabled>
+    <div class="menu-avatar">
+      <mat-icon>account_circle</mat-icon>
+    </div>
+    <div class="menu-user-info">
+      <div class="menu-username">{{ username }}</div>
+      <div class="menu-role">{{ getRoleDisplayName() }}</div>
+      <div class="menu-email" *ngIf="authService.getUserEmail()">{{ authService.getUserEmail() }}</div>
+    </div>
+  </div>
+  
+  <mat-divider></mat-divider>
+  
+  <!-- Opciones del menú -->
+  <button mat-menu-item routerLink="/profile" *ngIf="false">
+    <mat-icon>person</mat-icon>
+    <span>Mi Perfil</span>
+  </button>
+  
+  <button mat-menu-item routerLink="/loans" *ngIf="isUser()">
+    <mat-icon>bookmark</mat-icon>
+    <span>Mis Préstamos</span>
+  </button>
+  
+  <button mat-menu-item routerLink="/catalog">
+    <mat-icon>library_books</mat-icon>
+    <span>Explorar Catálogo</span>
+  </button>
+  
+  <mat-divider></mat-divider>
+  
+  <!-- ✅ OPCIONES DE ADMIN -->
+  <div *ngIf="isAdmin()">
+    <button mat-menu-item routerLink="/logs">
+      <mat-icon>assignment</mat-icon>
+      <span>Ver Logs</span>
+    </button>
+    
+    <!-- ✅ NUEVO: Security Dashboard en el menú también -->
+    <button mat-menu-item routerLink="/security-dashboard">
+      <mat-icon>security</mat-icon>
+      <span>Dashboard de Seguridad</span>
+    </button>
+    
+    <button mat-menu-item routerLink="/settings" *ngIf="false">
+      <mat-icon>settings</mat-icon>
+      <span>Configuración</span>
+    </button>
+    
+    <mat-divider></mat-divider>
+  </div>
+  
+  <!-- Logout -->
+  <button mat-menu-item (click)="handleLogout()" class="logout-item">
+    <mat-icon>logout</mat-icon>
+    <span>Cerrar Sesión</span>
+  </button>
+</mat-menu>
+
+<div class="app-content">
+  <router-outlet></router-outlet>
+</div>

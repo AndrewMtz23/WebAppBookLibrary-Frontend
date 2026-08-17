@@ -1,0 +1,625 @@
+/* 📁 books-list.component.css */
+
+.book-list-container {
+  position: relative;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+/* ✅ CARRUSEL HERO */
+.hero-carousel {
+  position: relative;
+  height: 60vh;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  border-radius: 0 0 20px 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.carousel-container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.carousel-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+}
+
+.carousel-slide.active {
+  opacity: 1;
+}
+
+.slide-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.slide-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.7);
+}
+
+.slide-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slide-text {
+  text-align: center;
+  color: white;
+  max-width: 600px;
+  padding: 2rem;
+}
+
+.slide-text h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  animation: slideInFromBottom 0.8s ease-out;
+}
+
+.slide-text p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+  line-height: 1.6;
+  animation: slideInFromBottom 0.8s ease-out 0.2s both;
+}
+
+.cta-button {
+  padding: 12px 32px;
+  font-size: 1.1rem;
+  border-radius: 25px;
+  animation: slideInFromBottom 0.8s ease-out 0.4s both;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* Controles del carrusel */
+.carousel-controls {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.carousel-btn {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.carousel-btn:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.1);
+}
+
+.carousel-indicators {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid white;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.indicator.active {
+  background: white;
+  transform: scale(1.2);
+}
+
+/* ✅ HEADER DEL CATÁLOGO MEJORADO */
+.catalog-header {
+  padding: 2rem;
+  background: white;
+  margin: 0 1rem 2rem 1rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.title-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.catalog-icon {
+  font-size: 2rem;
+  color: #3498db;
+}
+
+.subtitle {
+  color: #7f8c8d;
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* Filtros rápidos */
+.quick-filters {
+  margin-top: 1rem;
+}
+
+.quick-filters mat-chip-set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ✅ Botón flotante mejorado */
+.create-book-btn {
+  position: fixed !important;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  background: linear-gradient(45deg, #3498db, #2980b9);
+}
+
+.create-book-btn:hover {
+  transform: scale(1.1) rotate(90deg);
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+/* ✅ CATÁLOGO CONTENT */
+.catalog-content {
+  padding: 0 1rem 2rem 1rem;
+}
+
+/* Grid de tarjetas mejorado */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+/* ✅ TARJETAS DE LIBROS MEJORADAS */
+.book-card {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: none;
+  position: relative;
+}
+
+.book-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15) !important;
+}
+
+/* Portada del libro */
+.book-cover {
+  position: relative;
+  height: 200px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.book-icon {
+  font-size: 4rem;
+  color: rgba(255,255,255,0.8);
+}
+
+.availability-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.availability-badge.available {
+  background: rgba(46, 204, 113, 0.9);
+  color: white;
+}
+
+.availability-badge.unavailable {
+  background: rgba(231, 76, 60, 0.9);
+  color: white;
+}
+
+/* Header de la tarjeta */
+.book-card mat-card-header {
+  padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+}
+
+.book-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2c3e50;
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+.book-subtitle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.author {
+  color: #3498db;
+  font-weight: 500;
+}
+
+.year {
+  color: #95a5a6;
+  font-size: 0.9rem;
+}
+
+/* Contenido de la tarjeta */
+.book-card mat-card-content {
+  padding: 0.5rem 1.5rem;
+}
+
+.book-details {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.genre-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ecf0f1;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.genre-tag mat-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Acciones de la tarjeta */
+.book-actions {
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  border-radius: 25px;
+  padding: 8px 20px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.action-btn.primary {
+  background: linear-gradient(45deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+}
+
+.action-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+}
+
+.action-btn.disabled {
+  background: #ecf0f1;
+  color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.icon-btn {
+  transition: all 0.3s ease;
+}
+
+.icon-btn:hover {
+  transform: scale(1.1);
+}
+
+/* ✅ ESTADOS VACÍOS MEJORADOS */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 15px;
+  margin: 2rem 0;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.empty-icon {
+  font-size: 5rem;
+  width: 5rem;
+  height: 5rem;
+  color: #bdc3c7;
+  margin-bottom: 1.5rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.empty-state h3 {
+  color: #34495e;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.empty-state p {
+  color: #7f8c8d;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+/* Estados de error */
+.error-card {
+  margin: 1rem;
+  background: #ffebee;
+  border-left: 4px solid #e74c3c;
+  border-radius: 8px;
+}
+
+.error-card mat-card-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: #c62828;
+}
+
+.loading-bar {
+  margin: 1rem;
+  border-radius: 4px;
+}
+
+/* ✅ ANIMACIONES */
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ✅ RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+  .hero-carousel {
+    height: 50vh;
+  }
+  
+  .slide-text h1 {
+    font-size: 2rem;
+  }
+  
+  .slide-text p {
+    font-size: 1rem;
+  }
+  
+  .catalog-header {
+    margin: 0 0.5rem 1rem 0.5rem;
+    padding: 1.5rem;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 0 0.5rem;
+  }
+  
+  .create-book-btn {
+    bottom: 1rem;
+    right: 1rem;
+  }
+  
+  .carousel-controls {
+    bottom: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .book-list-container {
+    background: #f8f9fa;
+  }
+  
+  .hero-carousel {
+    height: 40vh;
+    border-radius: 0;
+  }
+  
+  .slide-text {
+    padding: 1rem;
+  }
+  
+  .slide-text h1 {
+    font-size: 1.5rem;
+  }
+  
+  .catalog-header {
+    margin: 0;
+    border-radius: 0;
+  }
+}
+
+/* Agregar estos estilos al final de books-list.component.css */
+
+/* ===== MODAL DE CONFIRMACIÓN PARA LIBROS ===== */
+.confirmation-dialog {
+  min-width: 350px;
+  max-width: 450px;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px 16px 24px;
+  border-bottom: 1px solid #e0e0e0;
+  margin: -24px -24px 0 -24px;
+}
+
+.dialog-header.warning {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%);
+  border-bottom-color: #ffb74d;
+}
+
+.dialog-header.danger {
+  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+  border-bottom-color: #ef5350;
+}
+
+.dialog-header.info {
+  background: linear-gradient(135deg, #e3f2fd 0%, #90caf9 100%);
+  border-bottom-color: #42a5f5;
+}
+
+.dialog-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.dialog-header.warning .dialog-icon {
+  color: #f57c00;
+}
+
+.dialog-header.danger .dialog-icon {
+  color: #d32f2f;
+}
+
+.dialog-header.info .dialog-icon {
+  color: #1976d2;
+}
+
+.dialog-title {
+  margin: 0 !important;
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+}
+
+.dialog-content {
+  padding: 24px !important;
+  min-height: 60px;
+}
+
+.dialog-message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #666;
+}
+
+.dialog-actions {
+  padding: 16px 24px 24px 24px !important;
+  gap: 8px;
+}
+
+.cancel-button {
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.cancel-button:hover {
+  background-color: #f5f5f5;
+  border-color: #ccc;
+}
+
+.confirm-button {
+  min-width: 100px;
+  font-weight: 500;
+}
+
+/* ===== ANIMACIÓN PARA EL MODAL ===== */
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.confirmation-dialog {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+/* ===== RESPONSIVE PARA MODALES ===== */
+@media (max-width: 480px) {
+  .confirmation-dialog {
+    min-width: 280px;
+    max-width: 350px;
+  }
+  
+  .dialog-header {
+    padding: 16px 20px 12px 20px;
+  }
+  
+  .dialog-content {
+    padding: 20px !important;
+  }
+  
+  .dialog-message {
+    font-size: 13px;
+  }
+}
