@@ -1,0 +1,26 @@
+name: Frontend CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-build-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Test
+        run: npm test -- --watch=false --browsers=ChromeHeadless
+      - name: Build
+        run: npm run build -- --configuration production
+      - name: Audit production dependencies
+        run: npm audit --omit=dev
