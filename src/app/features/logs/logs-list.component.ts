@@ -7,9 +7,10 @@ import { LogEntry } from 'src/app/shared/models/log-entry.model';
 import { LogService } from 'src/app/core/services/log.service';
 
 @Component({
-  selector: 'app-logs-list',
-  templateUrl: './logs-list.component.html',
-  styleUrls: ['./logs-list.component.css']
+    selector: 'app-logs-list',
+    templateUrl: './logs-list.component.html',
+    styleUrls: ['./logs-list.component.css'],
+    standalone: false
 })
 export class LogsListComponent implements OnInit {
   // ✅ Usar MatTableDataSource para funcionalidades avanzadas
@@ -68,9 +69,8 @@ export class LogsListComponent implements OnInit {
     this.error = '';
     
     this.logService.getRecent().subscribe({
-      next: (res: any) => {
-        const logs = res.data ?? res;
-        this.dataSource.data = logs;
+      next: (res) => {
+        this.dataSource.data = res.data;
         this.loading = false;
       },
       error: (err) => {
@@ -146,8 +146,5 @@ export class LogsListComponent implements OnInit {
   }
 
   // ✅ Ver detalles del log (si necesitas expandir información)
-  viewLogDetails(log: LogEntry): void {
-    // Implementar si necesitas mostrar más detalles en un modal
-    console.log('Log details:', log);
-  }
+  viewLogDetails(_log: LogEntry): void {}
 }

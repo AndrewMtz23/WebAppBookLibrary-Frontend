@@ -1,16 +1,10 @@
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-
 import { LoanService } from './loan.service';
-
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 describe('LoanService', () => {
-  let service: LoanService;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(LoanService);
-  });
-
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  it('is created with its HTTP dependency', () => {
+    TestBed.configureTestingModule({ imports: [], providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()] });
+    expect(TestBed.inject(LoanService)).toBeTruthy();
   });
 });

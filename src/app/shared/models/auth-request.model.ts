@@ -5,7 +5,6 @@ export interface LoginRequest {
 
 export interface RegisterRequest extends LoginRequest {
   email: string;
-  role: string;
 }
 
 export interface AuthResponse {

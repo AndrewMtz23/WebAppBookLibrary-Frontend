@@ -6,3 +6,5 @@ export interface Book {
   genre: string;
   isAvailable: boolean;
 }
+
+export type BookInput = Pick<Book, 'title' | 'author' | 'genre' | 'year'>;

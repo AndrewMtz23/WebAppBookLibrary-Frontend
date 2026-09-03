@@ -1,266 +1,41 @@
-<!-- 📁 features/security-dashboard/security-dashboard.component.html -->
-<div class="security-dashboard">
-  <!-- ✅ HEADER -->
-  <mat-card class="header-card">
+<main class="dashboard">
+  <mat-card class="hero">
     <mat-card-header>
-      <mat-icon mat-card-avatar class="security-icon">security</mat-icon>
-      <mat-card-title>Dashboard de Seguridad</mat-card-title>
-      <mat-card-subtitle>Análisis de vulnerabilidades en APIs</mat-card-subtitle>
+      <mat-icon mat-card-avatar>security</mat-icon>
+      <mat-card-title>Controles observables de seguridad</mat-card-title>
+      <mat-card-subtitle>Comprobaciones reales contra la API configurada</mat-card-subtitle>
     </mat-card-header>
-    
-    <mat-card-actions>
-      <button 
-        mat-raised-button 
-        color="primary" 
-        (click)="runSecurityAnalysis()"
-        [disabled]="loading">
-        <mat-icon>{{ loading ? 'hourglass_empty' : 'play_arrow' }}</mat-icon>
-        {{ loading ? 'Analizando...' : 'Ejecutar Análisis' }}
+    <mat-card-content>
+      <p>Este diagnóstico es demostrativo y no sustituye una auditoría ni una prueba de penetración.</p>
+      <button mat-raised-button color="primary" (click)="run()" [disabled]="loading">
+        <mat-icon>play_arrow</mat-icon> Ejecutar comprobaciones
       </button>
-    </mat-card-actions>
-  </mat-card>
-
-  <!-- ✅ MÉTRICAS GENERALES -->
-  <div class="metrics-row" *ngIf="securityMetrics">
-    <mat-card class="metric-card secure">
-      <mat-card-content>
-        <div class="metric-header">
-          <mat-icon>shield</mat-icon>
-          <span>API Segura</span>
-        </div>
-        <div class="metric-score">{{ securityMetrics.secure.score }}%</div>
-        <div class="metric-status" [ngClass]="getStatusClass(securityMetrics.secure.status)">
-          {{ securityMetrics.secure.status }}
-        </div>
-        <div class="metric-details">
-          <small>{{ securityMetrics.secure.vulnerabilities }} vulnerabilidades</small>
-          <small>{{ securityMetrics.secure.avgResponseTime | number:'1.0-0' }}ms promedio</small>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="metric-card insecure">
-      <mat-card-content>
-        <div class="metric-header">
-          <mat-icon>gpp_bad</mat-icon>
-          <span>API Insegura</span>
-        </div>
-        <div class="metric-score">{{ securityMetrics.insecure.score }}%</div>
-        <div class="metric-status" [ngClass]="getStatusClass(securityMetrics.insecure.status)">
-          {{ securityMetrics.insecure.status }}
-        </div>
-        <div class="metric-details">
-          <small>{{ securityMetrics.insecure.vulnerabilities }} vulnerabilidades</small>
-          <small>{{ securityMetrics.insecure.avgResponseTime | number:'1.0-0' }}ms promedio</small>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <!-- ✅ GRÁFICAS - SIN updateFlag -->
-  <div class="charts-container" *ngIf="securityMetrics">
-    <!-- Security Score Chart -->
-    <mat-card class="chart-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>speed</mat-icon>
-          Puntuación de Seguridad
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <highcharts-chart
-          [Highcharts]="Highcharts"
-          [options]="securityScoreChart"
-          class="chart">
-        </highcharts-chart>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Vulnerabilities Chart -->
-    <mat-card class="chart-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>bug_report</mat-icon>
-          Vulnerabilidades Detectadas
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <highcharts-chart
-          [Highcharts]="Highcharts"
-          [options]="vulnerabilityChart"
-          class="chart">
-        </highcharts-chart>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Response Time Chart -->
-    <mat-card class="chart-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>timer</mat-icon>
-          Tiempo de Respuesta
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <highcharts-chart
-          [Highcharts]="Highcharts"
-          [options]="responseTimeChart"
-          class="chart">
-        </highcharts-chart>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Risk Distribution Chart -->
-    <mat-card class="chart-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>pie_chart</mat-icon>
-          Distribución de Riesgos
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <highcharts-chart
-          [Highcharts]="Highcharts"
-          [options]="riskDistributionChart"
-          class="chart">
-        </highcharts-chart>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <!-- ✅ CONFIGURACIÓN DE TESTS -->
-  <mat-card class="tests-config-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>settings</mat-icon>
-        Configuración de Tests
-      </mat-card-title>
-      <mat-card-subtitle>{{ securityTests.length }} tests configurados</mat-card-subtitle>
-    </mat-card-header>
-    
-    <mat-card-content>
-      <div class="tests-list">
-        <mat-expansion-panel 
-          *ngFor="let test of securityTests; let i = index"
-          class="test-panel">
-          
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              <mat-icon [class]="'risk-' + test.riskLevel.toLowerCase()">
-                {{ test.riskLevel === 'CRITICAL' ? 'dangerous' : 
-                   test.riskLevel === 'HIGH' ? 'warning' : 
-                   test.riskLevel === 'MEDIUM' ? 'info' : 'check_circle' }}
-              </mat-icon>
-              {{ test.name }}
-            </mat-panel-title>
-            <mat-panel-description>
-              <span class="risk-badge" [class]="'risk-' + test.riskLevel.toLowerCase()">
-                {{ test.riskLevel }}
-              </span>
-            </mat-panel-description>
-          </mat-expansion-panel-header>
-
-          <div class="test-details">
-            <p><strong>Descripción:</strong> {{ test.description }}</p>
-            <div class="test-config">
-              <span class="config-item">
-                <mat-icon>http</mat-icon>
-                {{ test.method }} {{ test.endpoint }}
-              </span>
-            </div>
-            <div class="expected-results">
-              <div class="expected secure">
-                <strong>API Segura:</strong> {{ test.expectedSecure }}
-              </div>
-              <div class="expected insecure">
-                <strong>API Insegura:</strong> {{ test.expectedInsecure }}
-              </div>
-            </div>
-          </div>
-        </mat-expansion-panel>
-      </div>
+      <mat-spinner *ngIf="loading" diameter="28" aria-label="Ejecutando comprobaciones"></mat-spinner>
     </mat-card-content>
   </mat-card>
 
-  <!-- ✅ RESULTADOS DETALLADOS -->
-  <div class="results-container" *ngIf="testResults">
-    <div class="results-section">
-      <mat-card class="results-card secure-results">
-        <mat-card-header>
-          <mat-icon mat-card-avatar class="secure-icon">shield</mat-icon>
-          <mat-card-title>Resultados API Segura</mat-card-title>
-          <mat-card-subtitle>{{ testResults.secure.length }} tests ejecutados</mat-card-subtitle>
-        </mat-card-header>
-        
-        <mat-card-content>
-          <mat-list>
-            <mat-list-item *ngFor="let result of testResults.secure" class="result-item">
-              <mat-icon 
-                matListItemIcon 
-                [color]="getTestColor(result)">
-                {{ getTestIcon(result) }}
-              </mat-icon>
-              
-              <div matListItemTitle>{{ result.test }}</div>
-              <div matListItemLine>
-                <span class="status-code">{{ result.statusCode }}</span>
-                <span class="response-time">{{ result.responseTime }}ms</span>
-                <span class="vulnerability-status" 
-                      [class]="result.vulnerability ? 'vulnerable' : 'secure'">
-                  {{ result.vulnerability ? 'VULNERABLE' : 'SEGURO' }}
-                </span>
-              </div>
-              <div matListItemLine class="details">{{ result.details }}</div>
-            </mat-list-item>
-          </mat-list>
-        </mat-card-content>
-      </mat-card>
+  <section class="summary" *ngIf="summary">
+    <mat-card><strong>{{ summary.score === null ? 'Sin datos' : summary.score + '%' }}</strong><span>Puntuación concluyente</span></mat-card>
+    <mat-card><strong>{{ summary.passed }}</strong><span>Correctas</span></mat-card>
+    <mat-card><strong>{{ summary.failed }}</strong><span>Fallidas</span></mat-card>
+    <mat-card><strong>{{ summary.inconclusive + summary.unavailable }}</strong><span>Sin conclusión</span></mat-card>
+  </section>
 
-      <mat-card class="results-card insecure-results">
-        <mat-card-header>
-          <mat-icon mat-card-avatar class="insecure-icon">gpp_bad</mat-icon>
-          <mat-card-title>Resultados API Insegura</mat-card-title>
-          <mat-card-subtitle>{{ testResults.insecure.length }} tests ejecutados</mat-card-subtitle>
-        </mat-card-header>
-        
-        <mat-card-content>
-          <mat-list>
-            <mat-list-item *ngFor="let result of testResults.insecure" class="result-item">
-              <mat-icon 
-                matListItemIcon 
-                [color]="getTestColor(result)">
-                {{ getTestIcon(result) }}
-              </mat-icon>
-              
-              <div matListItemTitle>{{ result.test }}</div>
-              <div matListItemLine>
-                <span class="status-code">{{ result.statusCode }}</span>
-                <span class="response-time">{{ result.responseTime }}ms</span>
-                <span class="vulnerability-status" 
-                      [class]="result.vulnerability ? 'vulnerable' : 'secure'">
-                  {{ result.vulnerability ? 'VULNERABLE' : 'SEGURO' }}
-                </span>
-              </div>
-              <div matListItemLine class="details">{{ result.details }}</div>
-            </mat-list-item>
-          </mat-list>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  </div>
+  <p class="last-run" *ngIf="lastRun">Última ejecución: {{ lastRun | date:'medium' }}</p>
 
-  <!-- ✅ LOADING SPINNER -->
-  <div class="loading-overlay" *ngIf="loading">
-    <mat-spinner diameter="60"></mat-spinner>
-    <p>Ejecutando análisis de seguridad...</p>
-  </div>
-
-  <!-- ✅ ESTADO INICIAL -->
-  <mat-card class="empty-state" *ngIf="!testResults && !loading">
-    <mat-card-content>
-      <mat-icon class="empty-icon">security</mat-icon>
-      <h3>Análisis de Seguridad</h3>
-      <p>Haz clic en "Ejecutar Análisis" para comenzar la evaluación de vulnerabilidades en las APIs.</p>
-    </mat-card-content>
-  </mat-card>
-</div>
+  <section class="results" aria-live="polite">
+    <mat-card *ngFor="let result of results" [class]="'probe ' + result.status">
+      <mat-card-header>
+        <mat-card-title>{{ result.name }}</mat-card-title>
+        <mat-card-subtitle>{{ statusLabel(result.status) }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p><strong>Ruta:</strong> {{ result.endpoint }}</p>
+        <p><strong>Esperado:</strong> HTTP {{ result.expectedStatus }}</p>
+        <p><strong>Observado:</strong> {{ result.actualStatus === null ? 'sin respuesta' : 'HTTP ' + result.actualStatus }}</p>
+        <p><strong>Duración:</strong> {{ result.durationMs }} ms</p>
+        <p>{{ result.explanation }}</p>
+      </mat-card-content>
+    </mat-card>
+  </section>
+</main>

@@ -42,15 +42,6 @@
           </mat-error>
         </mat-form-field>
         
-        <mat-form-field appearance="outline">
-          <mat-label>Account Type</mat-label>
-          <mat-select [(ngModel)]="role" name="role" required [disabled]="isLoading">
-            <mat-option *ngFor="let roleOption of availableRoles" [value]="roleOption.value">
-              {{ roleOption.label }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-
         <button mat-raised-button color="primary" class="register-button"
                 (click)="register()" [disabled]="isLoading || !isFormValid()">
           <mat-icon *ngIf="!isLoading">person_add</mat-icon>
