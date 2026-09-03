@@ -6,9 +6,10 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { LoginRequest } from 'src/app/shared/models/auth-request.model';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+    selector: 'app-login',
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.css'],
+    standalone: false
 })
 export class LoginComponent {
   username = '';

@@ -4,9 +4,10 @@ import { Subscription } from 'rxjs';
 import { AuthService } from './core/services/auth.service';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.scss']
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.scss'],
+    standalone: false
 })
 export class AppComponent implements OnDestroy {
   username = '';

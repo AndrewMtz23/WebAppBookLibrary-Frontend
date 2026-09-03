@@ -10,9 +10,10 @@ import { BookDialogComponent } from '../book-dialog/book-dialog.component';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
-  selector: 'app-books-list',
-  templateUrl: './books-list.component.html',
-  styleUrls: ['./books-list.component.css']
+    selector: 'app-books-list',
+    templateUrl: './books-list.component.html',
+    styleUrls: ['./books-list.component.css'],
+    standalone: false
 })
 export class BooksListComponent implements OnInit, OnDestroy {
   books: Book[] = [];

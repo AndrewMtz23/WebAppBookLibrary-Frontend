@@ -3,7 +3,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 
-@Component({ selector: 'app-register', templateUrl: './register.component.html', styleUrls: ['./register.component.css'] })
+@Component({
+    selector: 'app-register', templateUrl: './register.component.html', styleUrls: ['./register.component.css'],
+    standalone: false
+})
 export class RegisterComponent {
   username = '';
   password = '';

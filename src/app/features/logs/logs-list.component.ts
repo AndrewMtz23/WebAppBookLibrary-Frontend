@@ -7,9 +7,10 @@ import { LogEntry } from 'src/app/shared/models/log-entry.model';
 import { LogService } from 'src/app/core/services/log.service';
 
 @Component({
-  selector: 'app-logs-list',
-  templateUrl: './logs-list.component.html',
-  styleUrls: ['./logs-list.component.css']
+    selector: 'app-logs-list',
+    templateUrl: './logs-list.component.html',
+    styleUrls: ['./logs-list.component.css'],
+    standalone: false
 })
 export class LogsListComponent implements OnInit {
   // ✅ Usar MatTableDataSource para funcionalidades avanzadas

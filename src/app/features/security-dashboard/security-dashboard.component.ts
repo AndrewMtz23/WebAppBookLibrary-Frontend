@@ -7,11 +7,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SecurityAnalysisService, SecurityProbeResult, SecuritySummary } from './security-analysis.service';
 
 @Component({
-  selector: 'app-security-dashboard',
-  standalone: true,
-  imports: [CommonModule, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule],
-  templateUrl: './security-dashboard.component.html',
-  styleUrls: ['./security-dashboard.component.css']
+    selector: 'app-security-dashboard',
+    imports: [CommonModule, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule],
+    templateUrl: './security-dashboard.component.html',
+    styleUrls: ['./security-dashboard.component.css']
 })
 export class SecurityDashboardComponent {
   loading = false;

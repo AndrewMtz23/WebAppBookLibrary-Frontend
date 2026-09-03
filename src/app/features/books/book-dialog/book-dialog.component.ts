@@ -10,19 +10,18 @@ import { BookService } from 'src/app/core/services/book.service';
 import { Book, BookInput } from 'src/app/shared/models/book.model';
 
 @Component({
-  selector: 'app-book-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatSnackBarModule,
-    MatDialogModule
-  ],
-  templateUrl: './book-dialog.component.html',
-  styleUrls: ['./book-dialog.component.css']
+    selector: 'app-book-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatSnackBarModule,
+        MatDialogModule
+    ],
+    templateUrl: './book-dialog.component.html',
+    styleUrls: ['./book-dialog.component.css']
 })
 export class BookDialogComponent implements OnInit {
   form!: FormGroup;

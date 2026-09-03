@@ -8,9 +8,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
-  selector: 'app-loansuser',
-  templateUrl: './loansuser.component.html',
-  styleUrls: ['./loansuser.component.css']
+    selector: 'app-loansuser',
+    templateUrl: './loansuser.component.html',
+    styleUrls: ['./loansuser.component.css'],
+    standalone: false
 })
 export class LoansUserComponent implements OnInit {
   loans: any[] = [];
