@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoansUserComponent } from './loansuser.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('LoansUserComponent', () => {
   let component: LoansUserComponent;
@@ -11,14 +12,12 @@ describe('LoansUserComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [LoansUserComponent],
-      imports: [
-        HttpClientTestingModule,
-        MatTableModule,
+    declarations: [LoansUserComponent],
+    imports: [MatTableModule,
         MatProgressBarModule,
-        MatIconModule
-      ]
-    }).compileComponents();
+        MatIconModule],
+    providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+}).compileComponents();
 
     fixture = TestBed.createComponent(LoansUserComponent);
     component = fixture.componentInstance;
