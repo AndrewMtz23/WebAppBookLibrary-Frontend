@@ -68,9 +68,8 @@ export class LogsListComponent implements OnInit {
     this.error = '';
     
     this.logService.getRecent().subscribe({
-      next: (res: any) => {
-        const logs = res.data ?? res;
-        this.dataSource.data = logs;
+      next: (res) => {
+        this.dataSource.data = res.data;
         this.loading = false;
       },
       error: (err) => {
@@ -146,8 +145,5 @@ export class LogsListComponent implements OnInit {
   }
 
   // ✅ Ver detalles del log (si necesitas expandir información)
-  viewLogDetails(log: LogEntry): void {
-    // Implementar si necesitas mostrar más detalles en un modal
-    console.log('Log details:', log);
-  }
+  viewLogDetails(_log: LogEntry): void {}
 }

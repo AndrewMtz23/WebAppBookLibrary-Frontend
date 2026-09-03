@@ -1,7 +1,7 @@
 export const API_URLS = {
   AUTH: {
-    LOGIN: '/Auth/login',
-    REGISTER: '/Auth/register'
+    LOGIN: '/auth/login',
+    REGISTER: '/auth/register'
   }
 };
 

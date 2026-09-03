@@ -54,11 +54,6 @@ export class LoansUserComponent implements OnInit {
       this.pageTitle = 'Mis Préstamos';
     }
     
-    console.log('📊 Vista determinada:', {
-      isAdminView: this.isAdminView,
-      userRole: this.authService.getUserRole(),
-      pageTitle: this.pageTitle
-    });
   }
 
   // ✅ MODAL DE CONFIRMACIÓN MEJORADO
@@ -73,8 +68,6 @@ export class LoansUserComponent implements OnInit {
       confirmColor: type === 'danger' ? 'warn' : 'primary'
     };
 
-    console.log('📝 Datos del modal:', this.dialogData); // Debug
-
     const ref = this.dialog.open(this.confirmTpl, {
       width: '400px',
       disableClose: true,
@@ -83,7 +76,6 @@ export class LoansUserComponent implements OnInit {
     });
     
     const result = await firstValueFrom(ref.afterClosed());
-    console.log('🔍 Resultado del modal:', result); // Debug
     return result === true;
   }
 
@@ -97,10 +89,8 @@ export class LoansUserComponent implements OnInit {
       : this.loanService.getByUser(); // User: solo sus préstamos
     
     serviceCall.subscribe({
-      next: (res: any) => {
-        console.log('✅ Respuesta de préstamos:', res);
-        
-        this.loans = res.data || res || [];
+      next: (res) => {
+        this.loans = res.data;
         
         if (this.isAdminView) {
           this.updateUniqueUsers();
@@ -108,9 +98,6 @@ export class LoansUserComponent implements OnInit {
         
         this.loading = false;
         
-        if (this.loans.length === 0) {
-          console.log('ℹ️ No hay préstamos registrados');
-        }
       },
       error: (err) => {
         console.error('❌ Error al cargar préstamos:', err);
@@ -132,26 +119,18 @@ export class LoansUserComponent implements OnInit {
 
   // ✅ DEVOLVER PRÉSTAMO CON MODAL MEJORADO
   async returnLoan(loanId: string): Promise<void> {
-    console.log('🔄 Intentando devolver préstamo:', loanId); // Debug
-    
     const confirmed = await this.confirmDialog(
       '¿Estás seguro de que deseas marcar este préstamo como devuelto?',
       'Confirmar Devolución',
       'warning'
     );
 
-    console.log('✅ Confirmación recibida:', confirmed); // Debug
-
     if (!confirmed) {
-      console.log('❌ Usuario canceló la operación');
       return;
     }
 
-    console.log('🚀 Procediendo con la devolución...'); // Debug
-
     this.loanService.markAsReturned(loanId).subscribe({
       next: (res) => {
-        console.log('✅ Préstamo devuelto:', res);
         this.snackBar.open(
           res.message || 'Préstamo marcado como devuelto', 
           'Cerrar', 
@@ -178,26 +157,18 @@ export class LoansUserComponent implements OnInit {
 
   // ✅ ELIMINAR PRÉSTAMO CON MODAL MEJORADO (solo admin)
   async deleteLoan(loanId: string): Promise<void> {
-    console.log('🗑️ Intentando eliminar préstamo:', loanId); // Debug
-    
     const confirmed = await this.confirmDialog(
       '¿Estás seguro de que deseas eliminar este préstamo? Esta acción no se puede deshacer.',
       'Eliminar Préstamo',
       'danger'
     );
 
-    console.log('✅ Confirmación recibida:', confirmed); // Debug
-
     if (!confirmed) {
-      console.log('❌ Usuario canceló la eliminación');
       return;
     }
 
-    console.log('🚀 Procediendo con la eliminación...'); // Debug
-
     this.loanService.delete(loanId).subscribe({
       next: (res) => {
-        console.log('✅ Préstamo eliminado:', res);
         this.snackBar.open(
           res.message || 'Préstamo eliminado correctamente', 
           'Cerrar', 
@@ -223,14 +194,7 @@ export class LoansUserComponent implements OnInit {
   }
 
   // ✅ FILTROS PARA ADMIN
-  applyFilters(): void {
-    // Implementar filtrado local si es necesario
-    console.log('Aplicando filtros:', {
-      status: this.selectedStatus,
-      user: this.selectedUser,
-      search: this.searchText
-    });
-  }
+  applyFilters(): void {}
 
   clearFilters(): void {
     this.selectedStatus = '';

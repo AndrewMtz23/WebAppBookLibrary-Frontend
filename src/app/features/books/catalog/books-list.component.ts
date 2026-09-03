@@ -65,8 +65,6 @@ export class BooksListComponent implements OnInit, OnDestroy {
       confirmColor: type === 'danger' ? 'warn' : 'primary'
     };
 
-    console.log('📝 Datos del modal:', this.dialogData); // Debug
-
     const ref = this.dialog.open(this.confirmTpl, {
       width: '400px',
       disableClose: true,
@@ -75,7 +73,6 @@ export class BooksListComponent implements OnInit, OnDestroy {
     });
     
     const result = await firstValueFrom(ref.afterClosed());
-    console.log('🔍 Resultado del modal:', result); // Debug
     return result === true;
   }
 
@@ -190,26 +187,18 @@ export class BooksListComponent implements OnInit, OnDestroy {
 
   // ✅ ELIMINAR LIBRO CON MODAL MEJORADO
   async onDelete(bookId: string): Promise<void> {
-    console.log('🗑️ Intentando eliminar libro:', bookId); // Debug
-    
     const confirmed = await this.confirmDialog(
       '¿Estás seguro de que deseas eliminar este libro? Esta acción no se puede deshacer.',
       'Eliminar Libro',
       'danger'
     );
 
-    console.log('✅ Confirmación recibida:', confirmed); // Debug
-
     if (!confirmed) {
-      console.log('❌ Usuario canceló la eliminación');
       return;
     }
 
-    console.log('🚀 Procediendo con la eliminación...'); // Debug
-
     this.bookService.delete(bookId).subscribe({
       next: () => {
-        console.log('✅ Libro eliminado correctamente');
         this.snackBar.open('Libro eliminado correctamente', 'Cerrar', { 
           duration: 3000,
           panelClass: ['success-snackbar']
@@ -231,9 +220,8 @@ export class BooksListComponent implements OnInit, OnDestroy {
     this.error = '';
     
     this.bookService.getAll().subscribe({
-      next: (res: any) => {
-        console.log('✅ Libros cargados:', res);
-        this.books = res.data ?? res;
+      next: (res) => {
+        this.books = res.data;
         this.filteredBooks = [...this.books];
         this.updateGenres();
         this.loading = false;
@@ -248,8 +236,6 @@ export class BooksListComponent implements OnInit, OnDestroy {
 
   // ✅ APARTAR LIBRO CON MODAL MEJORADO
   async apartar(bookId: string): Promise<void> {
-    console.log('📚 Intentando apartar libro:', bookId); // Debug
-    
     const userId = this.authService.getUserId();
     if (!userId) {
       this.snackBar.open('Debes iniciar sesión para apartar un libro.', 'Cerrar', { 
@@ -269,14 +255,9 @@ export class BooksListComponent implements OnInit, OnDestroy {
       'info'
     );
 
-    console.log('✅ Confirmación recibida:', confirmed); // Debug
-
     if (!confirmed) {
-      console.log('❌ Usuario canceló apartar libro');
       return;
     }
-
-    console.log('🚀 Procediendo con apartar libro...'); // Debug
 
     const loanData = {
       bookId: bookId
@@ -284,7 +265,6 @@ export class BooksListComponent implements OnInit, OnDestroy {
 
     this.loanService.create(loanData).subscribe({
       next: (res) => {
-        console.log('✅ Libro apartado exitosamente:', res);
         this.snackBar.open(
           res.message || 'Libro apartado exitosamente', 
           'Cerrar', 
