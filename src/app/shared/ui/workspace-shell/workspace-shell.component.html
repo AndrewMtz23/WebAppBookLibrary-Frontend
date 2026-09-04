@@ -1,6 +1,6 @@
 <div class="workspace">
   <aside class="workspace__sidebar" aria-label="Navegación principal">
-    <app-brand />
+    <app-brand [route]="navigation[0]?.route ?? ['/']" />
     <p class="workspace__context">{{ contextLabel }}</p>
     <nav class="workspace__navigation">
       @for (item of navigation; track item.label) {

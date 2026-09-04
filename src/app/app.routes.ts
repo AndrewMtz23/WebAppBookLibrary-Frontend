@@ -1,4 +1,7 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
+import { landingRouteForRole } from './core/auth/role-landing';
+import { AuthService } from './core/services/auth.service';
 
 export const routes: Routes = [
   { path: 'auth', loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule) },
@@ -12,6 +15,6 @@ export const routes: Routes = [
   { path: 'logs', pathMatch: 'full', redirectTo: 'admin/logs' },
   { path: 'security-dashboard', pathMatch: 'full', redirectTo: 'admin/security' },
   { path: 'login', pathMatch: 'full', redirectTo: 'auth/login' },
-  { path: '', pathMatch: 'full', redirectTo: 'auth/login' },
+  { path: '', pathMatch: 'full', redirectTo: () => landingRouteForRole(inject(AuthService).sessionSnapshot?.user.role ?? null) },
   { path: '**', loadComponent: () => import('./features/system/not-found/not-found.component').then(m => m.NotFoundComponent) }
 ];

@@ -7,4 +7,7 @@ import { RouterLink } from '@angular/router';
   templateUrl: './app-brand.component.html', styleUrl: './app-brand.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppBrandComponent { @Input() compact = false; }
+export class AppBrandComponent {
+  @Input() compact = false;
+  @Input() route: string | readonly string[] = '/';
+}
