@@ -1,0 +1,28 @@
+<div class="workspace">
+  <aside class="workspace__sidebar" aria-label="Navegación principal">
+    <app-brand />
+    <p class="workspace__context">{{ contextLabel }}</p>
+    <nav class="workspace__navigation">
+      @for (item of navigation; track item.label) {
+        <a [routerLink]="item.route" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: item.exact ?? false }"><mat-icon aria-hidden="true">{{ item.icon }}</mat-icon><span>{{ item.label }}</span></a>
+      }
+    </nav>
+    <div class="workspace__profile">
+      <app-avatar [name]="username" />
+      <span><strong>{{ username }}</strong><small>{{ contextLabel }}</small></span>
+      <button mat-icon-button type="button" aria-label="Cerrar sesión" (click)="logoutRequested.emit()"><mat-icon>logout</mat-icon></button>
+    </div>
+  </aside>
+  <div class="workspace__body">
+    <header class="workspace__topbar">
+      <div><span>Espacio de trabajo</span><strong>{{ contextLabel }}</strong></div>
+      <div class="workspace__top-profile"><app-avatar [name]="username" size="small" /><span>{{ username }}</span></div>
+    </header>
+    <main id="main-content" class="workspace__content"><router-outlet /></main>
+  </div>
+  <nav class="workspace__mobile-nav" aria-label="Navegación móvil">
+    @for (item of navigation.slice(0, 5); track item.label) {
+      <a [routerLink]="item.route" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: item.exact ?? false }"><mat-icon aria-hidden="true">{{ item.icon }}</mat-icon><span>{{ item.label }}</span></a>
+    }
+  </nav>
+</div>
