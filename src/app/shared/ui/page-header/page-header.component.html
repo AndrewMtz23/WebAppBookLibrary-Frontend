@@ -1,0 +1,8 @@
+<header class="page-header">
+  <div class="page-header__copy">
+    @if (config.eyebrow) { <p class="eyebrow">{{ config.eyebrow }}</p> }
+    <h1 tabindex="-1">{{ config.title }}</h1>
+    @if (config.description) { <p class="page-header__description">{{ config.description }}</p> }
+  </div>
+  <div class="page-header__actions"><ng-content select="[page-actions]" /></div>
+</header>
