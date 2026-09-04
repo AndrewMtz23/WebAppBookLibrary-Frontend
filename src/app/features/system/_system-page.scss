@@ -1,0 +1,7 @@
+.system-page { display: flex; min-height: 100dvh; align-items: center; justify-content: center; flex-direction: column; padding: var(--space-6); color: var(--color-text); background: var(--color-canvas); text-align: center; }
+.system-page app-brand { position: absolute; inset: var(--space-6) auto auto var(--space-6); }
+.system-page__code { margin: 0; color: var(--color-accent); font: 600 clamp(5rem, 18vw, 12rem)/.8 var(--font-display); }
+.system-page__icon { width: 5rem; height: 5rem; color: var(--color-accent); font-size: 5rem; }
+.system-page h1 { max-width: 18ch; margin: var(--space-6) 0 var(--space-3); font: 600 var(--text-2xl)/1.1 var(--font-display); }
+.system-page > p:not(.system-page__code) { max-width: 34rem; margin: 0 0 var(--space-6); color: var(--color-text-muted); }
+.system-page a { min-height: 2.75rem; }
