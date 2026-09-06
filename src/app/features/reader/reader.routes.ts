@@ -9,6 +9,7 @@ export const READER_ROUTES: Routes = [{
   path: '', component: ReaderShellComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['user'] },
   children: [
     { path: 'discover', component: RouteFoundationComponent, data: { eyebrow: 'Para ti', title: 'Descubrir', description: 'Un punto de partida para encontrar tu próxima lectura.' } },
+    { path: 'catalog/:bookId', loadComponent: () => import('../catalog/pages/book-detail/book-detail-page.component').then(m => m.BookDetailPageComponent) },
     {
       path: 'catalog',
       providers: [CatalogFacade],
