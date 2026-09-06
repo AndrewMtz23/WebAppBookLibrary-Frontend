@@ -13,6 +13,7 @@ import { ReservationsFacade } from '../../../reader/data-access/reservations.fac
 import { RelatedBooksComponent } from '../../components/related-books/related-books.component';
 import { CatalogService } from '../../data-access/catalog.service';
 import { DEFAULT_CATALOG_QUERY } from '../../models/catalog-query';
+import { ReaderAnalyticsService } from '../../../../core/analytics/reader-analytics.service';
 
 @Component({
   selector: 'app-book-detail-page', standalone: true,
@@ -25,6 +26,7 @@ export class BookDetailPageComponent {
   private readonly destroyRef = inject(DestroyRef);
   readonly reservations = inject(ReservationsFacade);
   readonly favorites = inject(FavoritesFacade);
+  private readonly analytics = inject(ReaderAnalyticsService);
   readonly book = signal<BookDetail | null>(null);
   readonly related = signal<readonly BookSummary[]>([]);
   readonly loading = signal(true);
@@ -33,6 +35,8 @@ export class BookDetailPageComponent {
   constructor() { this.load(); }
 
   retry(): void { this.load(); }
+  reserve(bookId: string): void { this.analytics.trackAction('reservation'); this.reservations.reserve(bookId); }
+  toggleFavorite(book: BookSummary): void { this.analytics.trackAction('favorite'); this.favorites.toggle(book); }
 
   private load(): void {
     this.loading.set(true);
@@ -47,6 +51,7 @@ export class BookDetailPageComponent {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(book => {
       this.book.set(book);
+      if (book) this.analytics.trackAction('book_open');
       this.loading.set(false);
       if (book?.genres[0]) this.loadRelated(book);
     });

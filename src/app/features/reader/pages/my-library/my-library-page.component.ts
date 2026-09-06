@@ -7,6 +7,7 @@ import { ErrorStateComponent } from '../../../../shared/ui/error-state/error-sta
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
 import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
 import { LibraryLoan, MyLibraryFacade } from '../../data-access/my-library.facade';
+import { ReaderAnalyticsService } from '../../../../core/analytics/reader-analytics.service';
 
 @Component({
   selector: 'app-my-library-page', standalone: true,
@@ -15,6 +16,7 @@ import { LibraryLoan, MyLibraryFacade } from '../../data-access/my-library.facad
 })
 export class MyLibraryPageComponent {
   readonly facade = inject(MyLibraryFacade);
+  private readonly analytics = inject(ReaderAnalyticsService);
   readonly sections: readonly { key: 'active' | 'dueSoon' | 'overdue' | 'history'; title: string; description: string }[] = [
     { key: 'active', title: 'Activos', description: 'Lecturas vigentes y accesos digitales.' },
     { key: 'dueSoon', title: 'Por vencer', description: 'Préstamos que vencen en los próximos tres días.' },
@@ -23,4 +25,5 @@ export class MyLibraryPageComponent {
   ];
 
   loans(key: 'active' | 'dueSoon' | 'overdue' | 'history'): readonly LibraryLoan[] { return this.facade[key](); }
+  openDigital(bookId: string): void { this.analytics.trackAction('digital_open'); this.facade.openDigital(bookId); }
 }

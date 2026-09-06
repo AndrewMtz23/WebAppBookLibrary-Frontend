@@ -27,10 +27,10 @@
           <span></span>{{ item.mediaType === 'digital' ? 'Disponible con reserva digital' : (item.availableCopies ? item.availableCopies + ' ejemplares disponibles' : 'Sin ejemplares disponibles') }}
         </div>
         <div class="actions">
-          <button mat-flat-button type="button" [disabled]="reservations.isBusy(item.id) || (item.mediaType === 'physical' && !item.availableCopies)" (click)="reservations.reserve(item.id)">
+          <button mat-flat-button type="button" [disabled]="reservations.isBusy(item.id) || (item.mediaType === 'physical' && !item.availableCopies)" (click)="reserve(item.id)">
             {{ item.mediaType === 'digital' ? 'Reservar acceso digital' : 'Reservar ejemplar' }}
           </button>
-          <button mat-stroked-button type="button" [disabled]="favorites.isBusy(item.id)" (click)="favorites.toggle(item)">
+          <button mat-stroked-button type="button" [disabled]="favorites.isBusy(item.id)" (click)="toggleFavorite(item)">
             <mat-icon>{{ favorites.isFavorite(item) ? 'favorite' : 'favorite_border' }}</mat-icon>
             {{ favorites.isFavorite(item) ? 'Guardado' : 'Guardar' }}
           </button>

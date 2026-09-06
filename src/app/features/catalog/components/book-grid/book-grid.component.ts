@@ -7,4 +7,5 @@ export class BookGridComponent {
   @Input({ required: true }) books: readonly BookSummary[] = [];
   @Input() busyFavoriteIds: ReadonlySet<string> = new Set<string>();
   @Output() readonly favoriteRequested = new EventEmitter<BookSummary>();
+  @Output() readonly bookOpened = new EventEmitter<string>();
 }

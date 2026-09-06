@@ -15,6 +15,7 @@ import { CatalogSearchComponent } from '../../components/catalog-search/catalog-
 import { CatalogFacade } from '../../data-access/catalog.facade';
 import { CatalogService } from '../../data-access/catalog.service';
 import { CatalogQuery } from '../../models/catalog-query';
+import { ReaderAnalyticsService } from '../../../../core/analytics/reader-analytics.service';
 
 interface FilterSheetData { query: CatalogQuery; facets: readonly BookFacet[]; }
 
@@ -37,6 +38,7 @@ export class CatalogPageComponent {
   readonly favorites = inject(FavoritesFacade);
   private readonly catalog = inject(CatalogService);
   private readonly bottomSheet = inject(MatBottomSheet);
+  private readonly analytics = inject(ReaderAnalyticsService);
   readonly facets = signal<readonly BookFacet[]>([]);
   @ViewChild('resultsHeading') private resultsHeading?: ElementRef<HTMLElement>;
 
@@ -44,12 +46,16 @@ export class CatalogPageComponent {
     this.catalog.getFacets().pipe(takeUntilDestroyed()).subscribe({ next: facets => this.facets.set(facets) });
   }
 
-  search(value: string): void { void this.applyPatch({ query: value || null }); }
+  search(value: string): void { this.analytics.trackSearch(value); void this.applyPatch({ query: value || null }); }
 
   async applyPatch(patch: Partial<CatalogQuery>): Promise<void> {
+    const filterKeys = Object.keys(patch).filter(key => key !== 'query' && key !== 'page');
+    if (filterKeys.length) this.analytics.trackFilter(filterKeys);
     await this.facade.patchQuery(patch);
     queueMicrotask(() => this.resultsHeading?.nativeElement.focus());
   }
+
+  trackBookOpen(): void { this.analytics.trackAction('book_open'); }
 
   openFilters(): void {
     this.bottomSheet.open(CatalogFiltersSheetComponent, { data: { query: this.facade.query(), facets: this.facets() } })
