@@ -1,0 +1,27 @@
+<main class="profile-page">
+  <app-page-header [config]="{ eyebrow: 'Cuenta', title: 'Perfil', description: 'Tu identidad lectora y un resumen de tu actividad.' }" />
+  @if (facade.profile().loading) {
+    <app-skeleton [lines]="6" />
+  } @else if (facade.profile().error) {
+    <app-error-state [message]="facade.profile().error!" (retryRequested)="facade.load()" />
+  } @else if (facade.profile().data; as profile) {
+    <section class="identity" aria-labelledby="identity-name">
+      <div class="avatar" aria-hidden="true">{{ initials(profile) }}</div>
+      <div><p class="role">Lector</p><h2 id="identity-name">{{ displayName(profile) }}</h2><p>@{{ profile.username }} · {{ profile.email }}</p></div>
+    </section>
+    <section class="metrics" aria-label="Resumen de actividad">
+      <article><span>{{ facade.activeReservations().data ?? '—' }}</span><h3>Reservas activas</h3>@if (facade.activeReservations().error) { <p>No disponible</p> }</article>
+      <article><span>{{ facade.returnedBooks().data ?? '—' }}</span><h3>Libros devueltos</h3>@if (facade.returnedBooks().error) { <p>No disponible</p> }</article>
+      <article><span>{{ facade.favorites().data ?? '—' }}</span><h3>Favoritos</h3>@if (facade.favorites().error) { <p>No disponible</p> }</article>
+    </section>
+    <section class="account-details" aria-labelledby="details-title">
+      <h2 id="details-title">Datos de la cuenta</h2>
+      <dl>
+        <div><dt>Miembro desde</dt><dd>{{ profile.createdAt | date:'longDate' }}</dd></div>
+        <div><dt>Último acceso</dt><dd>{{ profile.lastLoginAt ? (profile.lastLoginAt | date:'medium') : 'Primer acceso' }}</dd></div>
+        <div><dt>Rol</dt><dd>Lector</dd></div>
+      </dl>
+    </section>
+    <section class="session" aria-labelledby="session-title"><div><h2 id="session-title">Sesión</h2><p>Cierra tu sesión en este dispositivo.</p></div><button mat-stroked-button type="button" (click)="logout()"><mat-icon>logout</mat-icon> Cerrar sesión</button></section>
+  }
+</main>

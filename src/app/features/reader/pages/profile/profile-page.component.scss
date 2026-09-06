@@ -1,0 +1,12 @@
+:host { display: block; }
+.profile-page { max-width: 68rem; margin: 0 auto; padding: clamp(1.25rem, 4vw, 4rem); }
+.identity { display: flex; align-items: center; gap: 1.5rem; margin: 2.5rem 0 3rem; }
+.avatar { width: clamp(5rem, 12vw, 8rem); aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%; background: #18241f; color: #f5f1e8; font-size: clamp(1.6rem, 4vw, 3rem); font-weight: 750; }
+.role { margin: 0 0 .25rem; color: var(--color-primary); font-size: .72rem; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+.identity h2 { margin: 0; font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: -.04em; }
+.identity div:last-child > p:last-child { color: var(--text-secondary); }
+.metrics { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--border-subtle); border-left: 1px solid var(--border-subtle); article { min-height: 10rem; padding: 1.3rem; border-right: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); } span { font-size: 2.5rem; font-weight: 750; } h3 { margin: 1rem 0 .25rem; font-size: .95rem; } p { margin: 0; color: var(--text-secondary); font-size: .8rem; } }
+.account-details { margin-top: 4rem; h2 { font-size: 1.5rem; } }
+dl { display: grid; gap: 0; border-top: 1px solid var(--border-subtle); div { display: grid; grid-template-columns: 1fr 1fr; padding: 1rem 0; border-bottom: 1px solid var(--border-subtle); } dt { color: var(--text-secondary); } dd { margin: 0; text-align: right; } }
+.session { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-subtle); h2 { margin: 0; } p { margin: .35rem 0 0; color: var(--text-secondary); } }
+@media (max-width: 36rem) { .metrics { grid-template-columns: 1fr; } .identity { align-items: flex-start; flex-direction: column; } .session { align-items: flex-start; flex-direction: column; } }
