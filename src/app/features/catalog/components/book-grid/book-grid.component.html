@@ -1,5 +1,5 @@
 <div class="book-grid">
   @for (book of books; track book.id) {
-    <app-book-card [book]="book" [favoriteBusy]="busyFavoriteIds.has(book.id)" (openBook)="bookOpened.emit($event)" (toggleFavorite)="favoriteRequested.emit($event)" />
+    <app-book-card [book]="book" [favoriteState]="favoriteResolver ? favoriteResolver(book) : book.isFavorite" [favoriteBusy]="busyFavoriteIds.has(book.id)" (openBook)="bookOpened.emit($event)" (toggleFavorite)="favoriteRequested.emit($event)" />
   }
 </div>

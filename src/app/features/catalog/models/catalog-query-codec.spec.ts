@@ -26,4 +26,9 @@ describe('catalog query codec', () => {
       sort: 'title', direction: 'asc'
     });
   });
+
+  it('accepts relevance only while a text query is present', () => {
+    expect(parseCatalogQuery(convertToParamMap({ query: 'historia', sort: 'relevance' })).sort).toBe('relevance');
+    expect(parseCatalogQuery(convertToParamMap({ sort: 'relevance' })).sort).toBe('createdAt');
+  });
 });

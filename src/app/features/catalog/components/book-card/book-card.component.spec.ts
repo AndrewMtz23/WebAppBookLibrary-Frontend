@@ -30,6 +30,14 @@ describe('BookCardComponent', () => {
     expect(element.querySelector('img')?.alt).toContain('El nombre de la rosa');
   });
 
+  it('renders the optimistic favorite state supplied by its container', () => {
+    component.book = book({ isFavorite: false });
+    component.favoriteState = true;
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('button.favorite').getAttribute('aria-pressed')).toBe('true');
+    expect(fixture.nativeElement.querySelector('button.favorite').getAttribute('aria-label')).toContain('Quitar');
+  });
+
   function book(patch: Partial<BookSummary> = {}): BookSummary {
     return { id: 'b1', title: 'Libro', subtitle: null, authors: ['Autora'], coverUrl: 'https://example.com/cover.jpg', mediaType: 'physical', genres: ['Historia'], availableCopies: 1, totalCopies: 2, reservationCount: 7, isFavorite: false, isActive: true, ...patch };
   }

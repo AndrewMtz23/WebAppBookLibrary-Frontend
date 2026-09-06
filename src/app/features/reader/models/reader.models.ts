@@ -15,6 +15,7 @@ export interface ReaderDashboard {
 export interface LoanQuery {
   status?: LoanStatus;
   mediaType?: 'physical' | 'digital';
+  bookId?: string;
   page?: number;
   pageSize?: number;
 }

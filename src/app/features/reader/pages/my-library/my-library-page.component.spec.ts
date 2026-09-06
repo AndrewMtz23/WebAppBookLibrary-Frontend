@@ -61,4 +61,16 @@ describe('MyLibraryPageComponent', () => {
     response.error(new HttpErrorResponse({ status: 409 }));
     expect(reader.getLoans).toHaveBeenCalledTimes(2);
   });
+
+  it('loads every server page instead of truncating history at 100 items', () => {
+    const first = { id: 'loan-1', bookId: 'book-1', userId: 'u', mediaType: 'digital' as const, status: 'returned' as const, reservedAt: '2026-01-01', dueAt: null, returnedAt: '2026-01-02', cancelledAt: null, notes: null };
+    const second = { ...first, id: 'loan-2' };
+    reader.getLoans.and.returnValues(
+      of({ items: [first], page: 1, pageSize: 100, totalItems: 101, totalPages: 2, hasNextPage: true, hasPreviousPage: false }),
+      of({ items: [second], page: 2, pageSize: 100, totalItems: 101, totalPages: 2, hasNextPage: false, hasPreviousPage: true })
+    );
+    const facade = TestBed.inject(MyLibraryFacade);
+    expect(reader.getLoans.calls.allArgs().map(args => args[0]?.page)).toEqual([1, 2]);
+    expect(facade.loans().map(item => item.id)).toEqual(['loan-1', 'loan-2']);
+  });
 });

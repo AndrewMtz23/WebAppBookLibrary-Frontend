@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, catchError, finalize, forkJoin, map, of } from 'rxjs';
+import { Observable, catchError, finalize, forkJoin, from, map, mergeMap, of, toArray } from 'rxjs';
 import { BookDetail } from '../../../shared/models/book.model';
 import { LoanSummary } from '../../../shared/models/loan.model';
 import { CatalogService } from '../../catalog/data-access/catalog.service';
@@ -33,7 +33,15 @@ export class MyLibraryFacade {
     this.loading.set(true);
     this.error.set(null);
     this.reader.getLoans({ page: 1, pageSize: 100 }).subscribe({
-      next: page => this.hydrate(page.items),
+      next: page => {
+        if (page.totalPages <= 1) this.hydrate(page.items);
+        else forkJoin(Array.from({ length: page.totalPages - 1 }, (_, index) =>
+          this.reader.getLoans({ page: index + 2, pageSize: 100 })
+        )).subscribe({
+          next: pages => this.hydrate([ ...page.items, ...pages.flatMap(item => item.items) ]),
+          error: () => { this.loading.set(false); this.error.set('No pudimos cargar todo tu historial.'); }
+        });
+      },
       error: () => { this.loading.set(false); this.error.set('No pudimos cargar tu biblioteca.'); }
     });
   }
@@ -62,10 +70,16 @@ export class MyLibraryFacade {
 
   private hydrate(loans: readonly LoanSummary[]): void {
     if (!loans.length) { this.loansState.set([]); this.loading.set(false); return; }
-    forkJoin(loans.map(loan => this.catalog.getById(loan.bookId).pipe(
-      map(book => ({ ...loan, book })),
-      catchError(() => of({ ...loan, book: null }))
-    ))).subscribe(items => { this.loansState.set(items); this.loading.set(false); });
+    from(loans).pipe(
+      mergeMap((loan, index) => this.catalog.getById(loan.bookId).pipe(
+        map(book => ({ index, item: { ...loan, book } as LibraryLoan })),
+        catchError(() => of({ index, item: { ...loan, book: null } as LibraryLoan }))
+      ), 6),
+      toArray()
+    ).subscribe(rows => {
+      this.loansState.set(rows.sort((a, b) => a.index - b.index).map(row => row.item));
+      this.loading.set(false);
+    });
   }
 
   private inSection(section: LoanSection): readonly LibraryLoan[] {

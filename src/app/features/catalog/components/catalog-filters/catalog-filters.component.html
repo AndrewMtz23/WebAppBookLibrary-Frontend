@@ -23,6 +23,7 @@
   </label>
   <label>Ordenar
     <select [ngModel]="query.sort + ':' + query.direction" (ngModelChange)="selectSort($event)">
+      @if (query.query) { <option value="relevance:desc">Más relevantes</option> }
       <option value="createdAt:desc">Más recientes</option><option value="reservationCount:desc">Más populares</option>
       <option value="title:asc">Título A–Z</option><option value="publishedDate:desc">Publicación reciente</option>
     </select>

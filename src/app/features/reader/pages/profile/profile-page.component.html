@@ -1,4 +1,4 @@
-<main class="profile-page">
+<div class="profile-page">
   <app-page-header [config]="{ eyebrow: 'Cuenta', title: 'Perfil', description: 'Tu identidad lectora y un resumen de tu actividad.' }" />
   @if (facade.profile().loading) {
     <app-skeleton [lines]="6" />
@@ -24,4 +24,4 @@
     </section>
     <section class="session" aria-labelledby="session-title"><div><h2 id="session-title">Sesión</h2><p>Cierra tu sesión en este dispositivo.</p></div><button mat-stroked-button type="button" (click)="logout()"><mat-icon>logout</mat-icon> Cerrar sesión</button></section>
   }
-</main>
+</div>

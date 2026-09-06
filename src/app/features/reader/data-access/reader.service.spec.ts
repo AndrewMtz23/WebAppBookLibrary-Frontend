@@ -16,12 +16,13 @@ describe('ReaderService', () => {
   afterEach(() => http.verify());
 
   it('uses the reader loan and protected digital endpoints', () => {
-    service.getLoans({ status: 'active', page: 2, pageSize: 10 }).subscribe();
+    service.getLoans({ status: 'active', bookId: 'book-1', page: 2, pageSize: 10 }).subscribe();
     service.reserve('book-1').subscribe();
     service.getDigitalAccess('book-1').subscribe();
 
     const loans = http.expectOne(request => request.url === '/api/loans/my');
     expect(loans.request.params.get('status')).toBe('active');
+    expect(loans.request.params.get('bookId')).toBe('book-1');
     expect(loans.request.params.get('page')).toBe('2');
     loans.flush({ items: [], page: 2, pageSize: 10, totalItems: 0, totalPages: 0, hasNextPage: false, hasPreviousPage: true });
     const reserve = http.expectOne('/api/loans');

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { of } from 'rxjs';
 import { CatalogFiltersComponent } from '../../components/catalog-filters/catalog-filters.component';
 import { CatalogSearchComponent } from '../../components/catalog-search/catalog-search.component';
@@ -8,7 +9,7 @@ import { CatalogFacade } from '../../data-access/catalog.facade';
 import { CatalogService } from '../../data-access/catalog.service';
 import { DEFAULT_CATALOG_QUERY } from '../../models/catalog-query';
 import { FavoritesFacade } from '../../../reader/data-access/favorites.facade';
-import { CatalogPageComponent } from './catalog-page.component';
+import { CatalogFiltersSheetComponent, CatalogPageComponent } from './catalog-page.component';
 
 describe('reader catalog', () => {
   it('debounces search for 300 ms and waits for IME composition', fakeAsync(() => {
@@ -79,5 +80,26 @@ describe('CatalogPageComponent', () => {
     await fixture.componentInstance.applyPatch({ sort: 'reservationCount', direction: 'desc' });
     expect(facade.patchQuery).toHaveBeenCalledWith({ sort: 'reservationCount', direction: 'desc' });
     expect(fixture.nativeElement.textContent).toContain('No encontramos libros');
+  });
+});
+
+describe('CatalogFiltersSheetComponent', () => {
+  it('collects multiple mobile filters before applying them', () => {
+    const ref = { dismiss: jasmine.createSpy('dismiss') };
+    TestBed.configureTestingModule({
+      imports: [CatalogFiltersSheetComponent, NoopAnimationsModule],
+      providers: [
+        { provide: MAT_BOTTOM_SHEET_DATA, useValue: { query: DEFAULT_CATALOG_QUERY, facets: [] } },
+        { provide: MatBottomSheetRef, useValue: ref }
+      ]
+    });
+    const fixture = TestBed.createComponent(CatalogFiltersSheetComponent);
+
+    fixture.componentInstance.update({ mediaType: 'physical' });
+    fixture.componentInstance.update({ language: 'es' });
+    expect(ref.dismiss).not.toHaveBeenCalled();
+
+    fixture.componentInstance.apply();
+    expect(ref.dismiss).toHaveBeenCalledWith({ mediaType: 'physical', language: 'es' });
   });
 });

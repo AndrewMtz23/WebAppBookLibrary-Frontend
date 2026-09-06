@@ -1,7 +1,7 @@
 import { ParamMap, Params } from '@angular/router';
 import { CatalogQuery, CatalogSort, DEFAULT_CATALOG_QUERY, SortDirection } from './catalog-query';
 
-const SORTS = new Set<CatalogSort>(['createdAt', 'title', 'publishedDate', 'reservationCount']);
+const SORTS = new Set<CatalogSort>(['createdAt', 'title', 'publishedDate', 'reservationCount', 'relevance']);
 
 export function parseCatalogQuery(params: ParamMap): CatalogQuery {
   const mediaType = params.get('mediaType');
@@ -9,6 +9,7 @@ export function parseCatalogQuery(params: ParamMap): CatalogQuery {
   const parsedMedia = mediaType === 'physical' || mediaType === 'digital' ? mediaType : null;
   const sort = params.get('sort');
   const direction = params.get('direction');
+  const parsedSort = SORTS.has(sort as CatalogSort) ? sort as CatalogSort : 'createdAt';
   return {
     query: query && query.length >= 2 ? query : null,
     genre: clean(params.get('genre')),
@@ -17,7 +18,7 @@ export function parseCatalogQuery(params: ParamMap): CatalogQuery {
     available: parsedMedia === 'digital' ? null : parseBoolean(params.get('available')),
     page: positiveInteger(params.get('page'), 1, 1, Number.MAX_SAFE_INTEGER),
     pageSize: positiveInteger(params.get('pageSize'), 20, 1, 100),
-    sort: SORTS.has(sort as CatalogSort) ? sort as CatalogSort : 'createdAt',
+    sort: parsedSort === 'relevance' && !query ? 'createdAt' : parsedSort,
     direction: direction === 'asc' || direction === 'desc' ? direction as SortDirection : 'desc'
   };
 }

@@ -6,6 +6,7 @@ import { BookCardComponent } from '../book-card/book-card.component';
 export class BookGridComponent {
   @Input({ required: true }) books: readonly BookSummary[] = [];
   @Input() busyFavoriteIds: ReadonlySet<string> = new Set<string>();
+  @Input() favoriteResolver: ((book: BookSummary) => boolean) | null = null;
   @Output() readonly favoriteRequested = new EventEmitter<BookSummary>();
   @Output() readonly bookOpened = new EventEmitter<string>();
 }

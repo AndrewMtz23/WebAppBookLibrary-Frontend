@@ -1,4 +1,4 @@
-<main class="library-page">
+<div class="library-page">
   <app-page-header [config]="{ eyebrow: 'Tu espacio', title: 'Mi biblioteca', description: 'Tus reservas, vencimientos y accesos digitales en un solo lugar.' }" />
   <p class="external-note"><mat-icon>open_in_new</mat-icon> Los libros digitales se abren como recursos externos. La plataforma no aplica DRM y el enlace no debe compartirse.</p>
   @if (facade.message()) { <p class="feedback" role="status">{{ facade.message() }}</p> }
@@ -34,4 +34,4 @@
       </section>
     }
   }
-</main>
+</div>

@@ -13,8 +13,8 @@ describe('DiscoverPageComponent', () => {
     TestBed.configureTestingModule({ imports: [DiscoverPageComponent, NoopAnimationsModule], providers: [
       provideRouter([]),
       { provide: AuthService, useValue: { sessionSnapshot: { user: { username: 'Elena' } } } },
-      { provide: DiscoverFacade, useValue: { newest: () => state([book]), popular: () => state([book]), popularBooks: () => [book], facets: () => state([{ value: 'Historia', count: 4 }]), activity: () => state(null) } },
-      { provide: FavoritesFacade, useValue: { busyIds: () => new Set(), toggle: jasmine.createSpy('toggle') } }
+      { provide: DiscoverFacade, useValue: { load: jasmine.createSpy('load'), newest: () => state([book]), popular: () => state([book]), popularBooks: () => [book], facets: () => state([{ value: 'Historia', count: 4 }]), activity: () => state(null), activeReading: () => state(null) } },
+      { provide: FavoritesFacade, useValue: { busyIds: () => new Set(), isFavorite: () => false, toggle: jasmine.createSpy('toggle') } }
     ] });
     const fixture = TestBed.createComponent(DiscoverPageComponent);
     fixture.detectChanges();

@@ -11,8 +11,9 @@ describe('DiscoverFacade', () => {
     const catalog = jasmine.createSpyObj<CatalogService>('CatalogService', ['search', 'getFacets']);
     catalog.search.and.returnValues(of(page(newest)), throwError(() => new Error('popular failed')));
     catalog.getFacets.and.returnValue(of([{ value: 'Historia', count: 4 }]));
-    const reader = jasmine.createSpyObj<ReaderService>('ReaderService', ['getDashboard']);
+    const reader = jasmine.createSpyObj<ReaderService>('ReaderService', ['getDashboard', 'getLoans']);
     reader.getDashboard.and.returnValue(throwError(() => new Error('activity failed')));
+    reader.getLoans.and.returnValue(of({ items: [], page: 1, pageSize: 1, totalItems: 0, totalPages: 0, hasNextPage: false, hasPreviousPage: false }));
     TestBed.configureTestingModule({ providers: [DiscoverFacade, { provide: CatalogService, useValue: catalog }, { provide: ReaderService, useValue: reader }] });
 
     const facade = TestBed.inject(DiscoverFacade);
@@ -21,6 +22,7 @@ describe('DiscoverFacade', () => {
     expect(facade.popularBooks()).toEqual(newest);
     expect(facade.facets().data.length).toBe(1);
     expect(facade.activity().error).toBeTruthy();
+    expect(facade.activeReading().data).toBeNull();
   });
 
   const book = (id: string): BookSummary => ({ id, title: id, subtitle: null, authors: ['Autora'], coverUrl: null, mediaType: 'physical', genres: ['Historia'], availableCopies: 1, totalCopies: 1, reservationCount: 2, isFavorite: false, isActive: true });

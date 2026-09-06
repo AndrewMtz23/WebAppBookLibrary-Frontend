@@ -9,9 +9,9 @@
     }
     <span class="media-label">{{ book.mediaType === 'digital' ? 'Digital' : 'Físico' }}</span>
     <button class="favorite" type="button" [disabled]="favoriteBusy"
-      [attr.aria-label]="(book.isFavorite ? 'Quitar ' : 'Agregar ') + book.title + (book.isFavorite ? ' de favoritos' : ' a favoritos')"
-      [attr.aria-pressed]="book.isFavorite" (click)="toggleFavorite.emit(book)">
-      <mat-icon aria-hidden="true">{{ book.isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
+      [attr.aria-label]="(favorite ? 'Quitar ' : 'Agregar ') + book.title + (favorite ? ' de favoritos' : ' a favoritos')"
+      [attr.aria-pressed]="favorite" (click)="toggleFavorite.emit(book)">
+      <mat-icon aria-hidden="true">{{ favorite ? 'favorite' : 'favorite_border' }}</mat-icon>
     </button>
   </div>
 

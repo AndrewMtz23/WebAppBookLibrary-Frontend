@@ -14,9 +14,12 @@ import { BookSummary } from '../../../../shared/models/book.model';
 export class BookCardComponent {
   @Input({ required: true }) book!: BookSummary;
   @Input() favoriteBusy = false;
+  @Input() favoriteState: boolean | null = null;
   @Output() readonly openBook = new EventEmitter<string>();
   @Output() readonly toggleFavorite = new EventEmitter<BookSummary>();
   imageFailed = false;
+
+  get favorite(): boolean { return this.favoriteState ?? this.book.isFavorite; }
 
   primaryLabel(book: BookSummary): string {
     return book.mediaType === 'digital' ? 'Ver y leer' : 'Ver y reservar';

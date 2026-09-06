@@ -20,12 +20,28 @@ import { ReaderAnalyticsService } from '../../../../core/analytics/reader-analyt
 interface FilterSheetData { query: CatalogQuery; facets: readonly BookFacet[]; }
 
 @Component({
-  standalone: true, imports: [CatalogFiltersComponent], template: `<div class="sheet"><app-catalog-filters [query]="data.query" [facets]="data.facets" (queryChanged)="ref.dismiss($event)" (clearRequested)="ref.dismiss('clear')" /></div>`,
-  styles: [`.sheet{padding:1.25rem 1.25rem 2rem;max-height:80vh;overflow:auto}`], changeDetection: ChangeDetectionStrategy.OnPush
+  standalone: true, imports: [CatalogFiltersComponent, MatButtonModule], template: `
+    <div class="sheet">
+      <app-catalog-filters [query]="query()" [facets]="data.facets" (queryChanged)="update($event)" (clearRequested)="ref.dismiss('clear')" />
+      <div class="sheet__actions">
+        <button mat-button type="button" (click)="ref.dismiss()">Cancelar</button>
+        <button mat-flat-button type="button" (click)="apply()">Aplicar filtros</button>
+      </div>
+    </div>`,
+  styles: [`.sheet{padding:1.25rem 1.25rem 2rem;max-height:80vh;overflow:auto}.sheet__actions{display:flex;justify-content:flex-end;gap:.5rem;padding-top:1rem;position:sticky;bottom:-2rem;background:var(--surface-raised)}`], changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CatalogFiltersSheetComponent {
   readonly data = inject<FilterSheetData>(MAT_BOTTOM_SHEET_DATA);
   readonly ref = inject(MatBottomSheetRef<CatalogFiltersSheetComponent>);
+  readonly query = signal(this.data.query);
+  private pending: Partial<CatalogQuery> = {};
+
+  update(patch: Partial<CatalogQuery>): void {
+    this.pending = { ...this.pending, ...patch };
+    this.query.update(current => ({ ...current, ...patch }));
+  }
+
+  apply(): void { this.ref.dismiss(this.pending); }
 }
 
 @Component({
@@ -40,13 +56,18 @@ export class CatalogPageComponent {
   private readonly bottomSheet = inject(MatBottomSheet);
   private readonly analytics = inject(ReaderAnalyticsService);
   readonly facets = signal<readonly BookFacet[]>([]);
+  readonly favoriteResolver = (book: import('../../../../shared/models/book.model').BookSummary): boolean => this.favorites.isFavorite(book);
   @ViewChild('resultsHeading') private resultsHeading?: ElementRef<HTMLElement>;
 
   constructor() {
     this.catalog.getFacets().pipe(takeUntilDestroyed()).subscribe({ next: facets => this.facets.set(facets) });
   }
 
-  search(value: string): void { this.analytics.trackSearch(value); void this.applyPatch({ query: value || null }); }
+  search(value: string): void {
+    this.analytics.trackSearch(value);
+    const sort = value ? 'relevance' : this.facade.query().sort === 'relevance' ? 'createdAt' : this.facade.query().sort;
+    void this.applyPatch({ query: value || null, sort, direction: 'desc' });
+  }
 
   async applyPatch(patch: Partial<CatalogQuery>): Promise<void> {
     const filterKeys = Object.keys(patch).filter(key => key !== 'query' && key !== 'page');

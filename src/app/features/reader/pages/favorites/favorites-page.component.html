@@ -1,4 +1,4 @@
-<main class="favorites-page">
+<div class="favorites-page">
   <app-page-header [config]="{ eyebrow: 'Selección personal', title: 'Favoritos', description: 'Los libros que guardaste para volver a encontrarlos sin esfuerzo.' }" />
   <div class="count">{{ facade.totalItems() }} libros guardados</div>
   @if (facade.loading()) {
@@ -16,4 +16,4 @@
       <button mat-stroked-button type="button" [disabled]="facade.page() >= facade.totalPages()" (click)="load(facade.page() + 1)">Siguiente</button>
     </nav>
   }
-</main>
+</div>

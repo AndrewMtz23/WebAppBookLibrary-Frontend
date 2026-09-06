@@ -1,6 +1,6 @@
 import { MediaType } from '../../../shared/models/book.model';
 
-export type CatalogSort = 'createdAt' | 'title' | 'publishedDate' | 'reservationCount';
+export type CatalogSort = 'createdAt' | 'title' | 'publishedDate' | 'reservationCount' | 'relevance';
 export type SortDirection = 'asc' | 'desc';
 
 export interface CatalogQuery {

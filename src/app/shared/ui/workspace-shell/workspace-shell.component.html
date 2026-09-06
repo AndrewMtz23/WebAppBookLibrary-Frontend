@@ -18,7 +18,7 @@
       <div><span>Espacio de trabajo</span><strong>{{ contextLabel }}</strong></div>
       <div class="workspace__top-profile"><app-avatar [name]="username" size="small" /><span>{{ username }}</span></div>
     </header>
-    <main id="main-content" class="workspace__content"><router-outlet /></main>
+    <main id="main-content" class="workspace__content" tabindex="-1"><router-outlet /></main>
   </div>
   <nav class="workspace__mobile-nav" aria-label="Navegación móvil">
     @for (item of navigation.slice(0, 5); track item.label) {

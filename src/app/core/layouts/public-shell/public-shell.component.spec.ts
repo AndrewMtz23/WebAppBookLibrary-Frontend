@@ -18,6 +18,7 @@ describe('PublicShellComponent', () => {
     const element: HTMLElement = fixture.nativeElement;
 
     expect(element.querySelectorAll('main').length).toBe(1);
+    expect(element.querySelector('main')?.getAttribute('tabindex')).toBe('-1');
     expect(element.querySelector('router-outlet')).not.toBeNull();
     expect(element.querySelector('[data-private-navigation]')).toBeNull();
   });

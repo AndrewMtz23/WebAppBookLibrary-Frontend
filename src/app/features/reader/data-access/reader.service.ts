@@ -13,6 +13,7 @@ export class ReaderService {
     let params = new HttpParams().set('page', query.page ?? 1).set('pageSize', query.pageSize ?? 20);
     if (query.status) params = params.set('status', query.status);
     if (query.mediaType) params = params.set('mediaType', query.mediaType);
+    if (query.bookId) params = params.set('bookId', query.bookId);
     return this.http.get<PagedResult<LoanSummary>>('/api/loans/my', { params });
   }
 
