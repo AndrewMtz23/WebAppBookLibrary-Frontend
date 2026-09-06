@@ -1,0 +1,13 @@
+<article class="featured">
+  <div class="featured__copy">
+    <p class="featured__eyebrow">Lectura destacada</p>
+    <h2>{{ book.title }}</h2>
+    <p class="featured__author">{{ book.authors.join(', ') }}</p>
+    <p class="featured__meta">{{ book.genres[0] || 'Colección general' }} · {{ book.mediaType === 'digital' ? 'Digital' : 'Físico' }}</p>
+    <a [routerLink]="['/app/catalog', book.id]">Conocer el libro <mat-icon>arrow_forward</mat-icon></a>
+  </div>
+  <div class="featured__cover">
+    @if (book.coverUrl) { <img [src]="book.coverUrl" [alt]="'Portada de ' + book.title" /> }
+    @else { <span>{{ book.title.slice(0, 1) }}</span> }
+  </div>
+</article>

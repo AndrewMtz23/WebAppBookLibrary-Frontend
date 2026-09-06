@@ -5,11 +5,12 @@ import { ReaderShellComponent } from '../../core/layouts/reader-shell/reader-she
 import { RouteFoundationComponent } from '../../shared/ui/route-foundation/route-foundation.component';
 import { CatalogFacade } from '../catalog/data-access/catalog.facade';
 import { MyLibraryFacade } from './data-access/my-library.facade';
+import { DiscoverFacade } from './data-access/discover.facade';
 
 export const READER_ROUTES: Routes = [{
   path: '', component: ReaderShellComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['user'] },
   children: [
-    { path: 'discover', component: RouteFoundationComponent, data: { eyebrow: 'Para ti', title: 'Descubrir', description: 'Un punto de partida para encontrar tu próxima lectura.' } },
+    { path: 'discover', providers: [DiscoverFacade], loadComponent: () => import('./pages/discover/discover-page.component').then(m => m.DiscoverPageComponent) },
     { path: 'catalog/:bookId', loadComponent: () => import('../catalog/pages/book-detail/book-detail-page.component').then(m => m.BookDetailPageComponent) },
     {
       path: 'catalog',

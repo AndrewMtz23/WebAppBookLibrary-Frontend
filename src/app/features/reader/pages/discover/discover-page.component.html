@@ -1,0 +1,32 @@
+<main class="discover-page">
+  <header class="welcome"><p>Tu biblioteca, a tu ritmo</p><h1>Hola, {{ username }}.</h1><span>¿Qué te gustaría descubrir hoy?</span></header>
+  @if (facade.newest().loading) {
+    <app-skeleton [lines]="7" />
+  } @else if (facade.newest().data[0]; as featured) {
+    <app-featured-book [book]="featured" />
+  } @else {
+    <app-error-state title="La colección está descansando" [message]="facade.newest().error || 'Vuelve a intentarlo en unos momentos.'" />
+  }
+
+  <section class="rail" aria-labelledby="popular-title">
+    <div class="rail__heading"><div><p>Lo que todos están leyendo</p><h2 id="popular-title">Más populares</h2></div><a routerLink="/app/catalog" [queryParams]="{sort:'reservationCount', direction:'desc'}">Ver todos</a></div>
+    @if (facade.popular().loading) { <app-skeleton [lines]="4" /> }
+    @else if (facade.popularBooks().length) { <app-book-grid [books]="facade.popularBooks().slice(0, 4)" [busyFavoriteIds]="favorites.busyIds()" (favoriteRequested)="favorites.toggle($event)" /> }
+    @if (facade.popular().error) { <p class="subtle-note">Mostramos novedades porque la popularidad no está disponible.</p> }
+  </section>
+
+  <section class="categories" aria-labelledby="categories-title">
+    <div class="rail__heading"><div><p>Explora por interés</p><h2 id="categories-title">Categorías</h2></div><a routerLink="/app/catalog">Ver catálogo</a></div>
+    @if (facade.facets().loading) { <app-skeleton [lines]="2" /> }
+    @else { <div class="category-list">@for (facet of facade.facets().data.slice(0, 8); track facet.value) { <a routerLink="/app/catalog" [queryParams]="{genre:facet.value}"><span>{{ facet.value }}</span><b>{{ facet.count }}</b></a> }</div> }
+  </section>
+
+  <section class="rail" aria-labelledby="new-title">
+    <div class="rail__heading"><div><p>Recién llegados</p><h2 id="new-title">Novedades</h2></div><a routerLink="/app/catalog">Ver todos</a></div>
+    @if (facade.newest().data.length) { <app-book-grid [books]="facade.newest().data.slice(0, 4)" [busyFavoriteIds]="favorites.busyIds()" (favoriteRequested)="favorites.toggle($event)" /> }
+  </section>
+
+  @if (facade.activity().data; as activity) {
+    <aside class="activity"><div><span>{{ activity.totalReservations }}</span><p>reservas este periodo</p></div><div><span>{{ activity.favorites }}</span><p>favoritos guardados</p></div><a routerLink="/app/my-library">Ver Mi biblioteca</a></aside>
+  }
+</main>

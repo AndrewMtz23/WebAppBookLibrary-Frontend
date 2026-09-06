@@ -1,0 +1,21 @@
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
+import { BookGridComponent } from '../../../catalog/components/book-grid/book-grid.component';
+import { FeaturedBookComponent } from '../../../catalog/components/featured-book/featured-book.component';
+import { ErrorStateComponent } from '../../../../shared/ui/error-state/error-state.component';
+import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
+import { DiscoverFacade } from '../../data-access/discover.facade';
+import { FavoritesFacade } from '../../data-access/favorites.facade';
+
+@Component({
+  selector: 'app-discover-page', standalone: true,
+  imports: [RouterLink, BookGridComponent, FeaturedBookComponent, ErrorStateComponent, SkeletonComponent],
+  templateUrl: './discover-page.component.html', styleUrl: './discover-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class DiscoverPageComponent {
+  readonly facade = inject(DiscoverFacade);
+  readonly favorites = inject(FavoritesFacade);
+  private readonly auth = inject(AuthService);
+  get username(): string { return this.auth.sessionSnapshot?.user.username ?? 'lector'; }
+}
