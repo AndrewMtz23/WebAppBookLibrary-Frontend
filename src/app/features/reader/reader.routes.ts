@@ -4,6 +4,7 @@ import { RoleGuard } from '../../core/guards/role.guard';
 import { ReaderShellComponent } from '../../core/layouts/reader-shell/reader-shell.component';
 import { RouteFoundationComponent } from '../../shared/ui/route-foundation/route-foundation.component';
 import { CatalogFacade } from '../catalog/data-access/catalog.facade';
+import { MyLibraryFacade } from './data-access/my-library.facade';
 
 export const READER_ROUTES: Routes = [{
   path: '', component: ReaderShellComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['user'] },
@@ -15,7 +16,10 @@ export const READER_ROUTES: Routes = [{
       providers: [CatalogFacade],
       loadComponent: () => import('../catalog/pages/catalog/catalog-page.component').then(m => m.CatalogPageComponent)
     },
-    { path: 'my-library', loadChildren: () => import('../loans/loans.module').then(m => m.LoansModule) },
+    {
+      path: 'my-library', providers: [MyLibraryFacade],
+      loadComponent: () => import('./pages/my-library/my-library-page.component').then(m => m.MyLibraryPageComponent)
+    },
     { path: 'favorites', component: RouteFoundationComponent, data: { title: 'Favoritos', description: 'Aquí vivirán los libros que quieras conservar cerca.' } },
     { path: 'profile', component: RouteFoundationComponent, data: { title: 'Perfil', description: 'Gestiona tu identidad y preferencias de lectura.' } },
     { path: '', pathMatch: 'full', redirectTo: 'discover' }

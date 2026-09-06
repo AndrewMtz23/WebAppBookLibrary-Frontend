@@ -1,0 +1,37 @@
+<main class="library-page">
+  <app-page-header [config]="{ eyebrow: 'Tu espacio', title: 'Mi biblioteca', description: 'Tus reservas, vencimientos y accesos digitales en un solo lugar.' }" />
+  <p class="external-note"><mat-icon>open_in_new</mat-icon> Los libros digitales se abren como recursos externos. La plataforma no aplica DRM y el enlace no debe compartirse.</p>
+  @if (facade.message()) { <p class="feedback" role="status">{{ facade.message() }}</p> }
+  @if (facade.loading()) {
+    <app-skeleton [lines]="6" />
+  } @else if (facade.error()) {
+    <app-error-state [message]="facade.error()!" (retryRequested)="facade.load()" />
+  } @else {
+    @for (section of sections; track section.key) {
+      <section class="loan-section" [attr.aria-labelledby]="section.key + '-title'">
+        <div class="section-heading"><div><h2 [id]="section.key + '-title'">{{ section.title }}</h2><p>{{ section.description }}</p></div><span>{{ loans(section.key).length }}</span></div>
+        @if (!loans(section.key).length) {
+          <p class="section-empty">No hay elementos en esta sección.</p>
+        } @else {
+          <div class="loan-list">
+            @for (loan of loans(section.key); track loan.id) {
+              <article class="loan-card">
+                <div class="loan-cover">@if (loan.book?.coverUrl) { <img [src]="loan.book?.coverUrl" [alt]="'Portada de ' + loan.book?.title" /> } @else { <mat-icon>auto_stories</mat-icon> }</div>
+                <div class="loan-copy">
+                  <p class="loan-status">{{ loan.mediaType === 'digital' ? 'Digital' : 'Físico' }} · {{ loan.status }}</p>
+                  <h3><a [routerLink]="['/app/catalog', loan.bookId]">{{ loan.book?.title || 'Libro ' + loan.bookId }}</a></h3>
+                  <p>{{ loan.dueAt ? ('Vence ' + (loan.dueAt | date:'mediumDate')) : ('Reservado ' + (loan.reservedAt | date:'mediumDate')) }}</p>
+                </div>
+                <div class="loan-actions">
+                  @if (loan.mediaType === 'digital' && loan.status === 'active') { <button mat-flat-button type="button" (click)="facade.openDigital(loan.bookId)">Abrir recurso</button> }
+                  @if (loan.mediaType === 'physical' && (loan.status === 'active' || loan.status === 'overdue')) { <button mat-stroked-button type="button" [disabled]="facade.isBusy(loan.id)" (click)="facade.returnLoan(loan.id)">Devolver</button> }
+                  @if (loan.status === 'active') { <button mat-button type="button" [disabled]="facade.isBusy(loan.id)" (click)="facade.cancelLoan(loan.id)">Cancelar</button> }
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    }
+  }
+</main>
