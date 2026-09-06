@@ -20,7 +20,7 @@ export const READER_ROUTES: Routes = [{
       path: 'my-library', providers: [MyLibraryFacade],
       loadComponent: () => import('./pages/my-library/my-library-page.component').then(m => m.MyLibraryPageComponent)
     },
-    { path: 'favorites', component: RouteFoundationComponent, data: { title: 'Favoritos', description: 'Aquí vivirán los libros que quieras conservar cerca.' } },
+    { path: 'favorites', loadComponent: () => import('./pages/favorites/favorites-page.component').then(m => m.FavoritesPageComponent) },
     { path: 'profile', component: RouteFoundationComponent, data: { title: 'Perfil', description: 'Gestiona tu identidad y preferencias de lectura.' } },
     { path: '', pathMatch: 'full', redirectTo: 'discover' }
   ]
