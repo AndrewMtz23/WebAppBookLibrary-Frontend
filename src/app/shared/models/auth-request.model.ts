@@ -7,12 +7,5 @@ export interface RegisterRequest extends LoginRequest {
   email: string;
 }
 
-export interface AuthResponse {
-  token: string;
-  user: {
-    id: string;
-    username: string;
-    email: string;
-    role: string;
-  };
-}
+export type AuthResponse = AuthSession;
+import { AuthSession } from '../../core/auth/auth-session.model';

@@ -1,48 +1,20 @@
-// 📁 app.routes.ts
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
-import { AuthGuard } from './core/guards/auth.guard';
-import { RoleGuard } from './core/guards/role.guard';
+import { landingRouteForRole } from './core/auth/role-landing';
+import { AuthService } from './core/services/auth.service';
 
 export const routes: Routes = [
-  {
-    path: 'auth',
-    loadChildren: () =>
-      import('./features/auth/auth.module').then(m => m.AuthModule)
-  },
-  {
-    path: 'catalog',
-    loadChildren: () =>
-      import('./features/books/books.module').then(m => m.BooksModule),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'loans',
-    loadChildren: () =>
-      import('./features/loans/loans.module').then(m => m.LoansModule),
-    canActivate: [AuthGuard]
-  },
-  {
-  path: 'security-dashboard',
-  loadComponent: () => import('./features/security-dashboard/security-dashboard.component')
-    .then(m => m.SecurityDashboardComponent),
-  canActivate: [AuthGuard, RoleGuard],
-  data: { roles: ['admin'] }
-  },
-  {
-    path: 'logs',
-    loadChildren: () =>
-      import('./features/logs/logs.module').then(m => m.LogsModule),
-    canActivate: [AuthGuard, RoleGuard], 
-    data: { roles: ['admin'] }
-  },
-  {
-    path: '',
-    redirectTo: '/catalog',
-    pathMatch: 'full'
-  },
-  {
-    path: 'login',
-    redirectTo: '/auth/login',
-    pathMatch: 'full'
-  }
+  { path: 'auth', loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule) },
+  { path: 'app', loadChildren: () => import('./features/reader/reader.routes').then(m => m.READER_ROUTES) },
+  { path: 'librarian', loadChildren: () => import('./features/librarian/librarian.routes').then(m => m.LIBRARIAN_ROUTES) },
+  { path: 'admin', loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES) },
+  { path: 'access-denied', loadComponent: () => import('./features/system/access-denied/access-denied.component').then(m => m.AccessDeniedComponent) },
+
+  { path: 'catalog', pathMatch: 'full', redirectTo: 'app/catalog' },
+  { path: 'loans', pathMatch: 'full', redirectTo: 'app/my-library' },
+  { path: 'logs', pathMatch: 'full', redirectTo: 'admin/logs' },
+  { path: 'security-dashboard', pathMatch: 'full', redirectTo: 'admin/security' },
+  { path: 'login', pathMatch: 'full', redirectTo: 'auth/login' },
+  { path: '', pathMatch: 'full', redirectTo: () => landingRouteForRole(inject(AuthService).sessionSnapshot?.user.role ?? null) },
+  { path: '**', loadComponent: () => import('./features/system/not-found/not-found.component').then(m => m.NotFoundComponent) }
 ];

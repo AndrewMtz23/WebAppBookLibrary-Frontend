@@ -1,0 +1,30 @@
+<article class="book-card">
+  <div class="cover-frame">
+    @if (book.coverUrl && !imageFailed) {
+      <img [src]="book.coverUrl" [alt]="'Portada de ' + book.title" width="320" height="480" loading="lazy" (error)="markImageFailed()" />
+    } @else {
+      <div class="cover-fallback" role="img" [attr.aria-label]="'Portada no disponible para ' + book.title">
+        <span>{{ book.title.slice(0, 1) }}</span>
+      </div>
+    }
+    <span class="media-label">{{ book.mediaType === 'digital' ? 'Digital' : 'Físico' }}</span>
+    <button class="favorite" type="button" [disabled]="favoriteBusy"
+      [attr.aria-label]="(favorite ? 'Quitar ' : 'Agregar ') + book.title + (favorite ? ' de favoritos' : ' a favoritos')"
+      [attr.aria-pressed]="favorite" (click)="toggleFavorite.emit(book)">
+      <mat-icon aria-hidden="true">{{ favorite ? 'favorite' : 'favorite_border' }}</mat-icon>
+    </button>
+  </div>
+
+  <div class="book-copy">
+    <p class="genre">{{ book.genres[0] || 'Lectura general' }}</p>
+    <h2><a [routerLink]="['/app/catalog', book.id]" (click)="openBook.emit(book.id)">{{ book.title }}</a></h2>
+    <p class="author">{{ book.authors[0] || 'Autor por confirmar' }}</p>
+    <div class="book-meta">
+      <span>{{ availabilityLabel(book) }}</span>
+      <span>{{ book.reservationCount }} {{ book.reservationCount === 1 ? 'reserva' : 'reservas' }}</span>
+    </div>
+    <a class="primary-link" [routerLink]="['/app/catalog', book.id]" (click)="openBook.emit(book.id)">
+      {{ primaryLabel(book) }} <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+    </a>
+  </div>
+</article>

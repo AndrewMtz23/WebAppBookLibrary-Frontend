@@ -1,0 +1,5 @@
+.state { display: grid; justify-items: center; padding: var(--space-12) var(--space-6); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-card); background: var(--color-surface); text-align: center; }
+.state__icon { display: grid; width: 4rem; height: 4rem; margin-bottom: var(--space-5); place-items: center; border-radius: 50%; background: var(--color-primary-soft); color: var(--color-primary); }
+.state__icon mat-icon { width: 2rem; height: 2rem; font-size: 2rem; }
+h2 { margin-bottom: var(--space-2); }
+p { margin-bottom: var(--space-5); color: var(--color-text-muted); }

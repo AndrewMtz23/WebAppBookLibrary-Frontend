@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
-    selector: 'app-register', templateUrl: './register.component.html', styleUrls: ['./register.component.css'],
+    selector: 'app-register', templateUrl: './register.component.html', styleUrls: ['./register.component.scss'],
     standalone: false
 })
 export class RegisterComponent {

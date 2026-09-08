@@ -1,0 +1,4 @@
+<section class="error" role="alert" aria-labelledby="error-state-title">
+  <mat-icon aria-hidden="true">error_outline</mat-icon>
+  <div><h2 id="error-state-title">{{ title }}</h2><p>{{ message }}</p><button mat-stroked-button type="button" (click)="retryRequested.emit()">{{ retryLabel }}</button></div>
+</section>

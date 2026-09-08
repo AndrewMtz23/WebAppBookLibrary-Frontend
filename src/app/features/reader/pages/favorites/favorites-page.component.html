@@ -1,0 +1,19 @@
+<div class="favorites-page">
+  <app-page-header [config]="{ eyebrow: 'Selección personal', title: 'Favoritos', description: 'Los libros que guardaste para volver a encontrarlos sin esfuerzo.' }" />
+  <div class="count">{{ facade.totalItems() }} libros guardados</div>
+  @if (facade.loading()) {
+    <div class="skeletons">@for (item of [1,2,3,4]; track item) { <app-skeleton [lines]="4" /> }</div>
+  } @else if (facade.error() && !facade.items().length) {
+    <app-error-state [message]="facade.error()!" (retryRequested)="load(facade.page())" />
+  } @else if (!facade.items().length) {
+    <app-empty-state title="Aún no tienes favoritos" description="Explora el catálogo y usa el corazón para guardar los libros que te interesen." icon="favorite_border" actionLabel="Explorar catálogo" (actionRequested)="explore()" />
+  } @else {
+    @if (facade.error()) { <p class="feedback" role="status">{{ facade.error() }}</p> }
+    <app-book-grid [books]="facade.books()" [busyFavoriteIds]="facade.busyIds()" (favoriteRequested)="facade.remove($event)" />
+    <nav class="pagination" aria-label="Paginación de favoritos">
+      <button mat-stroked-button type="button" [disabled]="facade.page() <= 1" (click)="load(facade.page() - 1)">Anterior</button>
+      <span>Página {{ facade.page() }} de {{ facade.totalPages() }}</span>
+      <button mat-stroked-button type="button" [disabled]="facade.page() >= facade.totalPages()" (click)="load(facade.page() + 1)">Siguiente</button>
+    </nav>
+  }
+</div>

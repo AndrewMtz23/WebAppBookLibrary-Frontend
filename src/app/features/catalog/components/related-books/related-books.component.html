@@ -1,0 +1,7 @@
+@if (books.length) {
+  <section class="related" aria-labelledby="related-title">
+    <p class="related__eyebrow">Continúa explorando</p>
+    <h2 id="related-title">También podría gustarte</h2>
+    <app-book-grid [books]="books" [busyFavoriteIds]="busyFavoriteIds" [favoriteResolver]="favoriteResolver" (favoriteRequested)="favoriteRequested.emit($event)" />
+  </section>
+}

@@ -8,3 +8,32 @@ export interface Book {
 }
 
 export type BookInput = Pick<Book, 'title' | 'author' | 'genre' | 'year'>;
+
+export type MediaType = 'physical' | 'digital';
+
+export interface BookSummary {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  authors: readonly string[];
+  coverUrl: string | null;
+  mediaType: MediaType;
+  genres: readonly string[];
+  availableCopies: number | null;
+  totalCopies: number | null;
+  reservationCount: number;
+  isFavorite: boolean;
+  isActive: boolean;
+}
+
+export interface BookDetail extends BookSummary {
+  isbn: string | null;
+  description: string;
+  publisher: string | null;
+  publishedDate: string | null;
+  language: string;
+  pageCount: number | null;
+  tags: readonly string[];
+  createdAt: string;
+  updatedAt: string;
+}

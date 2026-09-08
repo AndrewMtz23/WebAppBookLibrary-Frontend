@@ -1,0 +1,6 @@
+:host { display: block; }
+.favorites-page { max-width: 86rem; margin: 0 auto; padding: clamp(1.25rem, 4vw, 4rem); }
+.count { margin: 1.5rem 0; color: var(--text-secondary); font-size: .85rem; }
+.skeletons { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1rem; }
+.feedback { padding: .8rem 1rem; border-left: 3px solid #b65045; background: var(--surface-muted); }
+.pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2.5rem; color: var(--text-secondary); }

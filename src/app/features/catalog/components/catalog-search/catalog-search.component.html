@@ -1,0 +1,16 @@
+<label class="catalog-search">
+  <mat-icon aria-hidden="true">search</mat-icon>
+  <span class="sr-only">Buscar por título, autor o ISBN</span>
+  <input
+    type="search"
+    [ngModel]="value"
+    (ngModelChange)="onInput($event)"
+    (compositionstart)="compositionStart()"
+    (compositionend)="compositionEnd($any($event.target).value)"
+    placeholder="Título, autor o ISBN"
+    autocomplete="off"
+  />
+  @if (value) {
+    <button type="button" (click)="clear()" aria-label="Limpiar búsqueda"><mat-icon>close</mat-icon></button>
+  }
+</label>

@@ -1,0 +1,38 @@
+<div class="filters" aria-label="Filtros del catálogo">
+  <div class="filters__heading"><h2>Refina tu búsqueda</h2><button mat-button type="button" (click)="clearRequested.emit()">Limpiar</button></div>
+  <label>Género
+    <select [ngModel]="query.genre ?? ''" (ngModelChange)="set('genre', $event)">
+      <option value="">Todos</option>
+      @for (facet of facets; track facet.value) { <option [value]="facet.value">{{ facet.value }} ({{ facet.count }})</option> }
+    </select>
+  </label>
+  <label>Formato
+    <select [ngModel]="query.mediaType ?? ''" (ngModelChange)="set('mediaType', $event)">
+      <option value="">Todos</option><option value="physical">Físico</option><option value="digital">Digital</option>
+    </select>
+  </label>
+  <label>Idioma
+    <select [ngModel]="query.language ?? ''" (ngModelChange)="set('language', $event)">
+      <option value="">Todos</option><option value="es">Español</option><option value="en">Inglés</option>
+    </select>
+  </label>
+  <label>Disponibilidad
+    <select [disabled]="availabilityDisabled" [ngModel]="query.available === null ? '' : query.available" (ngModelChange)="set('available', $event)">
+      <option value="">Cualquiera</option><option value="true">Disponible ahora</option><option value="false">Sin existencias</option>
+    </select>
+  </label>
+  <label>Ordenar
+    <select [ngModel]="query.sort + ':' + query.direction" (ngModelChange)="selectSort($event)">
+      @if (query.query) { <option value="relevance:desc">Más relevantes</option> }
+      <option value="createdAt:desc">Más recientes</option><option value="reservationCount:desc">Más populares</option>
+      <option value="title:asc">Título A–Z</option><option value="publishedDate:desc">Publicación reciente</option>
+    </select>
+  </label>
+  @if (activeChips.length) {
+    <mat-chip-set aria-label="Filtros activos">
+      @for (chip of activeChips; track chip.key) {
+        <mat-chip (removed)="remove(chip)">{{ chip.label }} <button matChipRemove [attr.aria-label]="'Quitar ' + chip.label">×</button></mat-chip>
+      }
+    </mat-chip-set>
+  }
+</div>

@@ -1,0 +1,22 @@
+<main id="main-content" class="public-shell" tabindex="-1">
+  <section class="public-shell__story" aria-labelledby="public-shell-title">
+    <app-brand />
+    <div class="public-shell__copy">
+      <p class="public-shell__eyebrow">Tu biblioteca, bien organizada</p>
+      <h1 id="public-shell-title">Historias que encuentras.<br>Lecturas que conservas.</h1>
+      <p>Explora el catálogo, reserva ejemplares y lleva el historial de cada lectura desde un espacio sencillo y pensado para lectores.</p>
+    </div>
+    <div class="public-shell__artwork" aria-hidden="true">
+      <span class="public-shell__book public-shell__book--one"></span>
+      <span class="public-shell__book public-shell__book--two"></span>
+      <span class="public-shell__book public-shell__book--three"></span>
+      <span class="public-shell__sun"></span>
+    </div>
+    <p class="public-shell__note">Catálogo digital · Reservas · Historial de lectura</p>
+  </section>
+  <section class="public-shell__access" aria-label="Acceso a la cuenta">
+    <div class="public-shell__mobile-brand"><app-brand /></div>
+    <div class="public-shell__form-frame"><router-outlet /></div>
+    <p class="public-shell__legal">Acceso protegido para lectores y personal de biblioteca.</p>
+  </section>
+</main>

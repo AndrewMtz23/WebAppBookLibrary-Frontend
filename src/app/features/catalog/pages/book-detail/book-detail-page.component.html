@@ -1,0 +1,52 @@
+<div class="detail-page">
+  <a class="back-link" routerLink="/app/catalog"><mat-icon>arrow_back</mat-icon> Volver al catálogo</a>
+  @if (loading()) {
+    <app-skeleton [lines]="7" />
+  } @else if (error()) {
+    <app-error-state [message]="error()!" (retryRequested)="retry()" />
+  } @else if (book(); as item) {
+    <article class="book-detail">
+      <div class="cover">
+        @if (item.coverUrl) { <img [src]="item.coverUrl" [alt]="'Portada de ' + item.title" /> }
+        @else { <div class="cover__fallback" role="img" [attr.aria-label]="'Portada no disponible para ' + item.title">{{ item.title.slice(0, 1) }}</div> }
+      </div>
+      <div class="copy">
+        <p class="eyebrow">{{ item.mediaType === 'digital' ? 'Edición digital' : 'Edición física' }}</p>
+        <h1>{{ item.title }}</h1>
+        @if (item.subtitle) { <p class="subtitle">{{ item.subtitle }}</p> }
+        <p class="authors">por {{ item.authors.join(', ') }}</p>
+        <p class="description">{{ item.description }}</p>
+        <dl>
+          @if (item.publisher) { <div><dt>Editorial</dt><dd>{{ item.publisher }}</dd></div> }
+          @if (item.publishedDate) { <div><dt>Publicación</dt><dd>{{ item.publishedDate | date:'longDate' }}</dd></div> }
+          @if (item.isbn) { <div><dt>ISBN</dt><dd>{{ item.isbn }}</dd></div> }
+          @if (item.pageCount) { <div><dt>Páginas</dt><dd>{{ item.pageCount }}</dd></div> }
+          <div><dt>Idioma</dt><dd>{{ item.language.toUpperCase() }}</dd></div>
+          <div><dt>Reservas históricas</dt><dd>{{ item.reservationCount }}</dd></div>
+        </dl>
+        @if (item.genres.length) { <p class="taxonomy"><strong>Géneros</strong> {{ item.genres.join(' · ') }}</p> }
+        @if (item.tags.length) { <p class="taxonomy"><strong>Etiquetas</strong> {{ item.tags.join(' · ') }}</p> }
+        <div class="availability" [class.availability--out]="item.mediaType === 'physical' && !item.availableCopies">
+          <span></span>{{ item.mediaType === 'digital' ? 'Disponible con reserva digital' : (item.availableCopies ? item.availableCopies + ' ejemplares disponibles' : 'Sin ejemplares disponibles') }}
+        </div>
+        <div class="actions">
+          @if (item.mediaType === 'digital' && activeDigital()) {
+            <button mat-flat-button type="button" (click)="openDigital(item.id)">Abrir PDF</button>
+            <a mat-button routerLink="/app/my-library">Mi biblioteca</a>
+          } @else {
+            <button mat-flat-button type="button" [disabled]="reservations.isBusy(item.id) || (item.mediaType === 'physical' && !item.availableCopies)" (click)="reserve(item.id)">
+              {{ item.mediaType === 'digital' ? 'Reservar acceso digital' : 'Reservar ejemplar' }}
+            </button>
+          }
+          <button mat-stroked-button type="button" [disabled]="favorites.isBusy(item.id)" (click)="toggleFavorite(item)">
+            <mat-icon>{{ favorites.isFavorite(item) ? 'favorite' : 'favorite_border' }}</mat-icon>
+            {{ favorites.isFavorite(item) ? 'Guardado' : 'Guardar' }}
+          </button>
+        </div>
+        @if (digitalMessage() || reservations.message()) { <p class="feedback" role="status">{{ digitalMessage() || reservations.message() }}</p> }
+        @if (reservations.successfulBookId() === item.id) { <a class="library-link" routerLink="/app/my-library">Ir a Mi biblioteca <mat-icon>arrow_forward</mat-icon></a> }
+      </div>
+    </article>
+    <app-related-books [books]="related()" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (favoriteRequested)="toggleFavorite($event)" />
+  }
+</div>

@@ -1,33 +1,14 @@
-// 📁 core/guards/auth.guard.ts
 import { Injectable } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
-  constructor(
-    private authService: AuthService, 
-    private router: Router,
-    private snackBar: MatSnackBar // ✅ Agregado para notificaciones
-  ) {}
+  constructor(private readonly authService: AuthService, private readonly router: Router) {}
 
-  canActivate(): boolean {
-    if (this.authService.isLoggedIn()) {
-      return true;
-    }
-
-    // ✅ Mostrar mensaje informativo
-    this.snackBar.open(
-      '🔒 Debes iniciar sesión para acceder a esta página',
-      'Cerrar',
-      { 
-        duration: 3000,
-        panelClass: ['info-snackbar']
-      }
-    );
-
-    this.router.navigate(['/auth/login']);
-    return false;
+  canActivate(_route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree {
+    if (this.authService.isAuthenticated) return true;
+    const returnUrl = state.url.startsWith('/') && !state.url.startsWith('//') ? state.url : '/';
+    return this.router.createUrlTree(['/auth/login'], { queryParams: { returnUrl } });
   }
 }

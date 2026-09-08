@@ -1,63 +1,29 @@
-<div class="login-container">
-  <mat-card class="login-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>library_books</mat-icon>
-        Bienvenido a la Biblioteca
-      </mat-card-title>
-      <mat-card-subtitle>Inicie sesión para acceder a su cuenta de la biblioteca digital.</mat-card-subtitle>
-    </mat-card-header>
-
-    <mat-card-content>
-      <form class="login-form">
-        <mat-form-field appearance="outline">
-          <mat-label>Username</mat-label>
-          <input matInput [(ngModel)]="username" name="username" 
-                 required [disabled]="isLoading" (keyup.enter)="login()">
-          <mat-icon matSuffix>person</mat-icon>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Password</mat-label>
-          <input matInput [(ngModel)]="password" name="password" 
-                 [type]="hidePassword ? 'password' : 'text'" 
-                 required [disabled]="isLoading" (keyup.enter)="login()">
-          <button mat-icon-button matSuffix (click)="togglePasswordVisibility($event)" type="button">
-            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-          </button>
-        </mat-form-field>
-
-        <button mat-raised-button color="primary" class="login-button"
-                (click)="login()" [disabled]="isLoading || !username || !password">
-          <mat-icon *ngIf="!isLoading">login</mat-icon>
-          <mat-icon *ngIf="isLoading" class="spinning">hourglass_empty</mat-icon>
-          {{ isLoading ? 'Signing In...' : 'Sign In' }}
-        </button>
-
-        <div class="register-link">
-          <span>Don't have an account?</span>
-          <button mat-button color="primary" (click)="navigateToRegister()">Create Account</button>
-        </div>
-
-        <div class="guest-access">
-          <button mat-stroked-button (click)="navigateToBooks()">
-            <mat-icon>visibility</mat-icon>
-            Browse Catalog as Guest
-          </button>
-        </div>
-      </form>
-    </mat-card-content>
-
-    <mat-card-footer *ngIf="errorMessage || isLoggedIn">
-      <div class="message error" *ngIf="errorMessage && !isLoading">
-        <mat-icon>error</mat-icon>
-        {{ errorMessage }}
-      </div>
-
-      <div class="message success" *ngIf="isLoggedIn && !isLoading">
-        <mat-icon>check_circle</mat-icon>
-        Login successful! Redirecting...
-      </div>
-    </mat-card-footer>
-  </mat-card>
-</div>
+<article class="auth-card" aria-labelledby="login-title">
+  <header class="auth-card__header">
+    <p class="auth-card__eyebrow">Bienvenido de vuelta</p>
+    <h2 id="login-title">Continúa tu próxima lectura</h2>
+    <p>Ingresa con tu cuenta para consultar reservas, préstamos y favoritos.</p>
+  </header>
+  <form class="auth-form" (ngSubmit)="login()">
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre de usuario</mat-label>
+      <input matInput [(ngModel)]="username" name="username" autocomplete="username" required [disabled]="isLoading">
+      <mat-icon matSuffix>person</mat-icon>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Contraseña</mat-label>
+      <input matInput [(ngModel)]="password" name="password" autocomplete="current-password" [type]="hidePassword ? 'password' : 'text'" required [disabled]="isLoading">
+      <button mat-icon-button matSuffix (click)="togglePasswordVisibility($event)" type="button" [attr.aria-label]="hidePassword ? 'Mostrar contraseña' : 'Ocultar contraseña'">
+        <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+    </mat-form-field>
+    <div class="auth-message auth-message--error" role="alert" *ngIf="errorMessage && !isLoading">
+      <mat-icon>error_outline</mat-icon><span>{{ errorMessage }}</span>
+    </div>
+    <button mat-flat-button color="primary" class="auth-form__submit" type="submit" [disabled]="isLoading || !username || !password">
+      <mat-icon>{{ isLoading ? 'hourglass_empty' : 'login' }}</mat-icon>
+      {{ isLoading ? 'Iniciando sesión…' : 'Iniciar sesión' }}
+    </button>
+    <p class="auth-form__switch">¿Aún no tienes cuenta? <a mat-button color="primary" routerLink="/auth/register">Crear cuenta</a></p>
+  </form>
+</article>

@@ -6,3 +6,18 @@ export interface Loan {
   returnDate?: string;   // puede ser null si aún no se ha devuelto
   isReturned: boolean;
 }
+
+export type LoanStatus = 'active' | 'overdue' | 'returned' | 'cancelled';
+
+export interface LoanSummary {
+  id: string;
+  bookId: string;
+  userId: string;
+  mediaType: 'physical' | 'digital';
+  status: LoanStatus;
+  reservedAt: string;
+  dueAt: string | null;
+  returnedAt: string | null;
+  cancelledAt: string | null;
+  notes: string | null;
+}

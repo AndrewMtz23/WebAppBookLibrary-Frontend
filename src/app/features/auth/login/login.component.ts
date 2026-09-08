@@ -4,11 +4,12 @@ import { Router } from '@angular/router';
 import { ApiError } from 'src/app/core/http/api-error';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoginRequest } from 'src/app/shared/models/auth-request.model';
+import { landingRouteForRole } from 'src/app/core/auth/role-landing';
 
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
-    styleUrls: ['./login.component.css'],
+    styleUrls: ['./login.component.scss'],
     standalone: false
 })
 export class LoginComponent {
@@ -48,7 +49,7 @@ export class LoginComponent {
           duration: 3000,
           panelClass: ['success-snackbar']
         });
-        void this.router.navigate(['/catalog']);
+        void this.router.navigate([landingRouteForRole(response.user.role)]);
       },
       error: (error: ApiError) => {
         this.isLoading = false;

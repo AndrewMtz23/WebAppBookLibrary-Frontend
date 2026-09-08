@@ -1,0 +1,6 @@
+<section class="state" aria-labelledby="empty-state-title">
+  <span class="state__icon" aria-hidden="true"><mat-icon>{{ icon }}</mat-icon></span>
+  <h2 id="empty-state-title">{{ title }}</h2>
+  <p>{{ description }}</p>
+  @if (actionLabel) { <button mat-flat-button color="primary" type="button" (click)="actionRequested.emit()">{{ actionLabel }}</button> }
+</section>
