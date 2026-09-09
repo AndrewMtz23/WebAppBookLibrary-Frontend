@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { finalize } from 'rxjs';
+import { Subject, finalize } from 'rxjs';
 import { ReaderService } from './reader.service';
 
 @Injectable({ providedIn: 'root' })
@@ -9,6 +9,10 @@ export class ReservationsFacade {
   private readonly busy = signal<ReadonlySet<string>>(new Set());
   readonly message = signal<string | null>(null);
   readonly successfulBookId = signal<string | null>(null);
+  private readonly confirmed = new Subject<string>();
+  readonly confirmed$ = this.confirmed.asObservable();
+
+  resetFeedback(): void { this.message.set(null); this.successfulBookId.set(null); }
 
   isBusy(bookId: string): boolean { return this.busy().has(bookId); }
 
@@ -17,9 +21,10 @@ export class ReservationsFacade {
     this.setBusy(bookId, true);
     this.message.set(null);
     this.reader.reserve(bookId).pipe(finalize(() => this.setBusy(bookId, false))).subscribe({
-      next: response => {
+      next: () => {
         this.successfulBookId.set(bookId);
-        this.message.set(response.message || 'Tu reserva quedó confirmada.');
+        this.message.set('Tu reserva quedó confirmada.');
+        this.confirmed.next(bookId);
       },
       error: (error: HttpErrorResponse) => this.message.set(this.errorMessage(error))
     });
@@ -30,7 +35,7 @@ export class ReservationsFacade {
     if (code === 'duplicate_active_reservation' || code === 'duplicate_active') return 'Ya tienes una reserva activa de este libro.';
     if (code === 'book_unavailable') return 'Este libro no tiene ejemplares disponibles por ahora.';
     if (error.status === 0) return 'No recibimos confirmación. Confirma tu conexión y revisa Mi biblioteca antes de intentar otra vez.';
-    return error.error?.title || 'No pudimos completar la reserva.';
+    return 'No pudimos completar la reserva. Inténtalo de nuevo o revisa Mi biblioteca.';
   }
 
   private setBusy(bookId: string, value: boolean): void {

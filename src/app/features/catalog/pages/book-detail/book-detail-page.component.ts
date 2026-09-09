@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Subject, catchError, combineLatest, distinctUntilChanged, map, of, startWith, switchMap, tap } from 'rxjs';
+import { Subject, Subscription, catchError, combineLatest, distinctUntilChanged, map, of, startWith, switchMap, tap } from 'rxjs';
 import { BookDetail, BookSummary } from '../../../../shared/models/book.model';
 import { ErrorStateComponent } from '../../../../shared/ui/error-state/error-state.component';
 import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
@@ -15,10 +15,11 @@ import { CatalogService } from '../../data-access/catalog.service';
 import { DEFAULT_CATALOG_QUERY } from '../../models/catalog-query';
 import { ReaderAnalyticsService } from '../../../../core/analytics/reader-analytics.service';
 import { ReaderService } from '../../../reader/data-access/reader.service';
+import { PublicationDatePipe } from './publication-date.pipe';
 
 @Component({
   selector: 'app-book-detail-page', standalone: true,
-  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, ErrorStateComponent, SkeletonComponent, RelatedBooksComponent],
+  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, ErrorStateComponent, SkeletonComponent, RelatedBooksComponent, PublicationDatePipe],
   templateUrl: './book-detail-page.component.html', styleUrl: './book-detail-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BookDetailPageComponent {
@@ -30,20 +31,36 @@ export class BookDetailPageComponent {
   private readonly analytics = inject(ReaderAnalyticsService);
   private readonly reader = inject(ReaderService);
   private readonly retryRequest = new Subject<void>();
+  private reservationStateSubscription?: Subscription;
   readonly book = signal<BookDetail | null>(null);
   readonly related = signal<readonly BookSummary[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly activeDigital = signal(false);
+  readonly activePhysical = signal(false);
+  readonly imageFailed = signal(false);
   readonly digitalMessage = signal<string | null>(null);
   readonly favoriteResolver = (book: BookSummary): boolean => this.favorites.isFavorite(book);
 
   constructor() {
+    this.reservations.confirmed$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(bookId => {
+      if (this.book()?.id === bookId) this.retry();
+    });
     combineLatest([
       this.route.paramMap.pipe(map(params => params.get('bookId') ?? ''), distinctUntilChanged()),
       this.retryRequest.pipe(startWith(undefined))
     ]).pipe(
-      tap(() => { this.loading.set(true); this.error.set(null); this.related.set([]); this.activeDigital.set(false); }),
+      tap(([id]) => {
+        this.reservationStateSubscription?.unsubscribe();
+        if (this.book()?.id !== id) {
+          this.reservations.resetFeedback();
+          this.digitalMessage.set(null);
+          this.imageFailed.set(false);
+          this.activeDigital.set(false);
+          this.activePhysical.set(false);
+        }
+        this.loading.set(true); this.error.set(null); this.related.set([]);
+      }),
       switchMap(([bookId]) => this.catalog.getById(bookId).pipe(catchError(() => {
         this.error.set('No pudimos cargar la ficha de este libro.');
         return of(null);
@@ -54,7 +71,7 @@ export class BookDetailPageComponent {
       if (book) this.analytics.trackAction('book_open');
       this.loading.set(false);
       if (book?.genres[0]) this.loadRelated(book);
-      if (book?.mediaType === 'digital') this.loadDigitalState(book.id);
+      if (book) this.loadReservationState(book);
     });
   }
 
@@ -80,11 +97,16 @@ export class BookDetailPageComponent {
       .subscribe({ next: page => this.related.set(page.items.filter(item => item.id !== book.id).slice(0, 4)), error: () => this.related.set([]) });
   }
 
-  private loadDigitalState(bookId: string): void {
-    this.reader.getLoans({ status: 'active', mediaType: 'digital', bookId, page: 1, pageSize: 1 }).pipe(takeUntilDestroyed(this.destroyRef))
+  private loadReservationState(book: BookDetail): void {
+    const bookId = book.id;
+    this.reservationStateSubscription = this.reader.getLoans({ status: 'active', mediaType: book.mediaType, bookId, page: 1, pageSize: 1 }).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: page => { if (this.book()?.id === bookId) this.activeDigital.set(page.items.length > 0); },
-        error: () => this.activeDigital.set(false)
+        next: page => {
+          if (this.book()?.id !== bookId) return;
+          this.activeDigital.set(book.mediaType === 'digital' && page.items.length > 0);
+          this.activePhysical.set(book.mediaType === 'physical' && page.items.length > 0);
+        },
+        error: () => { if (this.book()?.id === bookId) this.digitalMessage.set('No pudimos comprobar tus reservas. Revisa Mi biblioteca.'); }
       });
   }
 }

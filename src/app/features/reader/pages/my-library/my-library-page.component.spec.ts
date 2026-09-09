@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Subject, of, throwError } from 'rxjs';
 import { CatalogService } from '../../../catalog/data-access/catalog.service';
@@ -17,6 +18,7 @@ describe('MyLibraryPageComponent', () => {
     openSpy = spyOn(window, 'open');
     TestBed.configureTestingModule({ imports: [MyLibraryPageComponent, NoopAnimationsModule], providers: [
       MyLibraryFacade,
+      provideRouter([]),
       { provide: ReaderService, useValue: reader },
       { provide: CatalogService, useValue: { getById: () => of({ id: 'book-1', title: 'Libro de prueba', coverUrl: null }) } }
     ] });
@@ -47,6 +49,17 @@ describe('MyLibraryPageComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Por vencer');
     expect(fixture.nativeElement.textContent).toContain('Vencidos');
     expect(fixture.nativeElement.textContent).toContain('Historial');
+  });
+
+  it('shows a returned loan in Spanish with its return date instead of a pending due date', () => {
+    const loan = { id: 'loan-1', bookId: 'book-1', userId: 'reader', mediaType: 'physical' as const, status: 'returned' as const, reservedAt: '2026-09-01T12:00:00Z', dueAt: '2026-09-22T12:00:00Z', returnedAt: '2026-09-08T12:00:00Z', cancelledAt: null, notes: null };
+    reader.getLoans.and.returnValue(of({ items: [loan], page: 1, pageSize: 100, totalItems: 1, totalPages: 1, hasNextPage: false, hasPreviousPage: false }));
+    const fixture = TestBed.createComponent(MyLibraryPageComponent);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Devuelto');
+    expect(fixture.nativeElement.textContent).not.toContain('returned');
+    expect(fixture.nativeElement.textContent).not.toContain('Vence');
+    expect(fixture.nativeElement.textContent).not.toContain('22');
   });
 
   it('keeps a pending item visible and reconciles a 409 from the server', () => {

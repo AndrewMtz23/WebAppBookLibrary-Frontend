@@ -10,6 +10,7 @@ import { FavoritesFacade } from '../../data-access/favorites.facade';
 
 @Component({
   selector: 'app-discover-page', standalone: true,
+  providers: [DiscoverFacade],
   imports: [RouterLink, BookGridComponent, FeaturedBookComponent, ErrorStateComponent, SkeletonComponent],
   templateUrl: './discover-page.component.html', styleUrl: './discover-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush
 })
