@@ -18,9 +18,15 @@
               <article class="loan-card">
                 <div class="loan-cover">@if (loan.book?.coverUrl) { <img [src]="loan.book?.coverUrl" [alt]="'Portada de ' + loan.book?.title" /> } @else { <mat-icon>auto_stories</mat-icon> }</div>
                 <div class="loan-copy">
-                  <p class="loan-status">{{ loan.mediaType === 'digital' ? 'Digital' : 'Físico' }} · {{ loan.status }}</p>
+                  <p class="loan-status">{{ loan.mediaType === 'digital' ? 'Digital' : 'Físico' }} · {{ statusLabels[loan.status] }}</p>
                   <h3><a [routerLink]="['/app/catalog', loan.bookId]">{{ loan.book?.title || 'Libro ' + loan.bookId }}</a></h3>
-                  <p>{{ loan.dueAt ? ('Vence ' + (loan.dueAt | date:'mediumDate')) : ('Reservado ' + (loan.reservedAt | date:'mediumDate')) }}</p>
+                  @if (loan.status === 'returned') {
+                    <p>{{ loan.returnedAt ? ('Devuelto el ' + (loan.returnedAt | date:'mediumDate')) : 'Devolución registrada' }}</p>
+                  } @else if (loan.status === 'cancelled') {
+                    <p>{{ loan.cancelledAt ? ('Cancelado el ' + (loan.cancelledAt | date:'mediumDate')) : 'Cancelación registrada' }}</p>
+                  } @else {
+                    <p>{{ loan.dueAt ? ('Vence ' + (loan.dueAt | date:'mediumDate')) : ('Reservado ' + (loan.reservedAt | date:'mediumDate')) }}</p>
+                  }
                 </div>
                 <div class="loan-actions">
                   @if (loan.mediaType === 'digital' && loan.status === 'active') { <button mat-flat-button type="button" (click)="openDigital(loan.bookId)">Abrir recurso</button> }

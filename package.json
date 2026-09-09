@@ -6,7 +6,8 @@
     "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:reduced-motion": "ng test --watch=false --browsers=ChromeHeadlessReducedMotion --include=src/app/reduced-motion.browser-check.ts --reporters=dots"
   },
   "prettier": {
     "overrides": [

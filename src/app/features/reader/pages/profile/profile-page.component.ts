@@ -12,6 +12,7 @@ import { ProfileFacade } from '../../data-access/profile.facade';
 
 @Component({
   selector: 'app-profile-page', standalone: true,
+  providers: [ProfileFacade],
   imports: [CommonModule, MatButtonModule, MatIconModule, PageHeaderComponent, ErrorStateComponent, SkeletonComponent],
   templateUrl: './profile-page.component.html', styleUrl: './profile-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush
 })

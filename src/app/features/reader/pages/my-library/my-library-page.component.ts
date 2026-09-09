@@ -8,15 +8,18 @@ import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-head
 import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
 import { LibraryLoan, MyLibraryFacade } from '../../data-access/my-library.facade';
 import { ReaderAnalyticsService } from '../../../../core/analytics/reader-analytics.service';
+import { LoanStatus } from '../../../../shared/models/loan.model';
 
 @Component({
   selector: 'app-my-library-page', standalone: true,
+  providers: [MyLibraryFacade],
   imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, PageHeaderComponent, ErrorStateComponent, SkeletonComponent],
   templateUrl: './my-library-page.component.html', styleUrl: './my-library-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MyLibraryPageComponent {
   readonly facade = inject(MyLibraryFacade);
   private readonly analytics = inject(ReaderAnalyticsService);
+  readonly statusLabels: Record<LoanStatus, string> = { active: 'Activo', overdue: 'Vencido', returned: 'Devuelto', cancelled: 'Cancelado' };
   readonly sections: readonly { key: 'active' | 'dueSoon' | 'overdue' | 'history'; title: string; description: string }[] = [
     { key: 'active', title: 'Activos', description: 'Lecturas vigentes y accesos digitales.' },
     { key: 'dueSoon', title: 'Por vencer', description: 'Préstamos que vencen en los próximos tres días.' },

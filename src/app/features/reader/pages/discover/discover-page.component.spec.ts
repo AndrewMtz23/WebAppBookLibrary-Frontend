@@ -16,6 +16,7 @@ describe('DiscoverPageComponent', () => {
       { provide: DiscoverFacade, useValue: { load: jasmine.createSpy('load'), newest: () => state([book]), popular: () => state([book]), popularBooks: () => [book], facets: () => state([{ value: 'Historia', count: 4 }]), activity: () => state(null), activeReading: () => state(null) } },
       { provide: FavoritesFacade, useValue: { busyIds: () => new Set(), isFavorite: () => false, toggle: jasmine.createSpy('toggle') } }
     ] });
+    TestBed.overrideComponent(DiscoverPageComponent, { set: { providers: [] } });
     const fixture = TestBed.createComponent(DiscoverPageComponent);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelectorAll('h1').length).toBe(1);

@@ -22,6 +22,12 @@ module.exports = function (config) {
     },
     reporters: ['progress', 'kjhtml'],
     browsers: ['Chrome'],
+    customLaunchers: {
+      ChromeHeadlessReducedMotion: {
+        base: 'ChromeHeadless',
+        flags: ['--force-prefers-reduced-motion']
+      }
+    },
     restartOnFileChange: true
   });
 };

@@ -1,6 +1,6 @@
 <div class="favorites-page">
   <app-page-header [config]="{ eyebrow: 'Selección personal', title: 'Favoritos', description: 'Los libros que guardaste para volver a encontrarlos sin esfuerzo.' }" />
-  <div class="count">{{ facade.totalItems() }} libros guardados</div>
+  <div class="count">{{ facade.totalItems() }} {{ facade.totalItems() === 1 ? 'libro guardado' : 'libros guardados' }}</div>
   @if (facade.loading()) {
     <div class="skeletons">@for (item of [1,2,3,4]; track item) { <app-skeleton [lines]="4" /> }</div>
   } @else if (facade.error() && !facade.items().length) {
