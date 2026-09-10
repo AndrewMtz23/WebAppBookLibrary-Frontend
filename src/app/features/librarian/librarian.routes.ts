@@ -8,7 +8,7 @@ export const LIBRARIAN_ROUTES: Routes = [{
   path: '', component: StaffShellComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['librarian'] },
   children: [
     { path: 'dashboard', component: RouteFoundationComponent, data: { eyebrow: 'Operación', title: 'Dashboard', description: 'Organiza el catálogo y las solicitudes pendientes.' } },
-    { path: 'books', loadChildren: () => import('../books/books.module').then(m => m.BooksModule) },
+    { path: 'books', loadComponent: () => import('./pages/books/books-page.component').then(m => m.BooksPageComponent) },
     { path: 'loans', loadChildren: () => import('../loans/loans.module').then(m => m.LoansModule) },
     { path: '', pathMatch: 'full', redirectTo: 'dashboard' }
   ]

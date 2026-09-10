@@ -1,0 +1,13 @@
+<header><p class="eyebrow">Operación bibliotecaria</p><h1>Catálogo de libros</h1><p>Mantén las fichas y la disponibilidad de la biblioteca al día.</p></header>
+<app-staff-book-list [page]="catalog.page()" [query]="catalog.query()" [loading]="catalog.loading()" [error]="catalog.error()" [notice]="catalog.notice()" [editLoading]="catalog.editLoading()" [editorSaving]="catalog.saving()" [canPermanentDelete]="false" (filters)="catalog.filters($event)" (reset)="catalog.reset()" (refresh)="catalog.refresh()" (create)="catalog.create()" (edit)="catalog.edit($event)" (status)="catalog.requestStatus($event)"  (goToPage)="catalog.goToPage($event)" />
+@if (catalog.pending(); as command) {
+  <section class="confirmation" role="region" aria-labelledby="confirmation-title">
+    <h2 id="confirmation-title">{{ command.permanent ? 'Eliminar definitivamente' : command.book.isActive ? 'Desactivar libro' : 'Activar libro' }}</h2>
+    <p><strong>{{ command.book.title }}</strong></p>
+    <p>{{ command.permanent ? 'Esta acción es irreversible. Solo se permite si el libro está inactivo y no tiene préstamos ni favoritos asociados.' : command.book.isActive ? 'El libro dejará de mostrarse a los lectores. Sus registros se conservarán.' : 'El libro volverá a estar visible para los lectores.' }}</p>
+    <div class="actions"><button type="button" (click)="catalog.cancelCommand()" [disabled]="catalog.commandBusy()">Cancelar</button><button type="button" class="primary" (click)="catalog.confirmCommand()" [disabled]="catalog.commandBusy()">{{ catalog.commandBusy() ? 'Procesando…' : 'Confirmar ' + (command.permanent ? 'eliminación definitiva' : command.book.isActive ? 'desactivación' : 'activación') }}</button></div>
+  </section>
+}
+@if (catalog.editorOpen()) {
+  <app-book-editor [record]="catalog.editorRecord()" [saving]="catalog.saving()" [error]="catalog.editorError()" [conflict]="!!catalog.conflictRecord()" (save)="catalog.save($event)" (cancel)="catalog.closeEditor()" (reload)="catalog.reloadEditor()" />
+}
