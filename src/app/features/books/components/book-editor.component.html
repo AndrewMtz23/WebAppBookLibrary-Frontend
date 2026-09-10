@@ -1,0 +1,37 @@
+<section class="editor" aria-labelledby="editor-title">
+  <header><div><p class="eyebrow">Ficha del catálogo</p><h2 id="editor-title" tabindex="-1">{{ record ? 'Editar libro' : 'Crear libro' }}</h2></div><button type="button" (click)="cancel.emit()" [disabled]="saving">Cerrar editor</button></header>
+  <p>Los campos con * son obligatorios. Separa autores, géneros y etiquetas con comas.</p>
+  @if (error) { <p role="alert" class="error">{{ error }}</p> }
+  @if (conflict) { <p>Hay una versión actual del servidor disponible. Al recargarla se reemplaza tu borrador.</p><button type="button" (click)="reload.emit()" [disabled]="saving">Descartar borrador y recargar versión actual</button> }
+  @if (submitted && form.invalid) { <p role="alert" class="error">No se guardó el libro. Corrige los campos marcados a continuación.</p> }
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <fieldset [disabled]="saving"><legend>Identidad</legend><div class="form-grid">
+      <label>Título *<input formControlName="title" maxlength="200" [attr.aria-invalid]="invalid('title')" aria-describedby="title-error">@if (invalid('title')) { <small id="title-error" class="error">Escribe entre 1 y 200 caracteres.</small> }</label>
+      <label>Subtítulo<input formControlName="subtitle" maxlength="200">@if (invalid('subtitle')) { <small class="error">Máximo 200 caracteres.</small> }</label>
+      <label>Autores *<input formControlName="authors" [attr.aria-invalid]="invalid('authors')">@if (invalid('authors')) { <small class="error">Entre 1 y 10 autores distintos, sin valores vacíos.</small> }</label>
+      <label>ISBN<input formControlName="isbn" [attr.aria-invalid]="invalid('isbn')">@if (invalid('isbn')) { <small class="error">El ISBN debe tener 10 o 13 caracteres sin espacios ni guiones.</small> }</label>
+      <label class="wide">Descripción *<textarea rows="5" formControlName="description" maxlength="5000" [attr.aria-invalid]="invalid('description')"></textarea>@if (invalid('description')) { <small class="error">Escribe entre 20 y 5000 caracteres.</small> }</label>
+    </div></fieldset>
+    <fieldset [disabled]="saving"><legend>Publicación</legend><div class="form-grid">
+      <label>Editorial<input formControlName="publisher" maxlength="160">@if (invalid('publisher')) { <small class="error">Máximo 160 caracteres.</small> }</label>
+      <label>Fecha de publicación<input type="date" formControlName="publishedDate"></label>
+      <label>Idioma *<input formControlName="language" maxlength="35" placeholder="es" [attr.aria-invalid]="invalid('language')">@if (invalid('language')) { <small class="error">Indica un idioma, por ejemplo es o en.</small> }</label>
+      <label>Número de páginas<input type="number" min="1" max="100000" step="1" formControlName="pageCount" [attr.aria-invalid]="invalid('pageCount')">@if (invalid('pageCount')) { <small class="error">Usa un entero entre 1 y 100000.</small> }</label>
+    </div></fieldset>
+    <fieldset [disabled]="saving"><legend>Clasificación</legend><div class="form-grid">
+      <label>Géneros *<input formControlName="genres" [attr.aria-invalid]="invalid('genres')">@if (invalid('genres')) { <small class="error">Entre 1 y 8 géneros distintos, sin valores vacíos.</small> }</label>
+      <label>Etiquetas<input formControlName="tags" [attr.aria-invalid]="invalid('tags')">@if (invalid('tags')) { <small class="error">Hasta 20 etiquetas distintas, sin valores vacíos.</small> }</label>
+      <label class="wide">URL de portada (HTTPS)<input type="url" formControlName="coverUrl" [attr.aria-invalid]="invalid('coverUrl')">@if (invalid('coverUrl')) { <small class="error">Usa una dirección HTTPS válida o deja el campo vacío.</small> }</label>
+    </div></fieldset>
+    <fieldset [disabled]="saving"><legend>Formato e inventario</legend><div class="form-grid">
+      <label>Formato *<select formControlName="mediaType"><option value="physical">Físico</option><option value="digital">Digital</option></select></label>
+      @if (form.controls.mediaType.value === 'physical') {
+        <label>Ejemplares totales *<input type="number" min="0" step="1" formControlName="totalCopies" [attr.aria-invalid]="invalid('totalCopies')">@if (invalid('totalCopies')) { <small class="error">Usa un entero igual o mayor que cero.</small> }</label>
+        <p class="wide">Los ejemplares disponibles se calculan a partir de los préstamos activos. No se pueden editar directamente.</p>
+      } @else {
+        <label>URL del recurso digital (HTTPS) *<input type="url" formControlName="digitalResourceUrl" [attr.aria-invalid]="invalid('digitalResourceUrl')">@if (invalid('digitalResourceUrl')) { <small class="error">El recurso digital requiere una dirección HTTPS válida.</small> }</label>
+      }
+    </div></fieldset>
+    <footer><button type="button" (click)="cancel.emit()" [disabled]="saving">Cancelar</button><button class="primary" type="submit" [disabled]="saving">{{ saving ? 'Guardando…' : 'Guardar libro' }}</button></footer>
+  </form>
+</section>
