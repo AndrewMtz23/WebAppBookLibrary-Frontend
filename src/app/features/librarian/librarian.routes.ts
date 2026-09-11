@@ -9,7 +9,7 @@ export const LIBRARIAN_ROUTES: Routes = [{
   children: [
     { path: 'dashboard', component: RouteFoundationComponent, data: { eyebrow: 'Operación', title: 'Dashboard', description: 'Organiza el catálogo y las solicitudes pendientes.' } },
     { path: 'books', loadComponent: () => import('./pages/books/books-page.component').then(m => m.BooksPageComponent) },
-    { path: 'loans', loadChildren: () => import('../loans/loans.module').then(m => m.LoansModule) },
+    { path: 'loans', loadComponent: () => import('./pages/loans/loans-page.component').then(m => m.LoansPageComponent) },
     { path: '', pathMatch: 'full', redirectTo: 'dashboard' }
   ]
 }];

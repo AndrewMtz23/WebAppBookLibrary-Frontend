@@ -1,0 +1,48 @@
+<nav class="quick" aria-label="Vistas rápidas de préstamos">
+  <button type="button" (click)="vm.quick('outstanding')">Activos</button><button type="button" (click)="vm.quick('due')">Vencen en 3 días</button><button type="button" (click)="vm.quick('overdue')">Vencidos</button><button type="button" (click)="vm.quick('returned')">Devueltos</button><button type="button" (click)="vm.quick('digital')">Digitales</button>
+</nav>
+<form class="filters" (ngSubmit)="apply()">
+  <label class="search">Buscar libro, usuario o ID<input name="query" [(ngModel)]="draft.query" maxlength="200" placeholder="Título, nombre o identificador"></label>
+  <label>Estado<select name="status" [(ngModel)]="draft.status"><option value="">Todos</option><option value="outstanding">Pendientes</option><option value="active">Reservados</option><option value="overdue">Vencidos</option><option value="returned">Devueltos</option><option value="cancelled">Cancelados</option></select></label>
+  <label>Formato<select name="mediaType" [(ngModel)]="draft.mediaType"><option value="">Todos</option><option value="physical">Físico</option><option value="digital">Digital</option></select></label>
+  <details class="advanced"><summary>Identidad, fechas y orden</summary><div class="form-grid">
+    <label>ID de usuario<input name="userId" [(ngModel)]="draft.userId"></label><label>ID de libro<input name="bookId" [(ngModel)]="draft.bookId"></label>
+    <label>Fecha del período<select name="dateField" [(ngModel)]="draft.dateField"><option value="reservedAt">Reserva</option><option value="returnedAt">Devolución</option><option value="cancelledAt">Cancelación</option></select></label>
+    <label>Desde (UTC, incluido)<input type="datetime-local" name="from" [ngModel]="dateInput(draft.from)" (ngModelChange)="setDate('from',$event)"></label><label>Hasta (UTC, excluido)<input type="datetime-local" name="to" [ngModel]="dateInput(draft.to)" (ngModelChange)="setDate('to',$event)"></label>
+    <label>Vence desde (UTC, incluido)<input type="datetime-local" name="dueFrom" [ngModel]="dateInput(draft.dueFrom)" (ngModelChange)="setDate('dueFrom',$event)"></label><label>Vence antes de (UTC)<input type="datetime-local" name="dueTo" [ngModel]="dateInput(draft.dueTo)" (ngModelChange)="setDate('dueTo',$event)"></label>
+    <label>Ordenar por<select name="sort" [(ngModel)]="draft.sort"><option value="reservedAt">Fecha de reserva</option><option value="dueAt">Vencimiento</option></select></label><label>Dirección<select name="direction" [(ngModel)]="draft.direction"><option value="desc">Más reciente primero</option><option value="asc">Más antiguo primero</option></select></label>
+    <label>Por página<select name="pageSize" [(ngModel)]="draft.pageSize"><option [ngValue]="10">10</option><option [ngValue]="20">20</option><option [ngValue]="50">50</option><option [ngValue]="100">100</option></select></label>
+  </div></details>
+  <div class="actions"><button class="primary" type="submit">Aplicar filtros</button><button type="button" (click)="vm.clear()">Limpiar</button></div>
+  @if(validation) { <p role="alert" class="error">{{ validation }}</p> }
+</form>
+<div class="toolbar"><p>{{ vm.page()?.totalItems ?? '—' }} préstamos <span class="muted">Fechas en UTC · Orden estable</span></p><button type="button" (click)="vm.refresh()" [disabled]="vm.loading()">Actualizar</button></div>
+@if(vm.loading()) { <p role="status">{{ vm.page() ? 'Actualizando resultados…' : 'Cargando préstamos…' }}</p> }
+@if(vm.error()) { <p class="error" role="alert">{{ vm.error() }}</p> }
+@if(vm.page(); as page) {
+  <section [attr.aria-busy]="vm.loading()">
+  @if(page.items.length) {
+    <table class="desktop-table"><caption class="sr-only">Préstamos de la biblioteca</caption><thead><tr><th scope="col">Libro / usuario</th><th scope="col">Estado</th><th scope="col">Reserva / vencimiento</th><th scope="col">Cierre</th><th scope="col">Detalle</th></tr></thead><tbody>
+    @for(loan of page.items; track loan.id) { <tr><td><strong>{{ loan.bookTitle || 'Libro no disponible' }}</strong><span class="muted">{{ loan.displayName || loan.username || loan.userId }}</span><span class="muted">{{ loan.mediaType === 'physical' ? 'Físico' : 'Digital' }}</span></td><td><span class="badge" [class.overdue]="loan.status === 'overdue'">{{ statuses[loan.status] }}</span></td><td>{{ date(loan.reservedAt) }}<span class="muted">Vence: {{ date(loan.dueAt) }}</span></td><td>{{ date(loan.returnedAt || loan.cancelledAt) }}</td><td><button data-detail type="button" [attr.aria-label]="'Ver préstamo de ' + (loan.bookTitle || loan.id)" [attr.data-loan-id]="loan.id" (click)="vm.open(loan.id)">Ver</button></td></tr> }
+    </tbody></table>
+    <div class="mobile-cards">@for(loan of page.items; track loan.id) { <article class="book-card"><span class="badge" [class.overdue]="loan.status === 'overdue'">{{ statuses[loan.status] }}</span><h2>{{ loan.bookTitle || 'Libro no disponible' }}</h2><p>{{ loan.displayName || loan.username || loan.userId }} · {{ loan.mediaType === 'physical' ? 'Físico' : 'Digital' }}</p><p>Reserva: {{ date(loan.reservedAt) }}</p><p>Vence: {{ date(loan.dueAt) }}</p><p>Cierre: {{ date(loan.returnedAt || loan.cancelledAt) }}</p><button type="button" [attr.data-loan-id]="loan.id" (click)="vm.open(loan.id)">Ver préstamo</button></article> }</div>
+  } @else if(!vm.loading() && !vm.error()) { <div class="empty"><h2>{{ filtered() ? 'Sin resultados para estos filtros' : 'Todavía no hay préstamos' }}</h2><p>{{ filtered() ? 'Prueba otro período o limpia los filtros.' : 'Las nuevas reservas aparecerán aquí.' }}</p>@if(filtered()) { <button (click)="vm.clear()">Limpiar filtros</button> }</div> }
+  <nav class="pagination" aria-label="Paginación"><button (click)="vm.paginate(page.page - 1)" [disabled]="!page.hasPreviousPage || vm.loading()">Anterior</button><span>Página {{ page.page }} de {{ page.totalPages || 1 }}</span><button (click)="vm.paginate(page.page + 1)" [disabled]="!page.hasNextPage || vm.loading()">Siguiente</button></nav>
+  </section>
+}
+@if(vm.selectedId()) {
+  <div class="overlay"><section class="drawer" role="dialog" aria-modal="true" aria-labelledby="loan-title" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" (keydown.escape)="closeDetail()">
+    <header><div><p class="eyebrow">Circulación</p><h2 id="loan-title">Detalle del préstamo</h2></div><button cdkFocusInitial type="button" (click)="closeDetail()" [disabled]="vm.busy()" aria-label="Cerrar detalle">Cerrar</button></header>
+    @if(vm.notice()) { <p role="status" class="notice">{{ vm.notice() }}</p> }
+    @if(vm.detailLoading()) { <p role="status">Consultando estado actual…</p> }
+    @if(vm.detailError()) { <p role="alert" class="error">{{ vm.detailError() }}</p><button (click)="vm.reloadDetail()">Reintentar consulta</button> }
+    @if(vm.detail(); as detail) {
+      <h3>{{ detail.loan.bookTitle || 'Libro no disponible' }}</h3><p>{{ detail.loan.displayName || detail.loan.username || 'Usuario no disponible' }} <span class="muted">{{ detail.loan.username }}</span></p><span class="badge">{{ statuses[detail.loan.status] }} · {{ detail.loan.mediaType === 'physical' ? 'Físico' : 'Digital' }}</span>
+      <dl><dt>ID del préstamo</dt><dd>{{ detail.loan.id }}</dd><dt>ID del libro</dt><dd>{{ detail.loan.bookId }}</dd><dt>ID del usuario</dt><dd>{{ detail.loan.userId }}</dd><dt>Reserva</dt><dd>{{ date(detail.loan.reservedAt) }}</dd><dt>Vencimiento</dt><dd>{{ date(detail.loan.dueAt) }}</dd><dt>Devolución</dt><dd>{{ date(detail.loan.returnedAt) }}</dd><dt>Cancelación</dt><dd>{{ date(detail.loan.cancelledAt) }}</dd></dl>
+      <h3>Historial de movimientos</h3><ol class="timeline">@for(event of detail.history; track $index) { <li><strong>{{ events[event.eventType] }}</strong><p>{{ date(event.timestamp) }}</p><small>{{ event.source === 'audit' ? 'Registro de auditoría' : 'Fecha registrada en el préstamo' }}{{ event.actorUsername ? ' · ' + event.actorUsername : '' }}</small></li> } @empty { <li>No hay movimientos registrados disponibles.</li> }</ol>
+      @if(detail.historyTruncated) { <p class="muted">Se muestran los movimientos más recientes; el historial está limitado.</p> }
+      @if(vm.pending(); as command) { <div class="confirmation"><h3>{{ command === 'return' ? 'Confirmar devolución física' : 'Confirmar cancelación' }}</h3><p>{{ command === 'return' ? 'Registrar la recepción de' : 'Cancelar el préstamo de' }} <strong>{{ detail.loan.bookTitle || detail.loan.bookId }}</strong> para <strong>{{ detail.loan.displayName || detail.loan.username || detail.loan.userId }}</strong>.</p><p>Préstamo {{ detail.loan.id }}</p><div class="actions"><button class="primary" (click)="vm.confirm()" [disabled]="vm.busy()">{{ vm.busy() ? 'Procesando…' : 'Confirmar' }}</button><button (click)="vm.dismiss()" [disabled]="vm.busy()">Volver</button></div></div> }
+      @else { <div class="actions">@if(vm.canAct('return')) { <button data-return class="primary" (click)="vm.request('return')">Registrar devolución</button> } @if(vm.canAct('cancel')) { <button class="danger" (click)="vm.request('cancel')">Cancelar préstamo</button> }</div> }
+    }
+  </section></div>
+}
