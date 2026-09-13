@@ -9,6 +9,7 @@ import { ReservationsFacade } from '../../../reader/data-access/reservations.fac
 import { ReaderService } from '../../../reader/data-access/reader.service';
 import { CatalogService } from '../../data-access/catalog.service';
 import { BookDetailPageComponent } from './book-detail-page.component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 describe('BookDetailPageComponent', () => {
   const detail: BookDetail = {
@@ -33,6 +34,7 @@ describe('BookDetailPageComponent', () => {
       { provide: ActivatedRoute, useValue: { paramMap: params.asObservable() } },
       { provide: CatalogService, useValue: catalog },
       { provide: ReaderService, useValue: reader },
+      { provide: AuthService, useValue: { sessionSnapshot: { user: { role: 'user' } } } },
       { provide: ReservationsFacade, useValue: reservations },
       {
         provide: FavoritesFacade,
@@ -53,6 +55,18 @@ describe('BookDetailPageComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Reservar ejemplar');
     expect(fixture.nativeElement.textContent).not.toContain('ISBN');
     expect(fixture.nativeElement.textContent).toContain('El llano en llamas');
+  });
+
+  it('renders a read-only catalog preview for staff without requesting reader state', () => {
+    TestBed.overrideProvider(AuthService, { useValue: { sessionSnapshot: { user: { role: 'admin' } } } });
+    const fixture = TestBed.createComponent(BookDetailPageComponent);
+    fixture.detectChanges();
+
+    expect(reader.getLoans).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('Vista de catálogo');
+    expect(fixture.nativeElement.textContent).not.toContain('Reservar ejemplar');
+    expect(fixture.nativeElement.textContent).not.toContain('Guardar');
+    expect(fixture.nativeElement.querySelector('button.favorite')).toBeNull();
   });
 
   it('keeps the calendar publication date in a negative timezone', () => {

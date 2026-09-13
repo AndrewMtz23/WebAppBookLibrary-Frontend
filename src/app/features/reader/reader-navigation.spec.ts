@@ -32,7 +32,7 @@ describe('reader route lifecycle', () => {
     TestBed.configureTestingModule({ imports: [NoopAnimationsModule], providers: [
       provideRouter([...READER_ROUTES[0].children!.filter(route => ['catalog', 'my-library', 'profile', 'discover'].includes(route.path!)), { path: 'other', component: OtherPage }]),
       { provide: CatalogService, useValue: catalog },
-      { provide: AuthService, useValue: { sessionSnapshot: { user: { username: 'reader' } } } },
+      { provide: AuthService, useValue: { sessionSnapshot: { user: { username: 'reader', role: 'user' } } } },
       { provide: ReaderService, useValue: {
         getLoans: () => of({ items: [...loans], page: 1, pageSize: 100, totalItems: loans.length, totalPages: loans.length ? 1 : 0, hasNextPage: false, hasPreviousPage: false }),
         getProfile: () => of({ id: 'reader', username: 'reader', displayName: 'Lector', email: 'reader@example.com', role: 'user', createdAt: '2026-01-01', lastLoginAt: null }),

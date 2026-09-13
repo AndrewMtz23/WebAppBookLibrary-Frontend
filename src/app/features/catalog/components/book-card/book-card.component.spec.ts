@@ -38,6 +38,14 @@ describe('BookCardComponent', () => {
     expect(fixture.nativeElement.querySelector('button.favorite').getAttribute('aria-label')).toContain('Quitar');
   });
 
+  it('hides the reader-only favorite control in a staff preview', () => {
+    component.book = book();
+    component.showFavorite = false;
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('button.favorite')).toBeNull();
+  });
+
   function book(patch: Partial<BookSummary> = {}): BookSummary {
     return { id: 'b1', title: 'Libro', subtitle: null, authors: ['Autora'], coverUrl: 'https://example.com/cover.jpg', mediaType: 'physical', genres: ['Historia'], availableCopies: 1, totalCopies: 2, reservationCount: 7, isFavorite: false, isActive: true, ...patch };
   }

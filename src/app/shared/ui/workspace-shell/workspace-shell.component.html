@@ -1,28 +1,171 @@
-<div class="workspace">
-  <aside class="workspace__sidebar" aria-label="Navegación principal">
-    <app-brand [route]="navigation[0]?.route ?? ['/']" />
-    <p class="workspace__context">{{ contextLabel }}</p>
-    <nav class="workspace__navigation">
-      @for (item of navigation; track item.label) {
-        <a [routerLink]="item.route" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: item.exact ?? false }"><mat-icon aria-hidden="true">{{ item.icon }}</mat-icon><span>{{ item.label }}</span></a>
-      }
-    </nav>
-    <div class="workspace__profile">
-      <app-avatar [name]="username" />
-      <span><strong>{{ username }}</strong><small>{{ contextLabel }}</small></span>
-      <button mat-icon-button type="button" aria-label="Cerrar sesión" (click)="logoutRequested.emit()"><mat-icon>logout</mat-icon></button>
-    </div>
-  </aside>
-  <div class="workspace__body">
-    <header class="workspace__topbar">
-      <div><span>Espacio de trabajo</span><strong>{{ contextLabel }}</strong></div>
-      <div class="workspace__top-profile"><app-avatar [name]="username" size="small" /><span>{{ username }}</span></div>
+<div
+  class="workspace"
+  [class.workspace--reader]="variant === 'reader'"
+  [class.workspace--sidebar-collapsed]="variant === 'staff' && isSidebarCollapsed">
+  @if (variant === 'reader') {
+    <header
+      class="reader-navbar"
+      [attr.aria-hidden]="isLogoutDialogOpen || isLoggingOut ? 'true' : null"
+      [attr.inert]="isLogoutDialogOpen || isLoggingOut ? '' : null">
+      <div class="reader-navbar__inner">
+        <app-brand [route]="navigation[0]?.route ?? ['/']" />
+
+        <nav class="reader-navbar__navigation" aria-label="Navegación de lectura">
+          @for (item of readerPrimaryNavigation; track item.label) {
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="is-active"
+              [routerLinkActiveOptions]="{ exact: item.exact ?? false }">
+              <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        </nav>
+
+        <div class="reader-navbar__account">
+          <app-account-menu />
+        </div>
+      </div>
     </header>
+  } @else {
+    <aside
+      class="workspace__sidebar"
+      aria-label="Navegación principal"
+      [attr.aria-hidden]="isLogoutDialogOpen || isLoggingOut ? 'true' : null"
+      [attr.inert]="isLogoutDialogOpen || isLoggingOut ? '' : null">
+      <div class="workspace__brand-row">
+        <app-brand [compact]="isSidebarCollapsed" [route]="navigation[0]?.route ?? ['/']" />
+        <button
+          mat-icon-button
+          class="workspace__collapse"
+          type="button"
+          [attr.aria-label]="isSidebarCollapsed ? 'Expandir navegación' : 'Contraer navegación'"
+          [matTooltip]="isSidebarCollapsed ? 'Expandir navegación' : 'Contraer navegación'"
+          matTooltipPosition="right"
+          (click)="toggleSidebar()">
+          <mat-icon>{{ isSidebarCollapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+        </button>
+      </div>
+
+      <p class="workspace__context">{{ contextLabel }}</p>
+
+      <nav class="workspace__navigation" aria-label="Áreas de trabajo">
+        @if (isSidebarCollapsed) {
+          @for (item of navigation; track item.label) {
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="is-active"
+              [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+              [attr.aria-label]="item.label"
+              [matTooltip]="item.label"
+              matTooltipPosition="right">
+              <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        } @else {
+          @for (group of navigationGroups; track group.label) {
+            <section class="navigation-group">
+              <button
+                type="button"
+                class="navigation-group__toggle"
+                [attr.aria-expanded]="isGroupExpanded(group.label)"
+                [attr.aria-controls]="groupId(group.label)"
+                (click)="toggleGroup(group.label)">
+                <mat-icon aria-hidden="true">{{ group.icon }}</mat-icon>
+                <span>{{ group.label }}</span>
+                <mat-icon class="navigation-group__chevron" aria-hidden="true">
+                  {{ isGroupExpanded(group.label) ? 'expand_less' : 'expand_more' }}
+                </mat-icon>
+              </button>
+
+              @if (isGroupExpanded(group.label)) {
+                <div class="navigation-group__items" [id]="groupId(group.label)">
+                  @for (item of group.items; track item.label) {
+                    <a
+                      [routerLink]="item.route"
+                      routerLinkActive="is-active"
+                      [routerLinkActiveOptions]="{ exact: item.exact ?? false }">
+                      <span class="navigation-group__branch" aria-hidden="true"></span>
+                      <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+                      <span>{{ item.label }}</span>
+                    </a>
+                  }
+                </div>
+              }
+            </section>
+          }
+        }
+      </nav>
+
+      <div class="workspace__profile">
+        <app-avatar [name]="username" />
+        <span><strong>{{ username }}</strong><small>{{ contextLabel }}</small></span>
+        <button mat-icon-button type="button" aria-label="Cerrar sesión" matTooltip="Cerrar sesión" matTooltipPosition="right" (click)="requestLogout()">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+    </aside>
+  }
+
+  <div
+    class="workspace__body"
+    [attr.aria-hidden]="isLogoutDialogOpen || isLoggingOut ? 'true' : null"
+    [attr.inert]="isLogoutDialogOpen || isLoggingOut ? '' : null">
+    @if (variant === 'staff') {
+      <header class="workspace__topbar">
+        <div><span>Espacio de trabajo</span><strong>{{ contextLabel }}</strong></div>
+        <div class="workspace__top-profile"><app-avatar [name]="username" size="small" /><span>{{ username }}</span></div>
+      </header>
+    }
     <main id="main-content" class="workspace__content" tabindex="-1"><router-outlet /></main>
   </div>
-  <nav class="workspace__mobile-nav" aria-label="Navegación móvil">
-    @for (item of navigation.slice(0, 5); track item.label) {
-      <a [routerLink]="item.route" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: item.exact ?? false }"><mat-icon aria-hidden="true">{{ item.icon }}</mat-icon><span>{{ item.label }}</span></a>
+
+  @if (variant === 'reader') {
+    <app-site-footer [homeRoute]="navigation[0]?.route ?? '/'" />
+  }
+
+  <nav
+    class="workspace__mobile-nav"
+    aria-label="Navegación móvil"
+    [attr.aria-hidden]="isLogoutDialogOpen || isLoggingOut ? 'true' : null"
+    [attr.inert]="isLogoutDialogOpen || isLoggingOut ? '' : null">
+    @for (item of mobileNavigation; track item.label) {
+      <a [routerLink]="item.route" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: item.exact ?? false }">
+        <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon><span>{{ item.label }}</span>
+      </a>
     }
   </nav>
+
+  @if (isLogoutDialogOpen) {
+    <div class="logout-overlay">
+      <section class="logout-dialog" role="dialog" aria-modal="true" aria-labelledby="logout-title" aria-describedby="logout-description" cdkTrapFocus [cdkTrapFocusAutoCapture]="true">
+        <span class="logout-dialog__icon" aria-hidden="true"><mat-icon>logout</mat-icon></span>
+        <p class="logout-dialog__eyebrow">Cerrar sesión</p>
+        <h2 id="logout-title">¿Seguro que deseas cerrar sesión?</h2>
+        <p id="logout-description">Tendrás que ingresar nuevamente para volver a tu biblioteca.</p>
+        <div class="logout-dialog__actions">
+          <button mat-stroked-button class="logout-dialog__cancel" type="button" (click)="cancelLogout()">Cancelar</button>
+          <button mat-flat-button color="primary" class="logout-dialog__confirm" type="button" (click)="confirmLogout()">
+            <mat-icon>logout</mat-icon> Sí, cerrar sesión
+          </button>
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (isLoggingOut) {
+    <div class="logout-overlay logout-overlay--loading">
+      <section class="logout-loading" role="dialog" aria-modal="true" aria-labelledby="logout-loading-title" aria-describedby="logout-loading-description" aria-live="polite" aria-busy="true">
+        <div class="logout-loading__mark" aria-hidden="true">
+          <mat-icon>auto_stories</mat-icon>
+          <span></span>
+        </div>
+        <p class="logout-dialog__eyebrow">Hasta la próxima</p>
+        <h2 id="logout-loading-title">Cerrando sesión…</h2>
+        <p id="logout-loading-description">Estamos protegiendo tu cuenta.</p>
+        <div class="logout-loading__progress" aria-hidden="true"><span></span></div>
+      </section>
+    </div>
+  }
 </div>

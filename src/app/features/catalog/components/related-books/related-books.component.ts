@@ -7,5 +7,6 @@ export class RelatedBooksComponent {
   @Input() books: readonly BookSummary[] = [];
   @Input() busyFavoriteIds: ReadonlySet<string> = new Set();
   @Input() favoriteResolver: ((book: BookSummary) => boolean) | null = null;
+  @Input() showFavorite = true;
   @Output() readonly favoriteRequested = new EventEmitter<BookSummary>();
 }

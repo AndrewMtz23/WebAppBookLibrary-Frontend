@@ -8,6 +8,8 @@ export const routes: Routes = [
   { path: 'app', loadChildren: () => import('./features/reader/reader.routes').then(m => m.READER_ROUTES) },
   { path: 'librarian', loadChildren: () => import('./features/librarian/librarian.routes').then(m => m.LIBRARIAN_ROUTES) },
   { path: 'admin', loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES) },
+  { path: 'privacy', data: { document: 'privacy' }, loadComponent: () => import('./features/legal/legal-document-page.component').then(m => m.LegalDocumentPageComponent) },
+  { path: 'legal', data: { document: 'legal' }, loadComponent: () => import('./features/legal/legal-document-page.component').then(m => m.LegalDocumentPageComponent) },
   { path: 'access-denied', loadComponent: () => import('./features/system/access-denied/access-denied.component').then(m => m.AccessDeniedComponent) },
 
   { path: 'catalog', pathMatch: 'full', redirectTo: 'app/catalog' },

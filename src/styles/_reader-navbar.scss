@@ -1,0 +1,19 @@
+.reader-navbar { position: sticky; z-index: var(--z-sticky); top: 0; min-height: var(--topbar-height); background: rgb(255 253 248 / 96%); border-bottom: 1px solid var(--color-border); box-shadow: 0 4px 18px rgb(13 27 42 / 7%); backdrop-filter: blur(14px); }
+.reader-navbar__inner { display: grid; width: min(calc(100% - 2.5rem), var(--content-max)); min-height: var(--topbar-height); grid-template-columns: minmax(10rem, 1fr) auto minmax(10rem, 1fr); align-items: center; gap: clamp(var(--space-4), 3vw, var(--space-8)); margin-inline: auto; }
+.reader-navbar app-brand { color: var(--color-ink); }
+.reader-navbar__navigation { display: flex; align-items: stretch; align-self: stretch; gap: var(--space-1); }
+.reader-navbar__navigation a { position: relative; display: inline-flex; align-items: center; gap: var(--space-2); padding-inline: clamp(.65rem, 1.2vw, 1rem); color: var(--color-text-muted); font-size: var(--text-sm); font-weight: 650; text-decoration: none; transition: color var(--duration-fast) var(--ease-out); }
+.reader-navbar__navigation a::after { position: absolute; right: .7rem; bottom: 0; left: .7rem; height: 3px; background: var(--color-primary); border-radius: var(--radius-pill) var(--radius-pill) 0 0; content: ''; opacity: 0; transform: scaleX(.35); transition: opacity var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out); }
+.reader-navbar__navigation a:hover,
+.reader-navbar__navigation a.is-active { color: var(--color-primary); }
+.reader-navbar__navigation a.is-active::after { opacity: 1; transform: scaleX(1); }
+.reader-navbar__navigation mat-icon { width: 1.15rem; height: 1.15rem; font-size: 1.15rem; }
+.reader-navbar__account { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); min-width: 0; }
+.workspace--reader .workspace__content { padding-top: clamp(var(--space-8), 4vw, var(--space-12)); }
+
+@media (max-width: 800px) { .reader-navbar { display: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .reader-navbar__navigation a,
+  .reader-navbar__navigation a::after { transition: none; }
+}

@@ -7,3 +7,9 @@ export interface NavigationItem {
   readonly exact?: boolean;
   readonly roles: readonly UserRole[];
 }
+
+export interface NavigationGroup {
+  readonly label: string;
+  readonly icon: string;
+  readonly items: readonly NavigationItem[];
+}

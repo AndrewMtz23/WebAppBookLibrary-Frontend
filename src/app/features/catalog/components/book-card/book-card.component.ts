@@ -15,6 +15,7 @@ export class BookCardComponent {
   @Input({ required: true }) book!: BookSummary;
   @Input() favoriteBusy = false;
   @Input() favoriteState: boolean | null = null;
+  @Input() showFavorite = true;
   @Output() readonly openBook = new EventEmitter<string>();
   @Output() readonly toggleFavorite = new EventEmitter<BookSummary>();
   imageFailed = false;

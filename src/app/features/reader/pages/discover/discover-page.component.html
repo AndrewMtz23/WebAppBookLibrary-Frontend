@@ -1,5 +1,5 @@
 <div class="discover-page">
-  <header class="welcome"><p>Tu biblioteca, a tu ritmo</p><h1>Hola, {{ username }}.</h1><span>¿Qué te gustaría descubrir hoy?</span></header>
+  <h1 class="visually-hidden">Descubre tu próxima lectura</h1>
   @if (facade.newest().loading) {
     <app-skeleton [lines]="7" />
   } @else if (facade.newest().data[0]; as featured) {
@@ -11,10 +11,11 @@
   <section class="rail" aria-labelledby="popular-title">
     <div class="rail__heading"><div><p>Lo que todos están leyendo</p><h2 id="popular-title">Más populares</h2></div><a routerLink="/app/catalog" [queryParams]="{sort:'reservationCount', direction:'desc'}">Ver todos</a></div>
     @if (facade.popular().loading) { <app-skeleton [lines]="4" /> }
-    @else if (facade.popularBooks().length) { <app-book-grid [books]="facade.popularBooks().slice(0, 4)" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (favoriteRequested)="favorites.toggle($event)" /> }
+    @else if (facade.popularBooks().length) { <app-book-grid [books]="facade.popularBooks().slice(0, 4)" [showFavorite]="isReader" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (favoriteRequested)="favorites.toggle($event)" /> }
     @if (facade.popular().error) { <p class="subtle-note">Mostramos novedades porque la popularidad no está disponible.</p> }
   </section>
 
+  @if (isReader) {
   <section class="rail" aria-labelledby="continue-title">
     <div class="rail__heading"><div><p>Tu actividad</p><h2 id="continue-title">Continúa leyendo</h2></div><a routerLink="/app/my-library">Mi biblioteca</a></div>
     @if (facade.activeReading().loading) { <app-skeleton [lines]="3" /> }
@@ -22,6 +23,7 @@
     @else if (facade.activeReading().error) { <app-error-state title="No pudimos cargar tu lectura actual" [message]="facade.activeReading().error!" (retryRequested)="facade.load()" /> }
     @else { <p class="subtle-note">Cuando reserves un libro, aparecerá aquí para continuar.</p> }
   </section>
+  }
 
   <section class="categories" aria-labelledby="categories-title">
     <div class="rail__heading"><div><p>Explora por interés</p><h2 id="categories-title">Categorías</h2></div><a routerLink="/app/catalog">Ver catálogo</a></div>
@@ -32,11 +34,11 @@
 
   <section class="rail" aria-labelledby="new-title">
     <div class="rail__heading"><div><p>Recién llegados</p><h2 id="new-title">Novedades</h2></div><a routerLink="/app/catalog">Ver todos</a></div>
-    @if (facade.newest().data.length) { <app-book-grid [books]="facade.newest().data.slice(0, 4)" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (favoriteRequested)="favorites.toggle($event)" /> }
+    @if (facade.newest().data.length) { <app-book-grid [books]="facade.newest().data.slice(0, 4)" [showFavorite]="isReader" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (favoriteRequested)="favorites.toggle($event)" /> }
   </section>
 
-  @if (facade.activity().data; as activity) {
+  @if (isReader && facade.activity().data; as activity) {
     <aside class="activity"><div><span>{{ activity.totalReservations }}</span><p>reservas este periodo</p></div><div><span>{{ activity.favorites }}</span><p>favoritos guardados</p></div><a routerLink="/app/my-library">Ver Mi biblioteca</a></aside>
   }
-  @else if (facade.activity().error) { <app-error-state title="No pudimos cargar tu resumen" [message]="facade.activity().error!" (retryRequested)="facade.load()" /> }
+  @else if (isReader && facade.activity().error) { <app-error-state title="No pudimos cargar tu resumen" [message]="facade.activity().error!" (retryRequested)="facade.load()" /> }
 </div>

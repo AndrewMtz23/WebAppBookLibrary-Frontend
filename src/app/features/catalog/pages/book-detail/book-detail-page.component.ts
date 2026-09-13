@@ -16,6 +16,7 @@ import { DEFAULT_CATALOG_QUERY } from '../../models/catalog-query';
 import { ReaderAnalyticsService } from '../../../../core/analytics/reader-analytics.service';
 import { ReaderService } from '../../../reader/data-access/reader.service';
 import { PublicationDatePipe } from './publication-date.pipe';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-book-detail-page', standalone: true,
@@ -30,6 +31,7 @@ export class BookDetailPageComponent {
   readonly favorites = inject(FavoritesFacade);
   private readonly analytics = inject(ReaderAnalyticsService);
   private readonly reader = inject(ReaderService);
+  private readonly auth = inject(AuthService);
   private readonly retryRequest = new Subject<void>();
   private reservationStateSubscription?: Subscription;
   readonly book = signal<BookDetail | null>(null);
@@ -41,6 +43,7 @@ export class BookDetailPageComponent {
   readonly imageFailed = signal(false);
   readonly digitalMessage = signal<string | null>(null);
   readonly favoriteResolver = (book: BookSummary): boolean => this.favorites.isFavorite(book);
+  get isReader(): boolean { return this.auth.sessionSnapshot?.user.role === 'user'; }
 
   constructor() {
     this.reservations.confirmed$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(bookId => {
@@ -71,7 +74,7 @@ export class BookDetailPageComponent {
       if (book) this.analytics.trackAction('book_open');
       this.loading.set(false);
       if (book?.genres[0]) this.loadRelated(book);
-      if (book) this.loadReservationState(book);
+      if (book && this.isReader) this.loadReservationState(book);
     });
   }
 

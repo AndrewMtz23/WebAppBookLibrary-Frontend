@@ -43,7 +43,6 @@ export class LoginComponent {
 
     this.authService.login(request).subscribe({
       next: response => {
-        this.isLoading = false;
         this.isLoggedIn = true;
         this.snackBar.open(`¡Bienvenido, ${response.user.username}!`, 'Cerrar', {
           duration: 3000,

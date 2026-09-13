@@ -1,0 +1,49 @@
+<div class="legal-page">
+  <header class="legal-header">
+    <app-brand />
+    <app-account-menu />
+  </header>
+
+  <main id="main-content" tabindex="-1">
+    <a class="legal-back" routerLink="/">← Volver a BookLibrary</a>
+
+    @if (document === 'privacy') {
+      <article>
+        <header class="document-heading">
+          <p>Información y transparencia</p>
+          <h1>Política de privacidad</h1>
+          <span>Última actualización: 13 de septiembre de 2026</span>
+          <p>Esta política explica qué información utiliza BookLibrary, para qué la necesita y qué opciones tienes sobre tus datos.</p>
+        </header>
+
+        <section><h2>1. Información que tratamos</h2><p>Podemos tratar datos de cuenta como nombre de usuario, correo electrónico y rol; información de uso como reservas, préstamos, favoritos e historial de lectura; y datos técnicos necesarios para proteger la sesión, registrar accesos y diagnosticar fallos.</p></section>
+        <section><h2>2. Para qué utilizamos los datos</h2><p>Usamos esta información para autenticar tu cuenta, operar el catálogo y la circulación de libros, mostrar tu actividad, mantener la seguridad del servicio, atender solicitudes y mejorar la experiencia de la biblioteca.</p></section>
+        <section><h2>3. Conservación y seguridad</h2><p>Conservamos la información durante el tiempo necesario para prestar el servicio, cumplir obligaciones aplicables y mantener registros de seguridad. Aplicamos controles de acceso por rol, cifrado durante la transmisión y medidas de supervisión para reducir accesos no autorizados.</p></section>
+        <section><h2>4. Uso compartido</h2><p>No vendemos información personal. Los datos solo pueden ser tratados por la biblioteca responsable y por proveedores técnicos necesarios para operar el servicio, sujetos a sus funciones y medidas de protección correspondientes.</p></section>
+        <section><h2>5. Tus opciones</h2><p>Puedes solicitar acceso, corrección o eliminación de tus datos a la administración de la biblioteca. Algunas solicitudes pueden estar limitadas cuando sea necesario conservar registros de préstamos, seguridad o cumplimiento.</p></section>
+        <section><h2>6. Almacenamiento local</h2><p>BookLibrary utiliza almacenamiento local del navegador para conservar la sesión y preferencias de interfaz. Puedes eliminarlo desde la configuración del navegador; hacerlo cerrará tu sesión y restablecerá esas preferencias.</p></section>
+        <section><h2>7. Cambios y contacto</h2><p>Si esta política cambia, actualizaremos la fecha publicada en esta página. Para consultas sobre privacidad, comunícate con la administración responsable de tu biblioteca.</p></section>
+      </article>
+    } @else {
+      <article>
+        <header class="document-heading">
+          <p>Condiciones del servicio</p>
+          <h1>Aviso legal</h1>
+          <span>Última actualización: 13 de septiembre de 2026</span>
+          <p>Este aviso establece las reglas generales para utilizar BookLibrary y los contenidos disponibles mediante la plataforma.</p>
+        </header>
+
+        <section><h2>1. Finalidad del servicio</h2><p>BookLibrary facilita la consulta del catálogo, la administración de cuentas y el seguimiento de reservas y préstamos. Las funciones disponibles dependen del rol asignado por la biblioteca.</p></section>
+        <section><h2>2. Uso de la cuenta</h2><p>La cuenta es personal. Debes mantener tus credenciales bajo resguardo, proporcionar información válida y avisar a la administración si detectas un acceso que no reconoces.</p></section>
+        <section><h2>3. Catálogo, reservas y disponibilidad</h2><p>La existencia de un registro en el catálogo no garantiza disponibilidad inmediata. Los plazos, renovaciones, cancelaciones y condiciones de préstamo se rigen por las políticas operativas de cada biblioteca.</p></section>
+        <section><h2>4. Recursos digitales y sitios externos</h2><p>Algunos libros pueden dirigir a recursos administrados por terceros. Sus contenidos, disponibilidad y condiciones corresponden a sus respectivos responsables. BookLibrary muestra estos enlaces como apoyo para el acceso a la lectura.</p></section>
+        <section><h2>5. Contenidos y propiedad intelectual</h2><p>Las marcas, interfaces y materiales propios de BookLibrary están protegidos por los derechos que correspondan. Las obras del catálogo conservan la titularidad y licencias indicadas por sus autores, editoriales o fuentes de distribución.</p></section>
+        <section><h2>6. Conductas no permitidas</h2><p>No se permite intentar vulnerar la plataforma, acceder a cuentas ajenas, alterar registros, automatizar solicitudes abusivas ni utilizar el servicio para infringir derechos de otras personas.</p></section>
+        <section><h2>7. Disponibilidad y cambios</h2><p>La biblioteca puede realizar mantenimiento, corregir información, modificar funciones o restringir temporalmente el acceso para proteger el sistema. Los cambios relevantes de este aviso se reflejarán en la fecha de actualización.</p></section>
+        <section><h2>8. Contacto</h2><p>Para aclaraciones sobre tu cuenta, una reserva, un préstamo o estas condiciones, comunícate con la administración responsable de tu biblioteca.</p></section>
+      </article>
+    }
+  </main>
+
+  <app-site-footer />
+</div>

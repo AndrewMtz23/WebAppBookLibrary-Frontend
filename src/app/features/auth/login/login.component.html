@@ -1,4 +1,8 @@
-<article class="auth-card" aria-labelledby="login-title">
+<article
+  class="auth-card"
+  aria-labelledby="login-title"
+  [attr.aria-hidden]="isLoading ? 'true' : null"
+  [attr.inert]="isLoading ? '' : null">
   <header class="auth-card__header">
     <p class="auth-card__eyebrow">Bienvenido de vuelta</p>
     <h2 id="login-title">Continúa tu próxima lectura</h2>
@@ -27,3 +31,24 @@
     <p class="auth-form__switch">¿Aún no tienes cuenta? <a mat-button color="primary" routerLink="/auth/register">Crear cuenta</a></p>
   </form>
 </article>
+
+<div
+  *ngIf="isLoading"
+  class="login-loading"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="login-loading-title"
+  aria-describedby="login-loading-description">
+  <section class="login-loading__card" aria-live="polite" aria-busy="true">
+    <div class="login-loading__mark" aria-hidden="true">
+      <mat-icon>auto_stories</mat-icon>
+      <span class="login-loading__orbit"></span>
+    </div>
+    <p class="login-loading__eyebrow">Acceso seguro</p>
+    <h2 id="login-loading-title">Iniciando sesión…</h2>
+    <p id="login-loading-description">Estamos preparando tu biblioteca.</p>
+    <div class="login-loading__progress" aria-hidden="true">
+      <span></span>
+    </div>
+  </section>
+</div>

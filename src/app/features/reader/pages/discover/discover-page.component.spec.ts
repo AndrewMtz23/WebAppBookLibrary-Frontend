@@ -7,9 +7,10 @@ import { DiscoverFacade } from '../../data-access/discover.facade';
 import { DiscoverPageComponent } from './discover-page.component';
 
 describe('DiscoverPageComponent', () => {
+  const state = <T>(data: T) => ({ data, loading: false, error: null });
+
   it('renders a stable hero and filterable category links without carousel controls', () => {
     const book = { id: '1', title: 'La casa', subtitle: null, authors: ['Autora'], coverUrl: null, mediaType: 'physical' as const, genres: ['Historia'], availableCopies: 1, totalCopies: 1, reservationCount: 3, isFavorite: false, isActive: true };
-    const state = <T>(data: T) => ({ data, loading: false, error: null });
     TestBed.configureTestingModule({ imports: [DiscoverPageComponent, NoopAnimationsModule], providers: [
       provideRouter([]),
       { provide: AuthService, useValue: { sessionSnapshot: { user: { username: 'Elena' } } } },
@@ -20,8 +21,28 @@ describe('DiscoverPageComponent', () => {
     const fixture = TestBed.createComponent(DiscoverPageComponent);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelectorAll('h1').length).toBe(1);
-    expect(fixture.nativeElement.textContent).toContain('Elena');
+    expect(fixture.nativeElement.querySelector('h1').classList).toContain('visually-hidden');
+    expect(fixture.nativeElement.querySelector('.welcome')).toBeNull();
     expect(fixture.nativeElement.querySelector('[data-carousel]')).toBeNull();
     expect(fixture.nativeElement.querySelector('a[href*="genre=Historia"]')).not.toBeNull();
+  });
+
+  it('hides personal activity sections in a staff preview', async () => {
+    await TestBed.configureTestingModule({
+      imports: [DiscoverPageComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: { sessionSnapshot: { user: { username: 'Admin', role: 'admin' } } } },
+        { provide: DiscoverFacade, useValue: { load: jasmine.createSpy('load'), newest: () => state([]), popular: () => state([]), popularBooks: () => [], facets: () => state([]), activity: () => state(null), activeReading: () => state(null) } },
+        { provide: FavoritesFacade, useValue: { busyIds: () => new Set(), isFavorite: () => false, toggle: jasmine.createSpy('toggle') } }
+      ]
+    }).overrideComponent(DiscoverPageComponent, { set: { providers: [] } }).compileComponents();
+
+    const fixture = TestBed.createComponent(DiscoverPageComponent);
+    fixture.detectChanges();
+    const text = fixture.nativeElement.textContent;
+
+    expect(text).not.toContain('Continúa leyendo');
+    expect(text).not.toContain('No pudimos cargar tu resumen');
   });
 });
