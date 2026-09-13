@@ -31,7 +31,10 @@ export class StaffBooksFacade {
   private editVersion = 0;
 
   constructor() {
-    merge(this.route.queryParamMap.pipe(tap(params => this.query.set(this.decode(params)))), this.refresh$).pipe(
+    merge(this.route.queryParamMap.pipe(tap(params => {
+      this.query.set(this.decode(params));
+      if (params.get('create') === 'true' && !this.editorOpen()) this.create();
+    })), this.refresh$).pipe(
       switchMap(() => {
         this.loading.set(true); this.error.set('');
         return this.api.search(this.query()).pipe(
@@ -44,7 +47,7 @@ export class StaffBooksFacade {
   }
   private decode(params: ParamMap): StaffBookQuery {
     const q = { ...DEFAULT_STAFF_BOOK_QUERY };
-    for (const key of ['query', 'genre', 'language'] as const) q[key] = (params.get(key) ?? '').slice(0, key === 'query' ? 200 : 100);
+    for (const key of ['query', 'bookId', 'genre', 'language'] as const) q[key] = (params.get(key) ?? '').slice(0, key === 'query' ? 200 : 100);
     for (const key of ['available', 'isActive', 'lowStock', 'missingResource'] as const) {
       const value = params.get(key); q[key] = value === 'true' || value === 'false' ? value : '';
     }

@@ -16,4 +16,14 @@ describe('RoleGuard', () => {
 
     expect(result).toEqual(router.createUrlTree(['/access-denied']));
   });
+
+  it('allows an admin through the librarian dashboard role matrix', () => {
+    TestBed.configureTestingModule({
+      imports: [RouterTestingModule],
+      providers: [{ provide: AuthService, useValue: { sessionSnapshot: { user: { role: 'admin' } } } }]
+    });
+    const route = { data: { roles: ['librarian', 'admin'] } } as unknown as ActivatedRouteSnapshot;
+
+    expect(TestBed.inject(RoleGuard).canActivate(route, { url: '/librarian/dashboard' } as RouterStateSnapshot)).toBeTrue();
+  });
 });

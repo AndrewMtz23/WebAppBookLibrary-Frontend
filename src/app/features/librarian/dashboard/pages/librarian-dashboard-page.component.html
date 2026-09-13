@@ -1,0 +1,17 @@
+<header class="dashboard-header"><div><p class="eyebrow">Operación bibliotecaria</p><h1>Pulso de la biblioteca</h1><p>Trabajo pendiente, devoluciones e inventario con cifras conciliadas.</p></div><a class="primary-link" routerLink="/librarian/books" [queryParams]="{create:true}">Crear libro</a></header>
+<app-dashboard-period-controls [period]="dashboard.period()" [busy]="dashboard.refreshing()" (periodChange)="dashboard.setPeriod($event)" (refresh)="dashboard.refresh()" />
+@if(dashboard.loading()){<section class="dashboard-skeleton" aria-label="Cargando dashboard" aria-busy="true">@for(item of [1,2,3,4];track item){<span></span>}</section>}
+@if(dashboard.error()){<section class="dashboard-error" role="alert"><p>{{dashboard.error()}}</p><button type="button" (click)="dashboard.refresh()">Reintentar</button></section>}
+@if(dashboard.data();as data){
+  <p class="data-date">Datos actualizados <time [attr.datetime]="data.generatedAt">{{data.generatedAt|date:'medium'}}</time> · {{data.timezone}} · periodo local inclusivo {{dashboard.period().from}}—{{dashboard.period().to}}</p>
+  <section class="metric-grid" aria-label="Indicadores operativos">
+    <app-metric-card label="Préstamos físicos activos" [value]="data.activeReservations" definition="Préstamos físicos actualmente activos o vencidos; no se limita por fecha de reserva." [route]="['/librarian/loans']" [queryParams]="{status:'outstanding',mediaType:'physical'}" />
+    <app-metric-card label="Vencidos físicos" [value]="data.overdueReservations" definition="Préstamos físicos actualmente vencidos según su fecha efectiva." [route]="['/librarian/loans']" [queryParams]="{status:'overdue',mediaType:'physical'}" />
+    <app-metric-card label="Devueltos en el periodo" [value]="data.returnedPhysical.current" [comparison]="data.returnedPhysical.percentageChange" definition="Devoluciones físicas cuya fecha de devolución efectiva cae en el periodo." [route]="['/librarian/loans']" [queryParams]="periodParams(data,{status:'returned',mediaType:'physical',dateField:'returnedAt'})" />
+    <app-metric-card label="Reservas digitales" [value]="data.digitalReservations.current" [comparison]="data.digitalReservations.percentageChange" definition="Reservas digitales creadas dentro del periodo local seleccionado." [route]="['/librarian/loans']" [queryParams]="periodParams(data,{mediaType:'digital',dateField:'reservedAt'})" />
+    <app-metric-card label="Inventario bajo" [value]="data.lowInventoryTitles" definition="Títulos físicos activos con exactamente una copia disponible." [route]="['/librarian/books']" [queryParams]="{lowStock:true}" />
+    <app-metric-card label="Agotados" [value]="data.outOfStockTitles" definition="Títulos físicos activos sin copias disponibles." [route]="['/librarian/books']" [queryParams]="{available:false,mediaType:'physical',isActive:true}" />
+  </section>
+  <section class="rank-grid"><app-dashboard-rank eyebrow="Demanda" title="Más reservados" [items]="top(data)" /><app-dashboard-rank eyebrow="Oportunidad" title="Sin reservas en el periodo" emptyText="Todos los títulos activos tuvieron actividad." [items]="quiet(data)" /></section>
+  <section class="inventory-note"><div><p class="eyebrow">Stock actual</p><h2>{{data.availablePhysicalCopies}} copias físicas disponibles</h2><p>{{data.activeBooks}} títulos activos. Esta cifra es estado actual y no se compara con un periodo histórico ficticio.</p></div><a routerLink="/librarian/loans" [queryParams]="{status:'overdue',mediaType:'physical'}">Abrir vencidos →</a></section>
+}
