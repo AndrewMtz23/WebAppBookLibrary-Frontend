@@ -26,10 +26,35 @@
   }
 
   <section class="categories" aria-labelledby="categories-title">
-    <div class="rail__heading"><div><p>Explora por interés</p><h2 id="categories-title">Categorías</h2></div><a routerLink="/app/catalog">Ver catálogo</a></div>
+    <div class="categories__heading">
+      <div>
+        <p>Explora por interés</p>
+        <h2 id="categories-title">Una colección para cada curiosidad</h2>
+        <span>Recorre el catálogo desde el género que más se parezca a tu próxima lectura.</span>
+      </div>
+      <a routerLink="/app/catalog">Ver catálogo <span aria-hidden="true">↗</span></a>
+    </div>
     @if (facade.facets().loading) { <app-skeleton [lines]="2" /> }
     @else if (facade.facets().error) { <app-error-state title="No pudimos cargar las categorías" [message]="facade.facets().error!" (retryRequested)="facade.load()" /> }
-    @else { <div class="category-list">@for (facet of facade.facets().data.slice(0, 8); track facet.value) { <a routerLink="/app/catalog" [queryParams]="{genre:facet.value}"><span>{{ facet.value }}</span><b>{{ facet.count }}</b></a> }</div> }
+    @else {
+      <div class="category-list">
+        @for (facet of facade.facets().data.slice(0, 8); track facet.value; let index = $index) {
+          <a
+            class="category-card"
+            [class.category-card--featured]="index === 0"
+            routerLink="/app/catalog"
+            [queryParams]="{genre:facet.value}"
+            [attr.aria-label]="facet.value + ', ' + facet.count + ' ' + (facet.count === 1 ? 'título' : 'títulos')">
+            <span class="category-card__index">{{ categoryOrdinal(index) }}</span>
+            <span class="category-card__name">{{ facet.value }}</span>
+            <span class="category-card__meta">
+              {{ facet.count }} {{ facet.count === 1 ? 'título' : 'títulos' }}
+              <b aria-hidden="true">→</b>
+            </span>
+          </a>
+        }
+      </div>
+    }
   </section>
 
   <section class="rail" aria-labelledby="new-title">

@@ -24,7 +24,12 @@ describe('DiscoverPageComponent', () => {
     expect(fixture.nativeElement.querySelector('h1').classList).toContain('visually-hidden');
     expect(fixture.nativeElement.querySelector('.welcome')).toBeNull();
     expect(fixture.nativeElement.querySelector('[data-carousel]')).toBeNull();
-    expect(fixture.nativeElement.querySelector('a[href*="genre=Historia"]')).not.toBeNull();
+    const category = fixture.nativeElement.querySelector('a[href*="genre=Historia"]') as HTMLAnchorElement;
+    expect(category).not.toBeNull();
+    expect(category.classList).toContain('category-card--featured');
+    expect(category.getAttribute('aria-label')).toContain('4 títulos');
+    expect(category.textContent).toContain('01');
+    expect(category.textContent).toContain('4 títulos');
   });
 
   it('hides personal activity sections in a staff preview', async () => {
