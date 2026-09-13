@@ -9,5 +9,8 @@ export class ReaderShellComponent {
   readonly navigation = navigationForRole('user');
   get username(): string { return this.auth.sessionSnapshot?.user.username ?? 'Lector'; }
   constructor(private readonly auth: AuthService, private readonly router: Router) {}
-  logout(): void { this.auth.logout(); void this.router.navigate(['/auth/login']); }
+  logout(): void {
+    this.auth.logout();
+    setTimeout(() => void this.router.navigate(['/auth/login']), 650);
+  }
 }
