@@ -8,8 +8,9 @@ import { NavigationGroup, NavigationItem } from '../../../core/navigation/naviga
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { SiteFooterComponent } from '../site-footer/site-footer.component';
+import { AccountMenuComponent } from '../account-menu/account-menu.component';
 
-@Component({ selector: 'app-workspace-shell', standalone: true, imports: [A11yModule, AppBrandComponent, AvatarComponent, SiteFooterComponent, MatButtonModule, MatIconModule, MatTooltipModule, RouterLink, RouterLinkActive, RouterOutlet], templateUrl: './workspace-shell.component.html', styleUrls: ['./workspace-shell.component.scss'], changeDetection: ChangeDetectionStrategy.OnPush })
+@Component({ selector: 'app-workspace-shell', standalone: true, imports: [A11yModule, AccountMenuComponent, AppBrandComponent, AvatarComponent, SiteFooterComponent, MatButtonModule, MatIconModule, MatTooltipModule, RouterLink, RouterLinkActive, RouterOutlet], templateUrl: './workspace-shell.component.html', styleUrls: ['./workspace-shell.component.scss'], changeDetection: ChangeDetectionStrategy.OnPush })
 export class WorkspaceShellComponent {
   private readonly sidebarStorageKey = 'booklibrary_sidebar_collapsed';
 
@@ -18,7 +19,6 @@ export class WorkspaceShellComponent {
   @Input({ required: true }) username = '';
   @Input({ required: true }) contextLabel = '';
   @Input() variant: 'reader' | 'staff' = 'staff';
-  @Input() workspaceRoute: readonly string[] | null = null;
   @Output() logoutRequested = new EventEmitter<void>();
 
   isSidebarCollapsed = localStorage.getItem(this.sidebarStorageKey) === 'true';
@@ -28,10 +28,6 @@ export class WorkspaceShellComponent {
 
   get readerPrimaryNavigation(): readonly NavigationItem[] {
     return this.navigation.filter(item => item.label !== 'Perfil');
-  }
-
-  get readerProfileNavigation(): NavigationItem | undefined {
-    return this.navigation.find(item => item.label === 'Perfil');
   }
 
   get mobileNavigation(): readonly NavigationItem[] {

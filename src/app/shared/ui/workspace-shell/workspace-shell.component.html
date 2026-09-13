@@ -23,25 +23,7 @@
         </nav>
 
         <div class="reader-navbar__account">
-          @if (workspaceRoute) {
-            <a class="reader-navbar__workspace" [routerLink]="workspaceRoute">
-              <mat-icon aria-hidden="true">space_dashboard</mat-icon>
-              <span>Panel</span>
-            </a>
-          }
-          @if (readerProfileNavigation; as profileItem) {
-            <a
-              class="reader-navbar__profile"
-              [routerLink]="profileItem.route"
-              routerLinkActive="is-active"
-              aria-label="Abrir perfil">
-              <app-avatar [name]="username" size="small" />
-              <span>{{ username }}</span>
-            </a>
-          }
-          <button mat-icon-button type="button" aria-label="Cerrar sesión" matTooltip="Cerrar sesión" (click)="requestLogout()">
-            <mat-icon>logout</mat-icon>
-          </button>
+          <app-account-menu />
         </div>
       </div>
     </header>

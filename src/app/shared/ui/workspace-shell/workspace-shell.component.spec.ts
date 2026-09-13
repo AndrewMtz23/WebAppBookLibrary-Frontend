@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
+import { BehaviorSubject } from 'rxjs';
+import { AuthService } from '../../../core/services/auth.service';
 import { NavigationGroup, NavigationItem } from '../../../core/navigation/navigation.model';
 import { WorkspaceShellComponent } from './workspace-shell.component';
 
@@ -22,7 +24,8 @@ describe('WorkspaceShellComponent', () => {
     localStorage.removeItem('booklibrary_sidebar_collapsed');
 
     await TestBed.configureTestingModule({
-      imports: [WorkspaceShellComponent, RouterTestingModule, NoopAnimationsModule]
+      imports: [WorkspaceShellComponent, RouterTestingModule, NoopAnimationsModule],
+      providers: [{ provide: AuthService, useValue: { sessionSnapshot: null, session$: new BehaviorSubject(null), logout: jasmine.createSpy('logout') } }]
     }).compileComponents();
 
     fixture = TestBed.createComponent(WorkspaceShellComponent);
@@ -85,15 +88,14 @@ describe('WorkspaceShellComponent', () => {
     ] satisfies readonly NavigationItem[]);
     fixture.componentRef.setInput('variant', 'reader');
     fixture.componentRef.setInput('username', 'Lilith Argueta');
-    fixture.componentRef.setInput('workspaceRoute', ['/admin/dashboard']);
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('.reader-navbar')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('.workspace__sidebar')).toBeNull();
     expect(getComputedStyle(fixture.nativeElement.querySelector('.workspace')).display).toBe('block');
-    expect(fixture.nativeElement.querySelector('.reader-navbar').textContent).toContain('Lilith Argueta');
+    expect(fixture.nativeElement.querySelector('.reader-navbar app-account-menu')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('.reader-navbar').textContent).toContain('Mi biblioteca');
-    expect(fixture.nativeElement.querySelector('.reader-navbar').textContent).toContain('Panel');
+    expect(fixture.nativeElement.querySelector('.reader-navbar__workspace')).toBeNull();
   });
 
   it('adds legal navigation to the reader footer only', () => {

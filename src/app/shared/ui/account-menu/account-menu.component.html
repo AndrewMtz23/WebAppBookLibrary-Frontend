@@ -1,0 +1,78 @@
+<div class="account-menu">
+  @if (session(); as activeSession) {
+    <button
+      class="account-menu__trigger"
+      type="button"
+      [attr.aria-expanded]="isOpen"
+      aria-haspopup="menu"
+      aria-controls="account-menu-panel"
+      (click)="toggle($event)">
+      <app-avatar [name]="activeSession.user.username" size="small" />
+      <span>{{ activeSession.user.username }}</span>
+      <mat-icon aria-hidden="true">{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
+    </button>
+
+    @if (isOpen) {
+      <section id="account-menu-panel" class="account-menu__panel" role="menu" (click)="$event.stopPropagation()">
+        <header class="account-menu__identity">
+          <app-avatar [name]="activeSession.user.username" />
+          <div>
+            <strong>{{ activeSession.user.username }}</strong>
+            <span>{{ activeSession.user.email }}</span>
+            <small>{{ roleLabel(activeSession.user.role) }}</small>
+          </div>
+        </header>
+
+        <nav aria-label="Opciones de cuenta">
+          <a role="menuitem" [routerLink]="panelRoute(activeSession.user.role)" (click)="close()">
+            <mat-icon aria-hidden="true">space_dashboard</mat-icon>
+            <span>{{ panelLabel(activeSession.user.role) }}</span>
+          </a>
+
+          @if (activeSession.user.role === 'user') {
+            <a role="menuitem" routerLink="/app/my-library" (click)="close()"><mat-icon aria-hidden="true">bookmarks</mat-icon><span>Mi biblioteca</span></a>
+            <a role="menuitem" routerLink="/app/favorites" (click)="close()"><mat-icon aria-hidden="true">favorite_border</mat-icon><span>Mis favoritos</span></a>
+            <a role="menuitem" routerLink="/app/profile" (click)="close()"><mat-icon aria-hidden="true">manage_accounts</mat-icon><span>Mi perfil</span></a>
+          } @else {
+            <a role="menuitem" routerLink="/app/discover" (click)="close()"><mat-icon aria-hidden="true">public</mat-icon><span>Sitio público</span></a>
+          }
+        </nav>
+
+        <button class="account-menu__logout" type="button" role="menuitem" (click)="requestLogout()">
+          <mat-icon aria-hidden="true">logout</mat-icon><span>Cerrar sesión</span>
+        </button>
+      </section>
+    }
+  } @else {
+    <a class="account-menu__signin" routerLink="/auth/login">
+      <mat-icon aria-hidden="true">person</mat-icon><span>Ingresar</span>
+    </a>
+  }
+</div>
+
+@if (isLogoutDialogOpen) {
+  <div class="account-logout-overlay">
+    <section class="account-logout-dialog" role="dialog" aria-modal="true" aria-labelledby="account-logout-title" aria-describedby="account-logout-description" cdkTrapFocus [cdkTrapFocusAutoCapture]="true">
+      <span class="account-logout-dialog__icon" aria-hidden="true"><mat-icon>logout</mat-icon></span>
+      <p>Cuenta</p>
+      <h2 id="account-logout-title">¿Seguro que deseas cerrar sesión?</h2>
+      <span id="account-logout-description">Tendrás que ingresar nuevamente para volver a tu biblioteca.</span>
+      <div class="account-logout-dialog__actions">
+        <button type="button" (click)="cancelLogout()">Cancelar</button>
+        <button class="account-logout-dialog__confirm" type="button" (click)="confirmLogout()"><mat-icon aria-hidden="true">logout</mat-icon> Sí, cerrar sesión</button>
+      </div>
+    </section>
+  </div>
+}
+
+@if (isLoggingOut) {
+  <div class="account-logout-overlay">
+    <section class="account-logout-progress" role="dialog" aria-modal="true" aria-live="polite" aria-busy="true">
+      <div class="account-logout-progress__mark" aria-hidden="true"><mat-icon>auto_stories</mat-icon><span></span></div>
+      <p>Hasta la próxima</p>
+      <h2>Cerrando sesión…</h2>
+      <span>Estamos protegiendo tu cuenta.</span>
+      <div class="account-logout-progress__bar" aria-hidden="true"><i></i></div>
+    </section>
+  </div>
+}

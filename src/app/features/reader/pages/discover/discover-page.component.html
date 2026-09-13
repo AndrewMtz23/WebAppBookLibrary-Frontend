@@ -1,5 +1,5 @@
 <div class="discover-page">
-  <header class="welcome"><p>Tu biblioteca, a tu ritmo</p><h1>Hola, {{ username }}.</h1><span>¿Qué te gustaría descubrir hoy?</span></header>
+  <h1 class="visually-hidden">Descubre tu próxima lectura</h1>
   @if (facade.newest().loading) {
     <app-skeleton [lines]="7" />
   } @else if (facade.newest().data[0]; as featured) {

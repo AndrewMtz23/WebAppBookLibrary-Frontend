@@ -21,7 +21,8 @@ describe('DiscoverPageComponent', () => {
     const fixture = TestBed.createComponent(DiscoverPageComponent);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelectorAll('h1').length).toBe(1);
-    expect(fixture.nativeElement.textContent).toContain('Elena');
+    expect(fixture.nativeElement.querySelector('h1').classList).toContain('visually-hidden');
+    expect(fixture.nativeElement.querySelector('.welcome')).toBeNull();
     expect(fixture.nativeElement.querySelector('[data-carousel]')).toBeNull();
     expect(fixture.nativeElement.querySelector('a[href*="genre=Historia"]')).not.toBeNull();
   });
