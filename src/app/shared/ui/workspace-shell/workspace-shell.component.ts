@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { NavigationItem } from '../../../core/navigation/navigation.model';
+import { NavigationGroup, NavigationItem } from '../../../core/navigation/navigation.model';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 import { AvatarComponent } from '../avatar/avatar.component';
 
@@ -13,17 +13,48 @@ export class WorkspaceShellComponent {
   private readonly sidebarStorageKey = 'booklibrary_sidebar_collapsed';
 
   @Input({ required: true }) navigation: readonly NavigationItem[] = [];
+  @Input() navigationGroups: readonly NavigationGroup[] = [];
   @Input({ required: true }) username = '';
   @Input({ required: true }) contextLabel = '';
+  @Input() variant: 'reader' | 'staff' = 'staff';
+  @Input() workspaceRoute: readonly string[] | null = null;
   @Output() logoutRequested = new EventEmitter<void>();
 
   isSidebarCollapsed = localStorage.getItem(this.sidebarStorageKey) === 'true';
   isLogoutDialogOpen = false;
   isLoggingOut = false;
+  private readonly collapsedGroups = new Set<string>();
+
+  get readerPrimaryNavigation(): readonly NavigationItem[] {
+    return this.navigation.filter(item => item.label !== 'Perfil');
+  }
+
+  get readerProfileNavigation(): NavigationItem | undefined {
+    return this.navigation.find(item => item.label === 'Perfil');
+  }
+
+  get mobileNavigation(): readonly NavigationItem[] {
+    if (this.variant === 'reader') return this.navigation.slice(0, 5);
+    const publicSite = this.navigation.find(item => item.label === 'Sitio público');
+    const operationalItems = this.navigation.filter(item => item !== publicSite).slice(0, 4);
+    return publicSite ? [...operationalItems, publicSite] : operationalItems;
+  }
 
   toggleSidebar(): void {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
     localStorage.setItem(this.sidebarStorageKey, String(this.isSidebarCollapsed));
+  }
+
+  groupId(label: string): string {
+    return `navigation-group-${label.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  }
+
+  isGroupExpanded(label: string): boolean {
+    return !this.collapsedGroups.has(label);
+  }
+
+  toggleGroup(label: string): void {
+    this.collapsedGroups.has(label) ? this.collapsedGroups.delete(label) : this.collapsedGroups.add(label);
   }
 
   requestLogout(): void {

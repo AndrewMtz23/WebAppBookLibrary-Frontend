@@ -4,10 +4,16 @@ import { WorkspaceShellComponent } from '../../../shared/ui/workspace-shell/work
 import { navigationForRole } from '../../navigation/navigation.config';
 import { AuthService } from '../../services/auth.service';
 
-@Component({ selector: 'app-reader-shell', standalone: true, imports: [WorkspaceShellComponent], template: `<app-workspace-shell [navigation]="navigation" [username]="username" contextLabel="Área de lectura" (logoutRequested)="logout()" />`, changeDetection: ChangeDetectionStrategy.OnPush })
+@Component({ selector: 'app-reader-shell', standalone: true, imports: [WorkspaceShellComponent], template: `<app-workspace-shell variant="reader" [navigation]="navigation" [username]="username" [workspaceRoute]="workspaceRoute" contextLabel="Área de lectura" (logoutRequested)="logout()" />`, changeDetection: ChangeDetectionStrategy.OnPush })
 export class ReaderShellComponent {
   readonly navigation = navigationForRole('user');
   get username(): string { return this.auth.sessionSnapshot?.user.username ?? 'Lector'; }
+  get workspaceRoute(): readonly string[] | null {
+    const role = this.auth.sessionSnapshot?.user.role;
+    if (role === 'admin') return ['/admin/dashboard'];
+    if (role === 'librarian') return ['/librarian/dashboard'];
+    return null;
+  }
   constructor(private readonly auth: AuthService, private readonly router: Router) {}
   logout(): void {
     this.auth.logout();

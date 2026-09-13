@@ -5,7 +5,7 @@ import { ReaderShellComponent } from '../../core/layouts/reader-shell/reader-she
 import { CatalogFacade } from '../catalog/data-access/catalog.facade';
 
 export const READER_ROUTES: Routes = [{
-  path: '', component: ReaderShellComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['user'] },
+  path: '', component: ReaderShellComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['user', 'librarian', 'admin'] },
   children: [
     { path: 'discover', loadComponent: () => import('./pages/discover/discover-page.component').then(m => m.DiscoverPageComponent) },
     { path: 'catalog/:bookId', loadComponent: () => import('../catalog/pages/book-detail/book-detail-page.component').then(m => m.BookDetailPageComponent) },
