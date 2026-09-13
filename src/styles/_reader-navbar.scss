@@ -9,8 +9,6 @@
 .reader-navbar__navigation a.is-active::after { opacity: 1; transform: scaleX(1); }
 .reader-navbar__navigation mat-icon { width: 1.15rem; height: 1.15rem; font-size: 1.15rem; }
 .reader-navbar__account { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); min-width: 0; }
-.workspace--reader .workspace__content { padding-top: clamp(var(--space-8), 4vw, var(--space-12)); }
-
 @media (max-width: 800px) { .reader-navbar { display: none; } }
 
 @media (prefers-reduced-motion: reduce) {

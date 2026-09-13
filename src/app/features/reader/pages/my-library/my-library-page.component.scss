@@ -1,5 +1,5 @@
 :host { display: block; }
-.library-page { max-width: 78rem; margin: 0 auto; padding: clamp(1.25rem, 4vw, 4rem); }
+.library-page { max-width: 96rem; margin: 0 auto; padding: clamp(1.5rem, 3.2vw, 3.5rem); }
 .external-note { display: flex; align-items: flex-start; gap: .6rem; max-width: 52rem; margin: 1.5rem 0 3rem; padding: 1rem; border-left: 3px solid var(--color-primary); background: var(--surface-muted); color: var(--text-secondary); }
 .feedback { padding: .8rem 1rem; background: var(--surface-muted); border-radius: var(--radius-sm); }
 .loan-section { margin-top: 3rem; }
