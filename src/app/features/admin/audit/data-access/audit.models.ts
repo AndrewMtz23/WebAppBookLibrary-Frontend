@@ -1,0 +1,10 @@
+import { ParamMap, Params } from '@angular/router';
+
+export interface AuditItem { id:string; timestamp:string; level:string; message:string; username:string|null; action:string|null; controller:string|null; ip:string|null; method:string|null; statusCode:number|null; eventType:string|null; actorId:string|null; actorUsername:string|null; targetType:string|null; targetId:string|null; correlationId:string|null; metadata:Record<string,string>; }
+export interface AuditDetail { log:AuditItem; exceptionType:string|null; exceptionSummary:string|null; }
+export interface AuditPage { items:AuditItem[]; page:number; pageSize:number; totalItems:number; }
+export interface AuditQuery { query:string; level:string; eventType:string; actor:string; controller:string; targetId:string; correlationId:string; statusCode:string; from:string; to:string; page:number; pageSize:number; }
+export const DEFAULT_AUDIT_QUERY: AuditQuery = { query:'',level:'',eventType:'',actor:'',controller:'',targetId:'',correlationId:'',statusCode:'',from:'',to:'',page:1,pageSize:25 };
+export function parseAuditQuery(params:ParamMap):AuditQuery { const q={...DEFAULT_AUDIT_QUERY}; for(const key of ['query','level','eventType','actor','controller','targetId','correlationId','statusCode','from','to'] as const) q[key]=(params.get(key)||'').slice(0,100);q.from=dateInput(q.from);q.to=dateInput(q.to); const page=Number(params.get('page')); const size=Number(params.get('pageSize')); q.page=Number.isInteger(page)&&page>0?page:1; q.pageSize=[10,25,50,100].includes(size)?size:25; return q; }
+export function auditQueryParams(q:AuditQuery):Params { const value:Params={}; for(const key of ['query','level','eventType','actor','controller','targetId','correlationId','statusCode','from','to'] as const) if(q[key]) value[key]=q[key]; if(q.page!==1)value['page']=q.page;if(q.pageSize!==25)value['pageSize']=q.pageSize;return value; }
+function dateInput(value:string):string{if(!value)return'';const parsed=new Date(value);return Number.isNaN(parsed.valueOf())?value:parsed.toISOString().slice(0,16);}

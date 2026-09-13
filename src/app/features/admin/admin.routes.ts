@@ -10,8 +10,8 @@ export const ADMIN_ROUTES: Routes = [{
     { path: 'users', loadComponent: () => import('./users/pages/users-page.component').then(m => m.UsersPageComponent) },
     { path: 'books', loadComponent: () => import('./pages/books/books-page.component').then(m => m.BooksPageComponent) },
     { path: 'loans', loadComponent: () => import('./pages/loans/loans-page.component').then(m => m.LoansPageComponent) },
-    { path: 'logs', loadChildren: () => import('../logs/logs.module').then(m => m.LogsModule) },
-    { path: 'security', loadComponent: () => import('../security-dashboard/security-dashboard.component').then(m => m.SecurityDashboardComponent) },
+    { path: 'logs', loadComponent: () => import('./audit/pages/audit-page.component').then(m => m.AuditPageComponent) },
+    { path: 'security', loadComponent: () => import('./security/pages/security-page.component').then(m => m.SecurityPageComponent) },
     { path: '', pathMatch: 'full', redirectTo: 'dashboard' }
   ]
 }];

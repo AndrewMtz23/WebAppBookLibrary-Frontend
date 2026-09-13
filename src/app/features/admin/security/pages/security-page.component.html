@@ -1,0 +1,21 @@
+<section>
+  <header class="dashboard-header"><div><p class="eyebrow">Administración · señales reales</p><h1>Seguridad operacional</h1><p>Actividad inusual y respuestas HTTP derivadas exclusivamente de eventos registrados.</p></div><button class="primary-link" type="button" (click)="refresh()">Actualizar</button></header>
+  <app-dashboard-period-controls [period]="period()" [busy]="loading()" (periodChange)="setPeriod($event)" (refresh)="refresh()"/>
+  @if(loading()&&!data()){<div class="dashboard-skeleton" aria-busy="true"><span></span><span></span><span></span><span></span></div>}
+  @if(error()){<div class="dashboard-error" role="alert"><p>{{error()}}</p><button type="button" (click)="refresh()">Reintentar</button></div>}
+  @if(data();as value){
+    <p class="data-date">Periodo UTC {{value.from|date:'short'}} — {{value.to|date:'short'}} · {{value.timezone}} · actualizado {{value.generatedAt|date:'short'}}</p>
+    <div class="metric-grid">
+      <app-metric-card label="Fallos de acceso" [value]="value.authenticationFailures" definition="Autenticaciones fallidas registradas en el periodo." [route]="['/admin/logs']" [queryParams]="{eventType:'authentication.failed',from:value.from,to:value.to}"/>
+      <app-metric-card label="Respuestas 401" [value]="value.unauthorizedResponses" definition="Solicitudes rechazadas por sesión no válida." [route]="['/admin/logs']" [queryParams]="{eventType:'request.observed',statusCode:401,from:value.from,to:value.to}"/>
+      <app-metric-card label="Respuestas 403" [value]="value.forbiddenResponses" definition="Solicitudes autenticadas sin permiso suficiente." [route]="['/admin/logs']" [queryParams]="{eventType:'request.observed',statusCode:403,from:value.from,to:value.to}"/>
+      <app-metric-card label="Conflictos 409" [value]="value.conflictResponses" definition="Operaciones rechazadas por conflicto de estado." [route]="['/admin/logs']" [queryParams]="{eventType:'request.observed',statusCode:409,from:value.from,to:value.to}"/>
+      <app-metric-card label="Errores 5xx" [value]="value.serverErrors" definition="Respuestas inesperadas observadas por la API." [route]="['/admin/logs']" [queryParams]="{eventType:'request.observed',statusCode:'5xx',from:value.from,to:value.to}"/>
+      <app-metric-card label="Acciones destructivas" [value]="value.destructiveActions" definition="Bajas, cancelaciones y eliminaciones registradas." [route]="['/admin/logs']" [queryParams]="{eventType:'destructive',from:value.from,to:value.to}"/>
+    </div>
+    <div class="security-grid">
+      <section class="panel"><p class="eyebrow">Acceso</p><h2>Actividad inusual</h2>@if(value.unusualLoginActivity.length===0){<p>No hay orígenes con 10 o más fallos en una ventana móvil de 15 minutos.</p>}@else{<ul>@for(item of value.unusualLoginActivity;track item.maskedOrigin){<li class="anomaly"><strong>{{item.maskedOrigin}}</strong><p>{{item.count}} fallos entre {{item.windowStart|date:'short'}} y {{item.windowEnd|date:'short'}}. Umbral: {{item.threshold}} en {{item.windowMinutes}} minutos.</p><a routerLink="/admin/logs" [queryParams]="{eventType:'authentication.failed',from:value.from,to:value.to}">Inspeccionar eventos</a></li>}</ul>}</section>
+      <section class="panel"><p class="eyebrow">Administración</p><h2>Cambios y salud</h2><dl><dt>Cambios de rol</dt><dd>{{value.roleChanges}}</dd><dt>Cambios de estado</dt><dd>{{value.statusChanges}}</dd><dt>Evento más reciente</dt><dd>{{value.newestEvent?.eventType||'Sin eventos'}}<br>{{value.newestEvent?.timestamp|date:'short'}}</dd><dt>API</dt><dd><span class="health">{{value.apiHealth.status==='available'?'Disponible':'No disponible'}}</span><br>{{value.apiHealth.checkedAt|date:'short'}}</dd></dl></section>
+    </div>
+  }
+</section>
