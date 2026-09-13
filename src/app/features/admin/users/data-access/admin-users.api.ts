@@ -1,0 +1,19 @@
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { PagedResult } from '../../../../shared/models/paged-result.model';
+import { AdminUser, AdminUserQuery } from './admin-users.models';
+
+@Injectable({ providedIn: 'root' })
+export class AdminUsersApi {
+  private readonly http = inject(HttpClient);
+
+  search(query: AdminUserQuery) {
+    let params = new HttpParams();
+    for (const [key, value] of Object.entries(query)) if (value !== '') params = params.set(key, value);
+    return this.http.get<PagedResult<AdminUser>>('/api/admin/users', { params });
+  }
+
+  detail(id: string) { return this.http.get<AdminUser>(`/api/admin/users/${encodeURIComponent(id)}`); }
+  setRole(id: string, role: AdminUser['role']) { return this.http.put<void>(`/api/admin/users/${encodeURIComponent(id)}/role`, { role }); }
+  setStatus(id: string, isActive: boolean) { return this.http.put<void>(`/api/admin/users/${encodeURIComponent(id)}/status`, { isActive }); }
+}
