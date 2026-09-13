@@ -7,8 +7,9 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NavigationGroup, NavigationItem } from '../../../core/navigation/navigation.model';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 import { AvatarComponent } from '../avatar/avatar.component';
+import { SiteFooterComponent } from '../site-footer/site-footer.component';
 
-@Component({ selector: 'app-workspace-shell', standalone: true, imports: [A11yModule, AppBrandComponent, AvatarComponent, MatButtonModule, MatIconModule, MatTooltipModule, RouterLink, RouterLinkActive, RouterOutlet], templateUrl: './workspace-shell.component.html', styleUrls: ['./workspace-shell.component.scss'], changeDetection: ChangeDetectionStrategy.OnPush })
+@Component({ selector: 'app-workspace-shell', standalone: true, imports: [A11yModule, AppBrandComponent, AvatarComponent, SiteFooterComponent, MatButtonModule, MatIconModule, MatTooltipModule, RouterLink, RouterLinkActive, RouterOutlet], templateUrl: './workspace-shell.component.html', styleUrls: ['./workspace-shell.component.scss'], changeDetection: ChangeDetectionStrategy.OnPush })
 export class WorkspaceShellComponent {
   private readonly sidebarStorageKey = 'booklibrary_sidebar_collapsed';
 

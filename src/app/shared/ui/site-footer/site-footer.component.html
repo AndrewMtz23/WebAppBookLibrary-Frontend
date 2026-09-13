@@ -1,0 +1,25 @@
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__identity">
+      <app-brand [route]="homeRoute" />
+      <p>Historias, conocimiento y lecturas organizadas en un solo lugar.</p>
+    </div>
+
+    <nav aria-label="Explorar BookLibrary">
+      <p>Explorar</p>
+      <a routerLink="/app/discover">Descubrir</a>
+      <a routerLink="/app/catalog">Catálogo</a>
+    </nav>
+
+    <nav aria-label="Información legal">
+      <p>Información</p>
+      <a routerLink="/privacy">Política de privacidad</a>
+      <a routerLink="/legal">Aviso legal</a>
+    </nav>
+  </div>
+
+  <div class="site-footer__base">
+    <span>© {{ year }} BookLibrary</span>
+    <span>Hecho para lectores y bibliotecas.</span>
+  </div>
+</footer>

@@ -96,6 +96,20 @@ describe('WorkspaceShellComponent', () => {
     expect(fixture.nativeElement.querySelector('.reader-navbar').textContent).toContain('Panel');
   });
 
+  it('adds legal navigation to the reader footer only', () => {
+    fixture.componentRef.setInput('variant', 'reader');
+    fixture.detectChanges();
+
+    const footer = fixture.nativeElement.querySelector('footer.site-footer') as HTMLElement;
+    expect(footer).not.toBeNull();
+    expect(footer.querySelector('a[href="/privacy"]')?.textContent?.toLowerCase()).toContain('privacidad');
+    expect(footer.querySelector('a[href="/legal"]')?.textContent).toContain('Aviso legal');
+
+    fixture.componentRef.setInput('variant', 'staff');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('footer.site-footer')).toBeNull();
+  });
+
   it('asks for confirmation before requesting logout', () => {
     const emit = spyOn(component.logoutRequested, 'emit');
 
