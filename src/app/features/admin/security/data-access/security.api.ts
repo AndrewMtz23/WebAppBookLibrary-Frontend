@@ -1,0 +1,2 @@
+import{Injectable}from'@angular/core';import{HttpClient,HttpParams}from'@angular/common/http';import{DashboardPeriodQuery}from'../../../../shared/dashboard/dashboard-period';import{SecuritySummary}from'./security.models';
+@Injectable({providedIn:'root'})export class SecurityApi{constructor(private http:HttpClient){}summary(period:DashboardPeriodQuery){return this.http.get<SecuritySummary>('/api/security/summary',{params:new HttpParams().set('from',period.from).set('to',period.to).set('timezone',period.timezone)});}}
