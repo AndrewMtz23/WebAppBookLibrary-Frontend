@@ -8,11 +8,11 @@ export interface BookWriteRequest {
   coverUrl: string | null; mediaType: MediaType; digitalResourceUrl: string | null; totalCopies: number | null;
 }
 export interface StaffBookQuery {
-  query: string; genre: string; mediaType: string; language: string; available: string;
+  query: string; bookId: string; genre: string; mediaType: string; language: string; available: string;
   isActive: string; lowStock: string; missingResource: string; sort: string; direction: string;
   page: number; pageSize: number;
 }
 export const DEFAULT_STAFF_BOOK_QUERY: StaffBookQuery = {
-  query: '', genre: '', mediaType: '', language: '', available: '', isActive: '', lowStock: '',
+  query: '', bookId: '', genre: '', mediaType: '', language: '', available: '', isActive: '', lowStock: '',
   missingResource: '', sort: 'title', direction: 'asc', page: 1, pageSize: 20
 };

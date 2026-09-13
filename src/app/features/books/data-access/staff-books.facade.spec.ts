@@ -31,6 +31,11 @@ describe('StaffBooksFacade', () => {
     expect(api.search.calls.mostRecent().args[0]).toEqual(jasmine.objectContaining({ page: 2, mediaType: 'digital', available: 'true', query: '' }));
   });
   it('refresh preserves the current URL page and filters', () => { facade.refresh(); expect(api.search.calls.mostRecent().args[0].page).toBe(3); });
+  it('opens the create editor from the dashboard quick-link URL', () => {
+    params.next(convertToParamMap({ create: 'true' }));
+    expect(facade.editorOpen()).toBeTrue();
+    expect(facade.editorRecord()).toBeNull();
+  });
   it('successful update refreshes rows and closes editor', () => {
     facade.edit(record.book); api.update.and.returnValue(of(record.book));
     facade.save({ title: 'Edited' } as BookWriteRequest);
