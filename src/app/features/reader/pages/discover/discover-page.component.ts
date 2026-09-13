@@ -20,4 +20,5 @@ export class DiscoverPageComponent {
   private readonly auth = inject(AuthService);
   readonly favoriteResolver = (book: import('../../../../shared/models/book.model').BookSummary): boolean => this.favorites.isFavorite(book);
   get username(): string { return this.auth.sessionSnapshot?.user.username ?? 'lector'; }
+  get isReader(): boolean { return this.auth.sessionSnapshot?.user.role === 'user'; }
 }

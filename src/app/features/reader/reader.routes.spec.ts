@@ -11,4 +11,14 @@ describe('READER_ROUTES', () => {
     expect(root.children?.filter(route => expected.includes(route.path ?? '')).map(route => route.path)).toEqual(expected);
     root.children?.filter(route => expected.includes(route.path ?? '')).forEach(route => expect(route.loadComponent).toBeDefined());
   });
+
+  it('reserves personal reader routes for user accounts', () => {
+    const personal = READER_ROUTES[0].children?.filter(route => ['my-library', 'favorites', 'profile'].includes(route.path ?? '')) ?? [];
+
+    expect(personal.length).toBe(3);
+    personal.forEach(route => {
+      expect(route.canActivate).toEqual([RoleGuard]);
+      expect(route.data?.['roles']).toEqual(['user']);
+    });
+  });
 });

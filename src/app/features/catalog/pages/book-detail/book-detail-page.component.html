@@ -29,6 +29,7 @@
         <div class="availability" [class.availability--out]="item.mediaType === 'physical' && !item.availableCopies">
           <span></span>{{ item.mediaType === 'digital' ? 'Disponible con reserva digital' : (item.availableCopies ? item.availableCopies + (item.availableCopies === 1 ? ' ejemplar disponible' : ' ejemplares disponibles') : 'Sin ejemplares disponibles') }}
         </div>
+        @if (isReader) {
         <div class="actions">
           @if (item.mediaType === 'digital' && activeDigital()) {
             <button mat-flat-button type="button" (click)="openDigital(item.id)">Abrir recurso</button>
@@ -49,8 +50,11 @@
         @if (item.mediaType === 'digital') { <p class="external-note">El recurso se abre en una pestaña externa. Si el enlace falla, comunícalo al personal de la biblioteca.</p> }
         @if (digitalMessage() || reservations.message()) { <p class="feedback" role="status">{{ digitalMessage() || reservations.message() }}</p> }
         @if (reservations.successfulBookId() === item.id) { <a class="library-link" routerLink="/app/my-library">Ir a Mi biblioteca <mat-icon>arrow_forward</mat-icon></a> }
+        } @else {
+          <p class="external-note"><strong>Vista de catálogo.</strong> Regresa al panel para administrar libros y préstamos.</p>
+        }
       </div>
     </article>
-    <app-related-books [books]="related()" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (favoriteRequested)="toggleFavorite($event)" />
+    <app-related-books [books]="related()" [showFavorite]="isReader" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (favoriteRequested)="toggleFavorite($event)" />
   }
 </div>

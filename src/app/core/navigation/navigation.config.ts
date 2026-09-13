@@ -26,6 +26,11 @@ const NAVIGATION_ITEMS: readonly NavigationItem[] = [
 export const navigationForRole = (role: UserRole): readonly NavigationItem[] =>
   NAVIGATION_ITEMS.filter(item => item.roles.includes(role));
 
+export const readerNavigationForRole = (role: UserRole): readonly NavigationItem[] =>
+  role === 'user'
+    ? [...READER_NAVIGATION_ITEMS]
+    : READER_NAVIGATION_ITEMS.filter(item => item.label === 'Descubrir' || item.label === 'Catálogo');
+
 const group = (label: string, icon: string, items: readonly NavigationItem[]): NavigationGroup =>
   ({ label, icon, items });
 

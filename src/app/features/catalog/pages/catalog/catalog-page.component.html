@@ -21,7 +21,7 @@
         <app-empty-state title="No encontramos libros" description="Prueba otra búsqueda o limpia los filtros para explorar toda la colección." icon="search_off" actionLabel="Limpiar filtros" (actionRequested)="facade.clearFilters()" />
       } @else {
         @if (facade.refreshing()) { <div class="refresh-line" aria-hidden="true"></div> }
-        <app-book-grid [books]="facade.items()" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (bookOpened)="trackBookOpen()" (favoriteRequested)="favorites.toggle($event)" />
+        <app-book-grid [books]="facade.items()" [showFavorite]="isReader" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (bookOpened)="trackBookOpen()" (favoriteRequested)="favorites.toggle($event)" />
         <nav class="pagination" aria-label="Paginación del catálogo">
           <button mat-stroked-button type="button" [disabled]="facade.query().page <= 1" (click)="applyPatch({page: facade.query().page - 1})">Anterior</button>
           <span>Página {{ facade.query().page }} de {{ facade.totalPages() }}</span>

@@ -16,6 +16,7 @@ import { CatalogFacade } from '../../data-access/catalog.facade';
 import { CatalogService } from '../../data-access/catalog.service';
 import { CatalogQuery } from '../../models/catalog-query';
 import { ReaderAnalyticsService } from '../../../../core/analytics/reader-analytics.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 interface FilterSheetData { query: CatalogQuery; facets: readonly BookFacet[]; }
 
@@ -55,8 +56,10 @@ export class CatalogPageComponent {
   private readonly catalog = inject(CatalogService);
   private readonly bottomSheet = inject(MatBottomSheet);
   private readonly analytics = inject(ReaderAnalyticsService);
+  private readonly auth = inject(AuthService);
   readonly facets = signal<readonly BookFacet[]>([]);
   readonly favoriteResolver = (book: import('../../../../shared/models/book.model').BookSummary): boolean => this.favorites.isFavorite(book);
+  get isReader(): boolean { return this.auth.sessionSnapshot?.user.role === 'user'; }
   @ViewChild('resultsHeading') private resultsHeading?: ElementRef<HTMLElement>;
 
   constructor() {

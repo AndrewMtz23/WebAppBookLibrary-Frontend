@@ -10,6 +10,8 @@ import { CatalogService } from '../../data-access/catalog.service';
 import { DEFAULT_CATALOG_QUERY } from '../../models/catalog-query';
 import { FavoritesFacade } from '../../../reader/data-access/favorites.facade';
 import { CatalogFiltersSheetComponent, CatalogPageComponent } from './catalog-page.component';
+import { AuthService } from '../../../../core/services/auth.service';
+import { provideRouter } from '@angular/router';
 
 describe('reader catalog', () => {
   it('debounces search for 300 ms and waits for IME composition', fakeAsync(() => {
@@ -61,7 +63,7 @@ describe('CatalogPageComponent', () => {
     clearFilters: jasmine.createSpy('clearFilters').and.resolveTo(true),
     retry: jasmine.createSpy('retry')
   };
-  const favorites = { busyIds: () => new Set<string>(), toggle: jasmine.createSpy('toggle') };
+  const favorites = { busyIds: () => new Set<string>(), isFavorite: () => false, toggle: jasmine.createSpy('toggle') };
 
   let fixture: ComponentFixture<CatalogPageComponent>;
 
@@ -70,7 +72,9 @@ describe('CatalogPageComponent', () => {
     TestBed.configureTestingModule({ imports: [CatalogPageComponent, NoopAnimationsModule], providers: [
       { provide: CatalogFacade, useValue: facade },
       { provide: CatalogService, useValue: { getFacets: () => of([{ value: 'Historia', count: 4 }]) } },
-      { provide: FavoritesFacade, useValue: favorites }
+      { provide: FavoritesFacade, useValue: favorites },
+      { provide: AuthService, useValue: { sessionSnapshot: { user: { role: 'user' } } } },
+      provideRouter([])
     ] });
     fixture = TestBed.createComponent(CatalogPageComponent);
     fixture.detectChanges();
@@ -80,6 +84,22 @@ describe('CatalogPageComponent', () => {
     await fixture.componentInstance.applyPatch({ sort: 'reservationCount', direction: 'desc' });
     expect(facade.patchQuery).toHaveBeenCalledWith({ sort: 'reservationCount', direction: 'desc' });
     expect(fixture.nativeElement.textContent).toContain('No encontramos libros');
+  });
+
+  it('hides favorite controls when staff inspect the public catalog', () => {
+    TestBed.resetTestingModule();
+    const item = { id: 'b1', title: 'Libro', subtitle: null, authors: ['Autora'], coverUrl: null, mediaType: 'physical', genres: [], availableCopies: 1, totalCopies: 1, reservationCount: 0, isFavorite: false, isActive: true } as const;
+    TestBed.configureTestingModule({ imports: [CatalogPageComponent, NoopAnimationsModule], providers: [
+      { provide: CatalogFacade, useValue: { ...facade, items: () => [item], totalItems: () => 1, totalPages: () => 1 } },
+      { provide: CatalogService, useValue: { getFacets: () => of([]) } },
+      { provide: FavoritesFacade, useValue: favorites },
+      { provide: AuthService, useValue: { sessionSnapshot: { user: { role: 'admin' } } } },
+      provideRouter([])
+    ] });
+
+    const staffFixture = TestBed.createComponent(CatalogPageComponent);
+    staffFixture.detectChanges();
+    expect(staffFixture.nativeElement.querySelector('button.favorite')).toBeNull();
   });
 });
 

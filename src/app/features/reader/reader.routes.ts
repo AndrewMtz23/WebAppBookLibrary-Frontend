@@ -16,10 +16,11 @@ export const READER_ROUTES: Routes = [{
     },
     {
       path: 'my-library',
+      canActivate: [RoleGuard], data: { roles: ['user'] },
       loadComponent: () => import('./pages/my-library/my-library-page.component').then(m => m.MyLibraryPageComponent)
     },
-    { path: 'favorites', loadComponent: () => import('./pages/favorites/favorites-page.component').then(m => m.FavoritesPageComponent) },
-    { path: 'profile', loadComponent: () => import('./pages/profile/profile-page.component').then(m => m.ProfilePageComponent) },
+    { path: 'favorites', canActivate: [RoleGuard], data: { roles: ['user'] }, loadComponent: () => import('./pages/favorites/favorites-page.component').then(m => m.FavoritesPageComponent) },
+    { path: 'profile', canActivate: [RoleGuard], data: { roles: ['user'] }, loadComponent: () => import('./pages/profile/profile-page.component').then(m => m.ProfilePageComponent) },
     { path: '', pathMatch: 'full', redirectTo: 'discover' }
   ]
 }];
