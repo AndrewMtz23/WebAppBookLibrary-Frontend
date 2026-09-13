@@ -90,6 +90,7 @@ describe('WorkspaceShellComponent', () => {
 
     expect(fixture.nativeElement.querySelector('.reader-navbar')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('.workspace__sidebar')).toBeNull();
+    expect(getComputedStyle(fixture.nativeElement.querySelector('.workspace')).display).toBe('block');
     expect(fixture.nativeElement.querySelector('.reader-navbar').textContent).toContain('Lilith Argueta');
     expect(fixture.nativeElement.querySelector('.reader-navbar').textContent).toContain('Mi biblioteca');
     expect(fixture.nativeElement.querySelector('.reader-navbar').textContent).toContain('Panel');
