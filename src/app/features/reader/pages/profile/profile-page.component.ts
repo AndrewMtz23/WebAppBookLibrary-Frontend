@@ -7,13 +7,14 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { ErrorStateComponent } from '../../../../shared/ui/error-state/error-state.component';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
 import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
+import { AvatarComponent } from '../../../../shared/ui/avatar/avatar.component';
 import { ReaderProfile } from '../../models/reader.models';
 import { ProfileFacade } from '../../data-access/profile.facade';
 
 @Component({
   selector: 'app-profile-page', standalone: true,
   providers: [ProfileFacade],
-  imports: [CommonModule, MatButtonModule, MatIconModule, PageHeaderComponent, ErrorStateComponent, SkeletonComponent],
+  imports: [CommonModule, MatButtonModule, MatIconModule, PageHeaderComponent, ErrorStateComponent, SkeletonComponent, AvatarComponent],
   templateUrl: './profile-page.component.html', styleUrl: './profile-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfilePageComponent {

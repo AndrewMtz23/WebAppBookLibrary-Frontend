@@ -17,6 +17,7 @@ export class WorkspaceShellComponent {
   @Input({ required: true }) navigation: readonly NavigationItem[] = [];
   @Input() navigationGroups: readonly NavigationGroup[] = [];
   @Input({ required: true }) username = '';
+  @Input() avatarUrl: string | null = null;
   @Input({ required: true }) contextLabel = '';
   @Input() variant: 'reader' | 'staff' = 'staff';
   @Output() logoutRequested = new EventEmitter<void>();

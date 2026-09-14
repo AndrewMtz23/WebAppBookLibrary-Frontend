@@ -6,6 +6,13 @@ export type AvatarSize = 'small' | 'medium' | 'large';
 export class AvatarComponent {
   @Input({ required: true }) name = '';
   @Input() size: AvatarSize = 'medium';
+  private currentImageUrl: string | null = null;
+  imageFailed = false;
+  @Input() set imageUrl(value: string | null | undefined) {
+    this.currentImageUrl = value?.trim() || null;
+    this.imageFailed = false;
+  }
+  get imageUrl() { return this.currentImageUrl; }
 
   get initials(): string {
     const parts = this.name.trim().split(/\s+/).filter(Boolean);

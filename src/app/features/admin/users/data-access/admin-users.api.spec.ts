@@ -24,4 +24,14 @@ describe('AdminUsersApi', () => {
     api.setRole('abc', 'admin').subscribe(); const role = http.expectOne('/api/admin/users/abc/role'); expect(role.request.method).toBe('PUT'); expect(role.request.body).toEqual({ role: 'admin' }); role.flush(null);
     api.setStatus('abc', false).subscribe(); const status = http.expectOne('/api/admin/users/abc/status'); expect(status.request.body).toEqual({ isActive: false }); status.flush(null);
   });
+
+  it('exposes a single full-user update endpoint', () => {
+    const api = TestBed.inject(AdminUsersApi); const http = TestBed.inject(HttpTestingController);
+    const body = { username: 'ana', displayName: 'Ana', email: 'ana@example.test', avatarUrl: null, role: 'user' as const, isActive: true, expectedUpdatedAt: '2026-01-01T00:00:00Z' };
+    api.update('abc/def', body).subscribe();
+    const request = http.expectOne('/api/admin/users/abc%2Fdef');
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual(body);
+    request.flush({});
+  });
 });

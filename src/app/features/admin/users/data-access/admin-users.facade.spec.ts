@@ -12,11 +12,24 @@ describe('AdminUsersFacade', () => {
   const page: PagedResult<AdminUser> = { items: [user], page: 3, pageSize: 20, totalItems: 41, totalPages: 3, hasPreviousPage: true, hasNextPage: false };
   let api: jasmine.SpyObj<AdminUsersApi>; let facade: AdminUsersFacade; let params: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   beforeEach(() => {
-    api = jasmine.createSpyObj('api', ['search', 'detail', 'setRole', 'setStatus']);
-    api.search.and.returnValue(of(page)); api.detail.and.returnValue(of(user)); api.setRole.and.returnValue(of(void 0)); api.setStatus.and.returnValue(of(void 0));
+    api = jasmine.createSpyObj('api', ['search', 'detail', 'update', 'setRole', 'setStatus']);
+    api.search.and.returnValue(of(page)); api.detail.and.returnValue(of(user)); api.update.and.returnValue(of(user)); api.setRole.and.returnValue(of(void 0)); api.setStatus.and.returnValue(of(void 0));
     params = new BehaviorSubject(convertToParamMap({ query: 'ana', role: 'user', isActive: 'true', sort: 'createdAt', direction: 'desc', page: '3' }));
     TestBed.configureTestingModule({ providers: [AdminUsersFacade, { provide: AdminUsersApi, useValue: api }, { provide: ActivatedRoute, useValue: { queryParamMap: params } }, { provide: Router, useValue: { navigate: jasmine.createSpy().and.resolveTo(true) } }, { provide: AuthService, useValue: { getUserId: () => 'self' } }] });
     facade = TestBed.inject(AdminUsersFacade);
+  });
+
+  it('updates the selected user as one command and refreshes the list', () => {
+    facade.open(user.id);
+    const request = { username: 'ana', displayName: 'Ana Editada', email: 'ana@example.test', avatarUrl: 'https://images.example.test/ana.jpg', role: 'librarian' as const, isActive: true, expectedUpdatedAt: user.updatedAt };
+    const updated = { ...user, ...request, updatedAt: '2026-01-02T00:00:00Z' };
+    api.update.and.returnValue(of(updated));
+    facade.save(user, request);
+
+    expect(api.update).toHaveBeenCalledOnceWith('target', request);
+    expect(facade.detail()?.displayName).toBe('Ana Editada');
+    expect(facade.notice()).toContain('Usuario actualizado');
+    expect(api.search.calls.count()).toBe(2);
   });
 
   it('restores URL filters and cancels a superseded list request', () => {

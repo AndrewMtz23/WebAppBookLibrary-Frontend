@@ -5,7 +5,7 @@ import { Subscription, forkJoin } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PagedResult } from '../../../../shared/models/paged-result.model';
 import { AdminUsersApi } from './admin-users.api';
-import { AdminUser, AdminUserQuery, DEFAULT_ADMIN_USER_QUERY, UserMutation, parseAdminUserQuery } from './admin-users.models';
+import { AdminUser, AdminUserQuery, DEFAULT_ADMIN_USER_QUERY, UpdateAdminUserRequest, UserMutation, parseAdminUserQuery } from './admin-users.models';
 
 @Injectable()
 export class AdminUsersFacade {
@@ -23,6 +23,7 @@ export class AdminUsersFacade {
   readonly detail = signal<AdminUser | null>(null);
   readonly detailLoading = signal(false);
   readonly detailError = signal('');
+  readonly editorError = signal('');
   readonly pending = signal<UserMutation | null>(null);
   readonly busy = signal(false);
   readonly reconciling = signal(false);
@@ -66,9 +67,33 @@ export class AdminUsersFacade {
     });
   }
 
-  open(id: string) { if (this.busy()) return; this.selectedId.set(id); this.notice.set(''); this.loadDetail(); }
-  close() { if (this.busy()) return; this.detailRequest?.unsubscribe(); this.selectedId.set(null); this.detail.set(null); this.detailError.set(''); }
+  open(id: string) { if (this.busy()) return; this.selectedId.set(id); this.notice.set(''); this.editorError.set(''); this.loadDetail(); }
+  close() { if (this.busy()) return; this.detailRequest?.unsubscribe(); this.selectedId.set(null); this.detail.set(null); this.detailError.set(''); this.editorError.set(''); }
   reloadDetail() { if (!this.busy()) this.loadDetail(); }
+  save(user: AdminUser, request: UpdateAdminUserRequest) {
+    if (this.busy() || user.id !== this.selectedId()) return;
+    this.mutationRequest?.unsubscribe();
+    this.busy.set(true); this.error.set(''); this.editorError.set(''); this.notice.set('');
+    this.mutationRequest = this.api.update(user.id, request).subscribe({
+      next: updated => {
+        this.busy.set(false);
+        if (this.isSelf(updated)) this.auth.syncCurrentUser({
+          id: updated.id, username: updated.username, email: updated.email, avatarUrl: updated.avatarUrl, role: updated.role
+        });
+        this.detail.set(updated);
+        const page = this.page();
+        if (page) this.page.set({ ...page, items: page.items.map(item => item.id === updated.id ? updated : item) });
+        this.notice.set('Usuario actualizado. Los cambios de acceso se aplican desde la siguiente solicitud.');
+        this.refresh();
+      },
+      error: error => {
+        this.busy.set(false);
+        this.editorError.set(error.status === 409
+          ? 'No pudimos guardar: el usuario o correo ya existe, o la cuenta cambió en otra ventana. Vuelve a abrirla e intenta de nuevo.'
+          : this.message(error, 'No pudimos actualizar el usuario. Revisa los datos e intenta de nuevo.'));
+      }
+    });
+  }
   private loadDetail() {
     const id = this.selectedId(); if (!id) return;
     this.detailRequest?.unsubscribe(); this.detailLoading.set(true); this.detailError.set('');

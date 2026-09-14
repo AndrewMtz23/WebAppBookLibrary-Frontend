@@ -7,29 +7,54 @@ import { AdminUsersFacade } from '../data-access/admin-users.facade';
 import { AdminUsersComponent } from './admin-users.component';
 
 describe('AdminUsersComponent', () => {
-  const target = { id: 'target', username: 'ana', displayName: 'Ana Reader', email: 'ana@example.test', role: 'user', isActive: true, createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z', lastLoginAt: null };
+  const target = { id: 'target', username: 'ana', displayName: 'Ana Reader', email: 'ana@example.test', avatarUrl: 'https://images.example.test/ana.jpg', role: 'user', isActive: true, createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z', lastLoginAt: null };
   beforeEach(() => TestBed.configureTestingModule({ imports: [AdminUsersComponent], providers: [AdminUsersFacade, provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: AuthService, useValue: { getUserId: () => 'self' } }] }));
   afterEach(() => TestBed.inject(HttpTestingController).verify());
 
-  it('renders semantic table, safe drawer and exact role consequence confirmation', async () => {
+  it('opens a centered editor with identity, avatar URL, role and status fields', async () => {
     const fixture = TestBed.createComponent(AdminUsersComponent); fixture.detectChanges(); const http = TestBed.inject(HttpTestingController);
     http.expectOne(request => request.url === '/api/admin/users').flush({ items: [target], page: 1, pageSize: 20, totalItems: 1, totalPages: 1, hasPreviousPage: false, hasNextPage: false }); fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('table caption').textContent).toContain('Cuentas administrables');
     const openers = Array.from(fixture.nativeElement.querySelectorAll('[data-user-id]')) as HTMLButtonElement[];
     const opener = openers.find(button => button.getClientRects().length > 0)!; opener.focus(); opener.click();
     http.expectOne('/api/admin/users/target').flush(target); fixture.detectChanges(); await fixture.whenStable();
-    expect(fixture.nativeElement.querySelector('[role="dialog"]').textContent).toContain('ana@example.test');
-    const select = fixture.nativeElement.querySelector('.management select') as HTMLSelectElement; select.value = 'librarian'; select.dispatchEvent(new Event('change')); fixture.detectChanges();
-    const roleButton = fixture.nativeElement.querySelector('.management button') as HTMLButtonElement; roleButton.focus(); roleButton.click(); fixture.detectChanges(); await fixture.whenStable();
-    const confirmation = fixture.nativeElement.querySelector('[role="alertdialog"]');
-    expect(confirmation.textContent).toContain('Cambiar rol a Bibliotecario');
-    expect(confirmation.textContent).toContain('gestionar catálogo y circulación');
-    expect(confirmation.textContent).toContain('Se retirará');
-    expect(document.activeElement?.textContent).toContain('Confirmar rol Bibliotecario');
-    (confirmation.querySelectorAll('button')[1] as HTMLButtonElement).click(); fixture.detectChanges(); await fixture.whenStable();
-    expect(document.activeElement).toBe(roleButton);
+    const dialog = fixture.nativeElement.querySelector('.user-editor-modal');
+    expect(dialog).not.toBeNull();
+    expect(dialog.querySelector('input[name="displayName"]').value).toBe('Ana Reader');
+    expect(dialog.querySelector('input[name="username"]').value).toBe('ana');
+    expect(dialog.querySelector('input[name="email"]').value).toBe('ana@example.test');
+    expect(dialog.querySelector('input[name="avatarUrl"]').value).toBe('https://images.example.test/ana.jpg');
+    expect(dialog.querySelector('select[name="role"]')).not.toBeNull();
+    expect(dialog.querySelector('input[name="isActive"]')).not.toBeNull();
+    expect(dialog.querySelector('img.user-avatar')?.getAttribute('src')).toBe('https://images.example.test/ana.jpg');
     (fixture.nativeElement.querySelector('[aria-label="Cerrar detalle"]') as HTMLButtonElement).click(); fixture.detectChanges(); await fixture.whenStable();
     expect(document.activeElement).toBe(opener);
+  });
+
+  it('submits all editable fields in one update and refreshes the visible user', async () => {
+    const fixture = TestBed.createComponent(AdminUsersComponent); fixture.detectChanges(); const http = TestBed.inject(HttpTestingController);
+    http.expectOne(request => request.url === '/api/admin/users').flush({ items: [target], page: 1, pageSize: 20, totalItems: 1, totalPages: 1, hasPreviousPage: false, hasNextPage: false }); fixture.detectChanges();
+    (fixture.nativeElement.querySelector('[data-user-id]') as HTMLButtonElement).click();
+    http.expectOne('/api/admin/users/target').flush(target); fixture.detectChanges(); await fixture.whenStable();
+    const name = fixture.nativeElement.querySelector('input[name="displayName"]') as HTMLInputElement;
+    name.value = 'Ana Actualizada'; name.dispatchEvent(new Event('input'));
+    fixture.detectChanges(); await fixture.whenStable(); fixture.detectChanges();
+    (fixture.nativeElement.querySelector('[data-save-user]') as HTMLButtonElement).click();
+    const update = http.expectOne('/api/admin/users/target');
+    expect(update.request.method).toBe('PUT');
+    expect(update.request.body).toEqual(jasmine.objectContaining({
+      displayName: 'Ana Actualizada',
+      username: 'ana',
+      email: 'ana@example.test',
+      avatarUrl: 'https://images.example.test/ana.jpg',
+      role: 'user',
+      isActive: true,
+      expectedUpdatedAt: target.updatedAt
+    }));
+    update.flush({ ...target, displayName: 'Ana Actualizada', updatedAt: '2026-01-02T00:00:00Z' });
+    http.expectOne(request => request.url === '/api/admin/users').flush({ items: [{ ...target, displayName: 'Ana Actualizada' }], page: 1, pageSize: 20, totalItems: 1, totalPages: 1, hasPreviousPage: false, hasNextPage: false });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Usuario actualizado');
   });
 
   it('shows a visible reason and disables self access removal', () => {

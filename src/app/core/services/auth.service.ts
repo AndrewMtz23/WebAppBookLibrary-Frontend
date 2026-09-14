@@ -6,7 +6,7 @@ import { isTokenExpired } from '../auth/jwt-token';
 import { API_URLS, USER_ROLES } from '../../shared/constant/shared-constants';
 import { AuthResponse, LoginRequest, RegisterRequest } from '../../shared/models/auth-request.model';
 import { ApiMessage } from '../../shared/models/api-response.model';
-import { AuthSession, isAuthSession, isUserRole } from '../auth/auth-session.model';
+import { AuthenticatedUser, AuthSession, isAuthSession, isUserRole } from '../auth/auth-session.model';
 
 const SESSION_STORAGE_KEY = 'booklibrary_session';
 const LEGACY_STORAGE_KEYS = ['jwt_token', 'user', 'user_role', 'user_id', 'user_email'] as const;
@@ -35,6 +35,14 @@ export class AuthService {
     localStorage.removeItem(SESSION_STORAGE_KEY);
     LEGACY_STORAGE_KEYS.forEach(key => localStorage.removeItem(key));
     this.sessionSubject.next(null);
+  }
+
+  syncCurrentUser(user: AuthenticatedUser): void {
+    const session = this.sessionSnapshot;
+    if (!session || session.user.id !== user.id || session.user.username !== user.username || session.user.role !== user.role) return;
+    const updated = { ...session, user };
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updated));
+    this.sessionSubject.next(updated);
   }
 
   get sessionSnapshot(): AuthSession | null { return this.sessionSubject.value; }

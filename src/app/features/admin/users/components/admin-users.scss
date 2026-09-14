@@ -4,20 +4,17 @@
 summary { cursor: pointer; padding: .7rem 0; font-weight: 750; }
 .advanced .form-grid { padding-top: 1rem; grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .identity, .detail-identity { display: flex; align-items: center; gap: .85rem; }
-.initial { display: grid; place-items: center; width: 2.65rem; aspect-ratio: 1; flex: none; border-radius: 50%; color: var(--color-ink); background: var(--color-accent-soft); border: 1px solid var(--color-accent); font-family: var(--font-display); font-size: 1.15rem; }
+.initial { position: relative; display: grid; place-items: center; width: 2.65rem; aspect-ratio: 1; flex: none; overflow: hidden; border-radius: 50%; color: var(--color-ink); background: var(--color-accent-soft); border: 1px solid var(--color-accent); font-family: var(--font-display); font-size: 1.15rem; }
+.user-avatar { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: var(--color-surface); }
 .user-card { border-top: 3px solid var(--color-ink); }
 .self-note { padding: .8rem 1rem; background: var(--color-warning-soft); color: var(--color-ink); border-left: 3px solid var(--color-warning); }
 .self-note.compact { display: block; margin-top: .55rem; padding: .45rem .6rem; font-size: var(--text-xs); max-width: 22rem; }
-.overlay { position: fixed; inset: 0; z-index: var(--z-overlay); display: flex; justify-content: flex-end; background: var(--color-overlay); }
+.overlay { position: fixed; inset: 0; z-index: var(--z-overlay); display: flex; background: var(--color-overlay); }
 .overlay--confirmation { z-index: calc(var(--z-overlay) + 1); align-items: center; justify-content: center; padding: 1rem; }
-.drawer { width: min(100%, 42rem); box-sizing: border-box; padding: 2rem; background: var(--color-surface); overflow-y: auto; box-shadow: var(--shadow-lifted); }
-.drawer h3, .confirmation-dialog h2 { font-family: var(--font-display); color: var(--color-ink); font-size: var(--text-xl); }
-.drawer dl { display: grid; grid-template-columns: 1fr 2fr; gap: .75rem; margin: 1.5rem 0; padding-block: 1.5rem; border-block: 1px solid var(--color-border); }
-.drawer dt { color: var(--color-text-muted); } .drawer dd { margin: 0; overflow-wrap: anywhere; }
-.management { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 1rem; margin: 1.5rem 0 1rem; }
 .confirmation-dialog { width: min(100%, 35rem); padding: 2rem; background: var(--color-surface); border-top: 5px solid var(--color-accent); box-shadow: var(--shadow-lifted); }
+.confirmation-dialog h2 { font-family: var(--font-display); color: var(--color-ink); font-size: var(--text-xl); }
 .confirmation-dialog strong { color: var(--color-ink); }
 .confirmation-dialog { max-height: calc(100dvh - 2rem); overflow-y: auto; overscroll-behavior: contain; overflow-wrap: anywhere; }
 @media (max-width: 900px) { .advanced .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 560px) { .advanced .form-grid, .management { grid-template-columns: 1fr; } .drawer, .confirmation-dialog { padding: 1.25rem; } }
-@media (prefers-reduced-motion: reduce) { .drawer, .confirmation-dialog { scroll-behavior: auto; } }
+@media (max-width: 560px) { .advanced .form-grid { grid-template-columns: 1fr; } .confirmation-dialog { padding: 1.25rem; } }
+@media (prefers-reduced-motion: reduce) { .confirmation-dialog { scroll-behavior: auto; } }

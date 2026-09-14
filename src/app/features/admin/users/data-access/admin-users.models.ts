@@ -6,11 +6,22 @@ export interface AdminUser {
   username: string;
   displayName: string;
   email: string;
+  avatarUrl?: string | null;
   role: UserRole;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string | null;
+}
+
+export interface UpdateAdminUserRequest {
+  username: string;
+  displayName: string;
+  email: string;
+  avatarUrl: string | null;
+  role: UserRole;
+  isActive: boolean;
+  expectedUpdatedAt: string;
 }
 
 export interface AdminUserQuery {

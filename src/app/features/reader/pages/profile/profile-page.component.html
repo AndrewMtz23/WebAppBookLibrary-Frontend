@@ -6,7 +6,7 @@
     <app-error-state [message]="facade.profile().error!" (retryRequested)="facade.load()" />
   } @else if (facade.profile().data; as profile) {
     <section class="identity" aria-labelledby="identity-name">
-      <div class="avatar" aria-hidden="true">{{ initials(profile) }}</div>
+      <app-avatar [name]="displayName(profile)" [imageUrl]="profile.avatarUrl" size="large" />
       <div><p class="role">Lector</p><h2 id="identity-name">{{ displayName(profile) }}</h2><p>@{{ profile.username }} · {{ profile.email }}</p></div>
     </section>
     <section class="metrics" aria-label="Resumen de actividad">
