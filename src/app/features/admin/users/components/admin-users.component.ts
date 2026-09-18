@@ -1,3 +1,5 @@
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ChangeDetectionStrategy, Component, ElementRef, Injector, afterNextRender, effect, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AdminUsersFacade } from '../data-access/admin-users.facade';
@@ -8,7 +10,7 @@ import { UserMutationConfirmationComponent } from './user-mutation-confirmation.
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [FormsModule, UserDetailDrawerComponent, UserMutationConfirmationComponent],
+  imports: [MatIconModule, MatTooltipModule, FormsModule, UserDetailDrawerComponent, UserMutationConfirmationComponent],
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -52,6 +54,7 @@ export class AdminUsersComponent {
   }
   role(user: AdminUser, nextRole: AdminUser['role']) { this.mutationOpener = document.activeElement as HTMLElement | null; this.vm.requestRole(user, nextRole); }
   status(user: AdminUser) { this.mutationOpener = document.activeElement as HTMLElement | null; this.vm.requestStatus(user); }
+  remove(user: AdminUser) { this.mutationOpener = document.activeElement as HTMLElement | null; this.vm.requestPermanent(user); }
   update(user: AdminUser, request: UpdateAdminUserRequest) { this.vm.save(user, request); }
   cancelMutation() { this.vm.dismiss(); }
   private restoreMutationFocus() { afterNextRender(() => { const fallback = this.host.nativeElement.querySelector<HTMLElement>('[data-refresh]'); (this.mutationOpener?.isConnected ? this.mutationOpener : fallback)?.focus(); this.mutationOpener = null; }, { injector: this.injector }); }

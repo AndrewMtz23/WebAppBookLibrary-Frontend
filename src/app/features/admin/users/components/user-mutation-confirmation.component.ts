@@ -45,10 +45,11 @@ export class UserMutationConfirmationComponent {
   @Output() readonly cancel = new EventEmitter<void>();
   @Output() readonly retry = new EventEmitter<void>();
   readonly ROLE_LABELS = ROLE_LABELS;
-  get title() { return this.mutation.type === 'role' ? `Cambiar rol a ${ROLE_LABELS[this.mutation.nextRole]}` : this.mutation.nextActive ? 'Activar cuenta' : 'Desactivar cuenta'; }
+  get title() { return this.mutation.type === 'permanent' ? 'Eliminar usuario definitivamente' : this.mutation.type === 'role' ? `Cambiar rol a ${ROLE_LABELS[this.mutation.nextRole]}` : this.mutation.nextActive ? 'Activar cuenta' : 'Desactivar cuenta'; }
   get consequence() {
+    if (this.mutation.type === 'permanent') return 'Se eliminarán la cuenta y sus favoritos. Esta acción no se puede deshacer. Si tiene historial de préstamos, no se permitirá eliminarla; puedes conservarla desactivada.';
     if (this.mutation.type === 'role') return roleConsequence(this.mutation.user.role, this.mutation.nextRole);
     return this.mutation.nextActive ? 'La cuenta recuperará el acceso correspondiente a su rol actual.' : 'Se retirará todo acceso de esta cuenta y su sesión anterior dejará de ser válida.';
   }
-  get confirmationLabel() { return this.mutation.type === 'role' ? `Confirmar rol ${ROLE_LABELS[this.mutation.nextRole]}` : this.mutation.nextActive ? 'Confirmar activación' : 'Confirmar desactivación'; }
+  get confirmationLabel() { return this.mutation.type === 'permanent' ? 'Eliminar definitivamente' : this.mutation.type === 'role' ? `Confirmar rol ${ROLE_LABELS[this.mutation.nextRole]}` : this.mutation.nextActive ? 'Confirmar activación' : 'Confirmar desactivación'; }
 }

@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { OverlayContainer } from '@angular/cdk/overlay';
 import { provideRouter } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { AdminUsersFacade } from '../data-access/admin-users.facade';
@@ -55,6 +56,10 @@ describe('AdminUsersComponent', () => {
     http.expectOne(request => request.url === '/api/admin/users').flush({ items: [{ ...target, displayName: 'Ana Actualizada' }], page: 1, pageSize: 20, totalItems: 1, totalPages: 1, hasPreviousPage: false, hasNextPage: false });
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Usuario actualizado');
+    expect(fixture.nativeElement.querySelector('.user-editor-modal')).toBeNull();
+    const toast = TestBed.inject(OverlayContainer).getContainerElement().querySelector('mat-snack-bar-container');
+    expect(toast?.textContent).toContain('Usuario actualizado');
+    expect(toast?.textContent).toContain('Cerrar');
   });
 
   it('shows a visible reason and disables self access removal', () => {
@@ -62,6 +67,47 @@ describe('AdminUsersComponent', () => {
     const fixture = TestBed.createComponent(AdminUsersComponent); fixture.detectChanges(); const http = TestBed.inject(HttpTestingController);
     http.expectOne(request => request.url === '/api/admin/users').flush({ items: [self], page: 1, pageSize: 20, totalItems: 1, totalPages: 1, hasPreviousPage: false, hasNextPage: false }); fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.self-note').textContent).toContain('no puedes quitarte acceso');
+    expect(fixture.nativeElement.querySelector('[data-user-status]')?.disabled).toBeTrue();
+    expect(fixture.nativeElement.querySelector('[data-user-delete]')?.disabled).toBeTrue();
+  });
+
+  it('renders icon actions and confirms logical deletion without removing the account', () => {
+    const fixture = TestBed.createComponent(AdminUsersComponent); fixture.detectChanges();
+    const http = TestBed.inject(HttpTestingController);
+    const page = { items: [target], page: 1, pageSize: 20, totalItems: 1, totalPages: 1, hasPreviousPage: false, hasNextPage: false };
+    http.expectOne(request => request.url === '/api/admin/users').flush(page); fixture.detectChanges();
+    const edit = fixture.nativeElement.querySelector('[data-user-id]') as HTMLButtonElement;
+    expect(edit.textContent?.trim()).toBe('edit');
+    expect(edit.getAttribute('aria-label')).toContain('Editar');
+    const deactivate = fixture.nativeElement.querySelector('[data-user-status]') as HTMLButtonElement;
+    expect(deactivate).not.toBeNull();
+    if (!deactivate) return;
+    deactivate.click(); fixture.detectChanges();
+    http.expectNone(request => request.method === 'PUT');
+    (fixture.nativeElement.querySelector('[data-confirm]') as HTMLButtonElement).click();
+    const update = http.expectOne('/api/admin/users/target/status');
+    expect(update.request.body).toEqual({ isActive: false }); update.flush(null);
+    http.expectOne(request => request.url === '/api/admin/users').flush({ ...page, items: [{ ...target, isActive: false }] });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[role="alertdialog"]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-user-delete]').disabled).toBeFalse();
+  });
+
+  it('confirms physical deletion of an inactive account and refreshes the list', () => {
+    const fixture = TestBed.createComponent(AdminUsersComponent); fixture.detectChanges();
+    const http = TestBed.inject(HttpTestingController);
+    http.expectOne(request => request.url === '/api/admin/users').flush({ items: [{ ...target, isActive: false }], page: 1, pageSize: 20, totalItems: 1, totalPages: 1 }); fixture.detectChanges();
+    const remove = fixture.nativeElement.querySelector('[data-user-delete]') as HTMLButtonElement;
+    expect(remove).not.toBeNull(); if (!remove) return;
+    remove.click(); fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[role="alertdialog"]').textContent).toContain('no se puede deshacer');
+    http.expectNone(request => request.method === 'DELETE');
+    (fixture.nativeElement.querySelector('[data-confirm]') as HTMLButtonElement).click();
+    const deletion = http.expectOne('/api/admin/users/target/permanent');
+    expect(deletion.request.method).toBe('DELETE'); deletion.flush(null);
+    http.expectOne(request => request.url === '/api/admin/users').flush({ items: [], page: 1, pageSize: 20, totalItems: 0, totalPages: 0 }); fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[role="alertdialog"]')).toBeNull();
+    expect(TestBed.inject(OverlayContainer).getContainerElement().textContent).toContain('Usuario eliminado definitivamente');
   });
 
   it('shows forbidden inline without rendering an empty result', () => {

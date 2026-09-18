@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -19,6 +20,7 @@ describe('StaffBooksFacade', () => {
   let params: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   let facade: StaffBooksFacade;
   beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [{ provide: MatSnackBar, useValue: { open: jasmine.createSpy('open') } }] });
     api = jasmine.createSpyObj<StaffBooksApi>('api', ['search', 'management', 'create', 'update', 'status', 'permanent']);
     api.search.and.returnValue(of(page)); api.management.and.returnValue(of(record));
     params = new BehaviorSubject(convertToParamMap({ page: '3', query: 'historia', isActive: 'false', lowStock: 'true', missingResource: 'false', language: 'es', sort: 'title', direction: 'asc' }));
@@ -40,10 +42,13 @@ describe('StaffBooksFacade', () => {
     facade.edit(record.book); api.update.and.returnValue(of(record.book));
     facade.save({ title: 'Edited' } as BookWriteRequest);
     expect(api.update).toHaveBeenCalled(); expect(api.search.calls.count()).toBe(2); expect(facade.editorOpen()).toBeFalse();
+    expect(TestBed.inject(MatSnackBar).open).toHaveBeenCalledWith('Libro actualizado.', 'Cerrar', jasmine.any(Object));
   });
   it('create uses create command and refreshes rows', () => {
     facade.create(); api.create.and.returnValue(of(record.book)); facade.save({ title: 'New' } as BookWriteRequest);
     expect(api.create).toHaveBeenCalled(); expect(api.update).not.toHaveBeenCalled(); expect(api.search.calls.count()).toBe(2);
+    expect(facade.editorOpen()).toBeFalse();
+    expect(TestBed.inject(MatSnackBar).open).toHaveBeenCalledWith('Libro creado.', 'Cerrar', jasmine.any(Object));
   });
   it('409 fetches current server record but preserves original editor until reload chosen', () => {
     facade.edit(record.book); api.update.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
@@ -107,6 +112,7 @@ describe('StaffBooksFacade', () => {
       expect(editor.form.controls.title.value).toBe('Submitted draft');
       expect(editor.form.controls.digitalResourceUrl.value).toBe(record.digitalResourceUrl!);
       expect(facade.editorOpen()).toBeTrue();
+      expect(TestBed.inject(MatSnackBar).open).toHaveBeenCalledWith(facade.editorError(), 'Cerrar', jasmine.any(Object));
       expect(api.management.calls.count()).toBe(status === 409 ? 2 : 1);
     });
   }
@@ -128,5 +134,24 @@ describe('StaffBooksFacade', () => {
     api.update.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
     facade.save({ title: 'A' } as BookWriteRequest); expect(reconciliation.observed).toBeTrue();
     TestBed.resetTestingModule(); expect(reconciliation.observed).toBeFalse();
+  });
+
+  for (const action of ['activate', 'deactivate', 'delete'] as const) {
+    it(`notifies after book ${action} succeeds`, () => {
+      api.status.and.returnValue(of(void 0)); api.permanent.and.returnValue(of(void 0));
+      const book = { ...record.book, isActive: action === 'deactivate' };
+      if (action === 'delete') facade.requestPermanent(book); else facade.requestStatus(book);
+      facade.confirmCommand();
+      expect(facade.pending()).toBeNull();
+      expect(TestBed.inject(MatSnackBar).open).toHaveBeenCalledWith(
+        action === 'delete' ? 'Libro eliminado definitivamente.' : action === 'activate' ? 'Libro activado.' : 'Libro desactivado.',
+        'Cerrar', jasmine.any(Object));
+    });
+  }
+
+  it('reports a rejected book deletion without announcing success', () => {
+    api.permanent.and.returnValue(throwError(() => ({ status: 409 })));
+    facade.requestPermanent(record.book); facade.confirmCommand();
+    expect(TestBed.inject(MatSnackBar).open).toHaveBeenCalledOnceWith(facade.error(), 'Cerrar', jasmine.any(Object));
   });
 });

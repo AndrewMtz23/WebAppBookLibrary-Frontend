@@ -18,3 +18,9 @@ summary { cursor: pointer; padding: .7rem 0; font-weight: 750; }
 @media (max-width: 900px) { .advanced .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .advanced .form-grid { grid-template-columns: 1fr; } .confirmation-dialog { padding: 1.25rem; } }
 @media (prefers-reduced-motion: reduce) { .confirmation-dialog { scroll-behavior: auto; } }
+
+.user-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+button.icon-action { display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; min-height: 2.75rem; padding: 0; border-radius: .65rem; }
+button.icon-action mat-icon { width: 1.25rem; height: 1.25rem; font-size: 1.25rem; }
+button.icon-action.danger { color: var(--color-danger); }
+button.icon-action.danger:hover:not(:disabled) { background: var(--color-danger-soft); border-color: var(--color-danger); }

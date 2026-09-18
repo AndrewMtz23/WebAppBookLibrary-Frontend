@@ -13,6 +13,7 @@ export class AdminUsersApi {
     return this.http.get<PagedResult<AdminUser>>('/api/admin/users', { params });
   }
 
+  permanent(id: string) { return this.http.delete<void>(`/api/admin/users/${encodeURIComponent(id)}/permanent`); }
   detail(id: string) { return this.http.get<AdminUser>(`/api/admin/users/${encodeURIComponent(id)}`); }
   update(id: string, request: UpdateAdminUserRequest) { return this.http.put<AdminUser>(`/api/admin/users/${encodeURIComponent(id)}`, request); }
   setRole(id: string, role: AdminUser['role']) { return this.http.put<void>(`/api/admin/users/${encodeURIComponent(id)}/role`, { role }); }

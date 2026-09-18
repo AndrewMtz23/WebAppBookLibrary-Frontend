@@ -28,3 +28,15 @@ $theme: mat.m2-define-light-theme((
   --mdc-snackbar-container-color: var(--color-ink);
   --mdc-snackbar-supporting-text-color: var(--color-text-on-ink);
 }
+
+.mat-mdc-snack-bar-container.operation-toast--success {
+  --mdc-snackbar-container-color: var(--color-ink);
+  --mat-snack-bar-button-color: var(--color-text-on-ink);
+  border-inline-start: 4px solid var(--color-success);
+}
+
+.mat-mdc-snack-bar-container.operation-toast--error {
+  --mdc-snackbar-container-color: var(--color-ink);
+  --mat-snack-bar-button-color: var(--color-text-on-ink);
+  border-inline-start: 4px solid var(--color-danger);
+}
