@@ -6,11 +6,22 @@ export interface AdminUser {
   username: string;
   displayName: string;
   email: string;
+  avatarUrl?: string | null;
   role: UserRole;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string | null;
+}
+
+export interface UpdateAdminUserRequest {
+  username: string;
+  displayName: string;
+  email: string;
+  avatarUrl: string | null;
+  role: UserRole;
+  isActive: boolean;
+  expectedUpdatedAt: string;
 }
 
 export interface AdminUserQuery {
@@ -34,7 +45,8 @@ export const DEFAULT_ADMIN_USER_QUERY: AdminUserQuery = {
 
 export type UserMutation =
   | { type: 'role'; user: AdminUser; nextRole: UserRole }
-  | { type: 'status'; user: AdminUser; nextActive: boolean };
+  | { type: 'status'; user: AdminUser; nextActive: boolean }
+  | { type: 'permanent'; user: AdminUser };
 
 export function parseAdminUserQuery(params: ParamMap): AdminUserQuery {
   const result = { ...DEFAULT_ADMIN_USER_QUERY };

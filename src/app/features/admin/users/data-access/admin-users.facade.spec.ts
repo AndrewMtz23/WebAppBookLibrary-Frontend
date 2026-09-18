@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -12,11 +13,27 @@ describe('AdminUsersFacade', () => {
   const page: PagedResult<AdminUser> = { items: [user], page: 3, pageSize: 20, totalItems: 41, totalPages: 3, hasPreviousPage: true, hasNextPage: false };
   let api: jasmine.SpyObj<AdminUsersApi>; let facade: AdminUsersFacade; let params: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   beforeEach(() => {
-    api = jasmine.createSpyObj('api', ['search', 'detail', 'setRole', 'setStatus']);
-    api.search.and.returnValue(of(page)); api.detail.and.returnValue(of(user)); api.setRole.and.returnValue(of(void 0)); api.setStatus.and.returnValue(of(void 0));
+    TestBed.configureTestingModule({ providers: [{ provide: MatSnackBar, useValue: { open: jasmine.createSpy('open') } }] });
+    api = jasmine.createSpyObj('api', ['search', 'detail', 'update', 'setRole', 'setStatus', 'permanent']);
+    api.search.and.returnValue(of(page)); api.detail.and.returnValue(of(user)); api.update.and.returnValue(of(user)); api.setRole.and.returnValue(of(void 0)); api.setStatus.and.returnValue(of(void 0));
     params = new BehaviorSubject(convertToParamMap({ query: 'ana', role: 'user', isActive: 'true', sort: 'createdAt', direction: 'desc', page: '3' }));
     TestBed.configureTestingModule({ providers: [AdminUsersFacade, { provide: AdminUsersApi, useValue: api }, { provide: ActivatedRoute, useValue: { queryParamMap: params } }, { provide: Router, useValue: { navigate: jasmine.createSpy().and.resolveTo(true) } }, { provide: AuthService, useValue: { getUserId: () => 'self' } }] });
     facade = TestBed.inject(AdminUsersFacade);
+  });
+
+  it('updates the selected user as one command and refreshes the list', () => {
+    facade.open(user.id);
+    const request = { username: 'ana', displayName: 'Ana Editada', email: 'ana@example.test', avatarUrl: 'https://images.example.test/ana.jpg', role: 'librarian' as const, isActive: true, expectedUpdatedAt: user.updatedAt };
+    const updated = { ...user, ...request, updatedAt: '2026-01-02T00:00:00Z' };
+    api.update.and.returnValue(of(updated));
+    facade.save(user, request);
+
+    expect(api.update).toHaveBeenCalledOnceWith('target', request);
+    expect(facade.selectedId()).toBeNull();
+    expect(facade.detail()).toBeNull();
+    expect(TestBed.inject(MatSnackBar).open).toHaveBeenCalledWith(jasmine.stringMatching('Usuario actualizado'), 'Cerrar', jasmine.any(Object));
+    expect(facade.notice()).toContain('Usuario actualizado');
+    expect(api.search.calls.count()).toBe(2);
   });
 
   it('restores URL filters and cancels a superseded list request', () => {
@@ -26,17 +43,68 @@ describe('AdminUsersFacade', () => {
     expect(stale.observed).toBeFalse(); expect(facade.page()?.page).toBe(2); expect(facade.query().role).toBe('admin');
   });
 
+  for (const status of [0, 400, 403, 409, 500]) {
+    it(`keeps the user editor open and reports a failed save (${status})`, () => {
+      facade.open(user.id);
+      api.update.and.returnValue(throwError(() => ({ status })));
+      facade.save(user, { ...user, avatarUrl: null, expectedUpdatedAt: user.updatedAt });
+      expect(facade.selectedId()).toBe(user.id);
+      expect(facade.detail()).toEqual(user);
+      expect(facade.busy()).toBeFalse();
+      expect(facade.editorError()).not.toBe('');
+      expect(TestBed.inject(MatSnackBar).open).toHaveBeenCalledWith(facade.editorError(), 'Cerrar', jasmine.any(Object));
+    });
+  }
+
   it('blocks self-demotion and self-deactivation in the behavior layer', () => {
     const self = { ...user, id: 'self', role: 'admin' as const };
     facade.requestRole(self, 'librarian'); expect(facade.pending()).toBeNull();
     facade.requestStatus(self); expect(facade.pending()).toBeNull();
   });
 
+  it('blocks permanent deletion of self and active accounts', () => {
+    facade.requestPermanent(user); expect(facade.pending()).toBeNull();
+    facade.requestPermanent({ ...user, id: 'self', isActive: false }); expect(facade.pending()).toBeNull();
+    expect(api.permanent).not.toHaveBeenCalled();
+  });
+
+  it('keeps a deletion conflict visible after refreshing the list', () => {
+    api.permanent.and.returnValue(throwError(() => ({ status: 409 })));
+    facade.requestPermanent({ ...user, isActive: false }); facade.confirm();
+    expect(facade.pending()).toBeNull();
+    expect(facade.error()).toContain('historial');
+    expect(api.search.calls.count()).toBe(2);
+    expect(TestBed.inject(MatSnackBar).open).toHaveBeenCalledOnceWith(jasmine.stringMatching('historial'), 'Cerrar', jasmine.any(Object));
+  });
+
+  it('syncs the current account before closing its editor', () => {
+    const auth = TestBed.inject(AuthService);
+    const sync = jasmine.createSpy('syncCurrentUser');
+    auth.syncCurrentUser = sync;
+    const self = { ...user, id: 'self', role: 'admin' as const };
+    api.detail.and.returnValue(of(self));
+    api.update.and.returnValue(of({ ...self, email: 'new@example.test' }));
+    facade.open(self.id);
+    facade.save(self, { ...self, email: 'new@example.test', avatarUrl: null, expectedUpdatedAt: self.updatedAt });
+    expect(sync).toHaveBeenCalledWith(jasmine.objectContaining({ id: 'self', email: 'new@example.test' }));
+    expect(facade.selectedId()).toBeNull();
+  });
+
+  for (const active of [true, false]) {
+    it(`reports a successful account status change from ${active}`, () => {
+      facade.requestStatus({ ...user, isActive: active }); facade.confirm();
+      expect(facade.pending()).toBeNull();
+      expect(TestBed.inject(MatSnackBar).open).toHaveBeenCalledWith(
+        active ? 'Cuenta desactivada y acceso retirado.' : 'Cuenta activada.', 'Cerrar', jasmine.any(Object));
+    });
+  }
+
   it('refreshes the current row and list after a successful role mutation', () => {
     facade.open(user.id); facade.requestRole(user, 'librarian'); facade.confirm();
     expect(api.setRole).toHaveBeenCalledOnceWith('target', 'librarian');
     expect(api.detail.calls.count()).toBe(2); expect(api.search.calls.count()).toBe(2);
     expect(facade.pending()).toBeNull(); expect(facade.notice()).toContain('sesión anterior');
+    expect(TestBed.inject(MatSnackBar).open).toHaveBeenCalledWith(facade.notice(), 'Cerrar', jasmine.any(Object));
   });
 
   it('keeps the exact pending choice and refetches current state after 409', () => {

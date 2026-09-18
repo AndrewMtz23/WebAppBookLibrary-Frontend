@@ -99,7 +99,7 @@
       </nav>
 
       <div class="workspace__profile">
-        <app-avatar [name]="username" />
+        <app-avatar [name]="username" [imageUrl]="avatarUrl" />
         <span><strong>{{ username }}</strong><small>{{ contextLabel }}</small></span>
         <button mat-icon-button type="button" aria-label="Cerrar sesión" matTooltip="Cerrar sesión" matTooltipPosition="right" (click)="requestLogout()">
           <mat-icon>logout</mat-icon>
@@ -115,7 +115,7 @@
     @if (variant === 'staff') {
       <header class="workspace__topbar">
         <div><span>Espacio de trabajo</span><strong>{{ contextLabel }}</strong></div>
-        <div class="workspace__top-profile"><app-avatar [name]="username" size="small" /><span>{{ username }}</span></div>
+        <div class="workspace__top-profile"><app-avatar [name]="username" [imageUrl]="avatarUrl" size="small" /><span>{{ username }}</span></div>
       </header>
     }
     <main id="main-content" class="workspace__content" tabindex="-1"><router-outlet /></main>

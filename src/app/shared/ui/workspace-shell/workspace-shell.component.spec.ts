@@ -96,6 +96,8 @@ describe('WorkspaceShellComponent', () => {
     expect(fixture.nativeElement.querySelector('.reader-navbar app-account-menu')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('.reader-navbar').textContent).toContain('Mi biblioteca');
     expect(fixture.nativeElement.querySelector('.reader-navbar__workspace')).toBeNull();
+    expect(parseFloat(getComputedStyle(fixture.nativeElement.querySelector('.workspace__content')).paddingLeft)).toBe(0);
+    expect(getComputedStyle(document.documentElement).getPropertyValue('--content-max').trim()).toBe('108rem');
   });
 
   it('adds legal navigation to the reader footer only', () => {

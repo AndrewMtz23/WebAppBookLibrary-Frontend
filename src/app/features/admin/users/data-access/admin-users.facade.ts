@@ -3,9 +3,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription, forkJoin } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
+import { OperationNotificationService } from '../../../../core/services/operation-notification.service';
 import { PagedResult } from '../../../../shared/models/paged-result.model';
 import { AdminUsersApi } from './admin-users.api';
-import { AdminUser, AdminUserQuery, DEFAULT_ADMIN_USER_QUERY, UserMutation, parseAdminUserQuery } from './admin-users.models';
+import { AdminUser, AdminUserQuery, DEFAULT_ADMIN_USER_QUERY, UpdateAdminUserRequest, UserMutation, parseAdminUserQuery } from './admin-users.models';
 
 @Injectable()
 export class AdminUsersFacade {
@@ -13,6 +14,7 @@ export class AdminUsersFacade {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly auth = inject(AuthService);
+  private readonly notifications = inject(OperationNotificationService);
   private readonly destroyRef = inject(DestroyRef);
   readonly query = signal({ ...DEFAULT_ADMIN_USER_QUERY });
   readonly page = signal<PagedResult<AdminUser> | null>(null);
@@ -23,6 +25,7 @@ export class AdminUsersFacade {
   readonly detail = signal<AdminUser | null>(null);
   readonly detailLoading = signal(false);
   readonly detailError = signal('');
+  readonly editorError = signal('');
   readonly pending = signal<UserMutation | null>(null);
   readonly busy = signal(false);
   readonly reconciling = signal(false);
@@ -62,13 +65,40 @@ export class AdminUsersFacade {
       error: error => {
         if (generation !== this.requestGeneration) return;
         this.loading.set(false); this.error.set(this.message(error, 'No pudimos cargar las cuentas. Intenta actualizar.'));
+        this.notifications.error(this.error());
       }
     });
   }
 
-  open(id: string) { if (this.busy()) return; this.selectedId.set(id); this.notice.set(''); this.loadDetail(); }
-  close() { if (this.busy()) return; this.detailRequest?.unsubscribe(); this.selectedId.set(null); this.detail.set(null); this.detailError.set(''); }
+  open(id: string) { if (this.busy()) return; this.selectedId.set(id); this.notice.set(''); this.editorError.set(''); this.loadDetail(); }
+  close() { if (this.busy()) return; this.detailRequest?.unsubscribe(); this.selectedId.set(null); this.detail.set(null); this.detailError.set(''); this.editorError.set(''); }
   reloadDetail() { if (!this.busy()) this.loadDetail(); }
+  save(user: AdminUser, request: UpdateAdminUserRequest) {
+    if (this.busy() || user.id !== this.selectedId()) return;
+    this.mutationRequest?.unsubscribe();
+    this.busy.set(true); this.error.set(''); this.editorError.set(''); this.notice.set('');
+    this.mutationRequest = this.api.update(user.id, request).subscribe({
+      next: updated => {
+        this.busy.set(false);
+        if (this.isSelf(updated)) this.auth.syncCurrentUser({
+          id: updated.id, username: updated.username, email: updated.email, avatarUrl: updated.avatarUrl, role: updated.role
+        });
+        this.close();
+        const page = this.page();
+        if (page) this.page.set({ ...page, items: page.items.map(item => item.id === updated.id ? updated : item) });
+        this.notice.set('Usuario actualizado. Los cambios de acceso se aplican desde la siguiente solicitud.');
+        this.notifications.success(this.notice());
+        this.refresh();
+      },
+      error: error => {
+        this.busy.set(false);
+        this.editorError.set(error.status === 409
+          ? 'No pudimos guardar: el usuario o correo ya existe, o la cuenta cambió en otra ventana. Vuelve a abrirla e intenta de nuevo.'
+          : this.message(error, 'No pudimos actualizar el usuario. Revisa los datos e intenta de nuevo.'));
+        this.notifications.error(this.editorError());
+      }
+    });
+  }
   private loadDetail() {
     const id = this.selectedId(); if (!id) return;
     this.detailRequest?.unsubscribe(); this.detailLoading.set(true); this.detailError.set('');
@@ -81,7 +111,7 @@ export class AdminUsersFacade {
         }
         this.detailLoading.set(false);
       },
-      error: error => { this.detailLoading.set(false); this.detailError.set(this.message(error, error.status === 404 ? 'La cuenta ya no está disponible.' : 'No pudimos consultar la cuenta.')); }
+      error: error => { this.detailLoading.set(false); this.detailError.set(this.message(error, error.status === 404 ? 'La cuenta ya no está disponible.' : 'No pudimos consultar la cuenta.')); this.notifications.error(this.detailError()); }
     });
   }
 
@@ -94,6 +124,11 @@ export class AdminUsersFacade {
     const nextActive = !user.isActive;
     if (this.busy() || (this.isSelf(user) && !nextActive)) return;
     this.pending.set({ type: 'status', user, nextActive });
+  }
+  requestPermanent(user: AdminUser) {
+    if (this.busy() || this.reconciling() || this.isSelf(user) || user.isActive) return;
+    this.notice.set(''); this.error.set('');
+    this.pending.set({ type: 'permanent', user });
   }
   dismiss() {
     if (!this.busy() && !this.reconciling()) {
@@ -110,21 +145,38 @@ export class AdminUsersFacade {
   confirm() {
     const command = this.pending(); if (!command || this.busy() || this.reconciling() || this.reconciliationError()) return;
     this.busy.set(true); this.notice.set(''); this.error.set('');
-    const request = command.type === 'role' ? this.api.setRole(command.user.id, command.nextRole) : this.api.setStatus(command.user.id, command.nextActive);
+    const request = command.type === 'permanent' ? this.api.permanent(command.user.id) : command.type === 'role' ? this.api.setRole(command.user.id, command.nextRole) : this.api.setStatus(command.user.id, command.nextActive);
     this.mutationRequest = request.subscribe({
       next: () => {
         this.busy.set(false); this.pending.set(null); this.reconciling.set(false); this.reconciliationError.set('');
-        this.notice.set(command.type === 'role' ? 'Rol actualizado. La sesión anterior de la cuenta dejó de ser válida.' : command.nextActive ? 'Cuenta activada.' : 'Cuenta desactivada y acceso retirado.');
-        if (this.selectedId() === command.user.id) this.loadDetail();
-        this.refresh();
+        this.notice.set(command.type === 'permanent' ? 'Usuario eliminado definitivamente.' : command.type === 'role' ? 'Rol actualizado. La sesión anterior de la cuenta dejó de ser válida.' : command.nextActive ? 'Cuenta activada.' : 'Cuenta desactivada y acceso retirado.');
+        this.notifications.success(this.notice());
+        if (this.selectedId() === command.user.id) {
+          if (command.type === 'permanent') this.close(); else this.loadDetail();
+        }
+        if (command.type === 'permanent' && this.page()?.items.length === 1 && this.query().page > 1) this.paginate(this.query().page - 1);
+        else this.refresh();
       },
       error: error => {
         this.busy.set(false);
+        if (command.type === 'permanent') {
+          this.pending.set(null);
+          if (error.status === 404 && this.selectedId() === command.user.id) this.close();
+          this.refresh();
+          this.error.set(this.message(error, error.status === 409
+            ? 'No se puede eliminar: la cuenta debe estar inactiva y sin historial de préstamos.'
+            : error.status === 404 ? 'La cuenta ya no existe. Actualizamos el listado.'
+            : 'No pudimos confirmar la eliminación. Revisa el listado actualizado antes de reintentar.'));
+          this.notifications.error(this.error());
+          return;
+        }
         if (this.requiresReconciliation(error.status)) {
           this.notice.set(error.status === 409 ? 'La cuenta cambió mientras trabajabas. Conservamos tu selección y consultamos el estado actual antes de otro intento.' : 'El resultado es incierto. Conservamos tu selección y consultamos el estado actual antes de otro intento.');
+          this.notifications.error(this.notice());
           this.reconcile(command.user.id);
         } else {
           this.error.set(this.message(error, 'No pudimos completar el cambio. Tu selección se conserva para reintentar.'));
+          this.notifications.error(this.error());
         }
       }
     });
@@ -162,6 +214,7 @@ export class AdminUsersFacade {
         if (generation === this.requestGeneration) this.loading.set(false);
         this.reconciling.set(false);
         this.reconciliationError.set(this.message(error, 'No pudimos consultar el estado actual. Intenta consultar de nuevo antes de confirmar.'));
+        this.notifications.error(this.reconciliationError());
       }
     });
   }

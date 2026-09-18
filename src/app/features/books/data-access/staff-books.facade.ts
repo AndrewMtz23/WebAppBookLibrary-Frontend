@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, ParamMap } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, catchError, finalize, merge, of, switchMap, takeUntil, tap } from 'rxjs';
 import { BookSummary } from '../../../shared/models/book.model';
+import { OperationNotificationService } from '../../../core/services/operation-notification.service';
 import { PagedResult } from '../../../shared/models/paged-result.model';
 import { StaffBooksApi } from './staff-books.api';
 import { BookManagement, BookWriteRequest, DEFAULT_STAFF_BOOK_QUERY, StaffBookQuery } from './staff-books.models';
@@ -10,6 +11,7 @@ import { BookManagement, BookWriteRequest, DEFAULT_STAFF_BOOK_QUERY, StaffBookQu
 @Injectable()
 export class StaffBooksFacade {
   private readonly api = inject(StaffBooksApi);
+  private readonly notifications = inject(OperationNotificationService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly refresh$ = new Subject<void>();
@@ -39,7 +41,7 @@ export class StaffBooksFacade {
         this.loading.set(true); this.error.set('');
         return this.api.search(this.query()).pipe(
         tap(page => this.page.set(page)),
-        catchError(() => { this.error.set('No pudimos cargar el catálogo. Inténtalo de nuevo.'); return of(null); }),
+        catchError(() => { this.error.set('No pudimos cargar el catálogo. Inténtalo de nuevo.'); this.notifications.error(this.error()); return of(null); }),
         finalize(() => this.loading.set(false))
         );
       }), takeUntilDestroyed()
@@ -78,7 +80,7 @@ export class StaffBooksFacade {
     this.editLoading.set(true); this.error.set('');
     this.api.management(book.id).pipe(takeUntil(this.editorChanged$), takeUntilDestroyed(this.destroyRef), finalize(() => this.editLoading.set(false))).subscribe({
       next: record => { if (version !== this.editVersion) return; this.editorRecord.set(record); this.conflictRecord.set(null); this.editorError.set(''); this.editorOpen.set(true); },
-      error: () => { if (version === this.editVersion) this.error.set('No pudimos abrir el libro. Vuelve a seleccionar Editar.'); }
+      error: () => { if (version === this.editVersion) { this.error.set('No pudimos abrir el libro. Vuelve a seleccionar Editar.'); this.notifications.error(this.error()); } }
     });
   }
   closeEditor() { if (!this.saving()) { this.cancelEditorRequests(); this.conflictRecord.set(null); this.editorOpen.set(false); } }
@@ -89,9 +91,10 @@ export class StaffBooksFacade {
     this.saving.set(true); this.editorError.set(''); this.conflictRecord.set(null);
     const id = this.editorRecord()?.book.id;
     (id ? this.api.update(id, body) : this.api.create(body)).pipe(takeUntil(this.editorChanged$), takeUntilDestroyed(this.destroyRef), finalize(() => this.saving.set(false))).subscribe({
-      next: () => { this.editorOpen.set(false); this.notice.set('Libro guardado.'); this.refresh(); },
+      next: () => { this.editorOpen.set(false); this.notice.set(id ? 'Libro actualizado.' : 'Libro creado.'); this.notifications.success(this.notice()); this.refresh(); },
       error: error => {
         this.editorError.set(error.status === 409 ? 'No se guardó: el ISBN, el inventario o el estado actual entran en conflicto. Tu borrador se conserva.' : error.status === 400 ? 'Revisa los datos del libro. El servidor rechazó algunos valores; tu borrador se conserva.' : 'No pudimos guardar el libro. Tu borrador se conserva; puedes reintentar.');
+        this.notifications.error(this.editorError());
         if (error.status === 409 && id) {
           const isCurrent = () => version === this.editVersion && this.editorOpen() && this.editorRecord()?.book.id === id;
           this.api.management(id).pipe(takeUntil(this.editorChanged$), takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -110,8 +113,8 @@ export class StaffBooksFacade {
     const command = this.pending(); if (!command || this.commandBusy()) return;
     this.commandBusy.set(true); this.error.set('');
     (command.permanent ? this.api.permanent(command.book.id) : this.api.status(command.book.id, !command.book.isActive)).pipe(finalize(() => this.commandBusy.set(false))).subscribe({
-      next: () => { this.pending.set(null); this.notice.set(command.permanent ? 'Libro eliminado definitivamente.' : 'Estado del libro actualizado.'); this.refresh(); },
-      error: error => { this.pending.set(null); if (error.status === 409) this.refresh(); this.error.set(error.status === 409 ? 'No se puede eliminar: el libro debe estar inactivo y no tener préstamos ni favoritos asociados. Se ha solicitado la versión actual del catálogo.' : 'No se pudo completar la acción. Vuelve a intentarlo.'); }
+      next: () => { this.pending.set(null); this.notice.set(command.permanent ? 'Libro eliminado definitivamente.' : command.book.isActive ? 'Libro desactivado.' : 'Libro activado.'); this.notifications.success(this.notice()); this.refresh(); },
+      error: error => { this.pending.set(null); if (error.status === 409) this.refresh(); this.error.set(error.status === 409 ? (command.permanent ? 'No se puede eliminar: el libro debe estar inactivo y no tener préstamos ni favoritos asociados. Se ha solicitado la versión actual del catálogo.' : 'El estado del libro cambió. Revisa el catálogo actualizado antes de reintentar.') : 'No se pudo completar la acción. Vuelve a intentarlo.'); this.notifications.error(this.error()); }
     });
   }
 }

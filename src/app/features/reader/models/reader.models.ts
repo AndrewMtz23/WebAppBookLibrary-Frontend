@@ -4,7 +4,7 @@ export interface BookFacet { value: string; count: number; }
 export interface Favorite { id: string; bookId: string; createdAt: string; }
 export interface DigitalAccess { resourceUrl: string; }
 export interface ReaderProfile {
-  id: string; displayName: string; username: string; email: string;
+  id: string; displayName: string; username: string; email: string; avatarUrl?: string | null;
   role: 'user'; createdAt: string; lastLoginAt: string | null;
 }
 export interface MetricCount { key: string; count: number; }

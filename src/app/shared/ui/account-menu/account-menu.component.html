@@ -7,7 +7,7 @@
       aria-haspopup="menu"
       aria-controls="account-menu-panel"
       (click)="toggle($event)">
-      <app-avatar [name]="activeSession.user.username" size="small" />
+      <app-avatar [name]="activeSession.user.username" [imageUrl]="activeSession.user.avatarUrl" size="small" />
       <span>{{ activeSession.user.username }}</span>
       <mat-icon aria-hidden="true">{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
     </button>
@@ -15,7 +15,7 @@
     @if (isOpen) {
       <section id="account-menu-panel" class="account-menu__panel" role="menu" (click)="$event.stopPropagation()">
         <header class="account-menu__identity">
-          <app-avatar [name]="activeSession.user.username" />
+          <app-avatar [name]="activeSession.user.username" [imageUrl]="activeSession.user.avatarUrl" />
           <div>
             <strong>{{ activeSession.user.username }}</strong>
             <span>{{ activeSession.user.email }}</span>

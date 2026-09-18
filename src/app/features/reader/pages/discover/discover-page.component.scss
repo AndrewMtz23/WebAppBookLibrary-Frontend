@@ -1,5 +1,5 @@
 :host { display: block; }
-.discover-page { max-width: 90rem; margin: 0 auto; padding: clamp(1.25rem, 4vw, 4rem); }
+.discover-page { max-width: var(--content-max); margin: 0 auto; padding: clamp(1.5rem, 3.2vw, 3.5rem); }
 .rail, .categories { margin-top: clamp(4rem, 8vw, 7rem); }
 .rail__heading { display: flex; justify-content: space-between; align-items: end; gap: 1rem; margin-bottom: 1.4rem; p { margin: 0 0 .25rem; color: var(--color-primary); font-size: .7rem; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; } h2 { margin: 0; font-size: clamp(1.6rem, 3vw, 2.5rem); } a { color: var(--text-primary); font-weight: 650; } }
 .categories__heading {

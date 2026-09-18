@@ -14,4 +14,16 @@ describe('AvatarComponent', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent.trim()).toBe('AT');
   });
+
+  it('renders a remote profile image and falls back to initials when it fails', () => {
+    fixture.componentRef.setInput('name', 'Ana Torres');
+    fixture.componentRef.setInput('imageUrl', 'https://images.example.test/ana.jpg');
+    fixture.detectChanges();
+    const image = fixture.nativeElement.querySelector('img') as HTMLImageElement;
+    expect(image.src).toContain('https://images.example.test/ana.jpg');
+    image.dispatchEvent(new Event('error'));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('img')).toBeNull();
+    expect(fixture.nativeElement.textContent.trim()).toBe('AT');
+  });
 });
