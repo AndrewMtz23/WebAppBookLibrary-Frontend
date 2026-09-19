@@ -1,7 +1,10 @@
 <div class="discover-page">
   <h1 class="visually-hidden">Descubre tu próxima lectura</h1>
-  @if (facade.newest().loading) {
+
+  @if (facade.newest().loading && facade.popular().loading) {
     <app-skeleton [lines]="7" />
+  } @else if (heroBooks.length) {
+    <app-featured-book [books]="heroBooks" />
   } @else if (facade.newest().data[0]; as featured) {
     <app-featured-book [book]="featured" />
   } @else {
@@ -9,20 +12,71 @@
   }
 
   <section class="rail" aria-labelledby="popular-title">
-    <div class="rail__heading"><div><p>Lo que todos están leyendo</p><h2 id="popular-title">Más populares</h2></div><a routerLink="/app/catalog" [queryParams]="{sort:'reservationCount', direction:'desc'}">Ver todos</a></div>
-    @if (facade.popular().loading) { <app-skeleton [lines]="4" /> }
-    @else if (facade.popularBooks().length) { <app-book-grid [books]="facade.popularBooks().slice(0, 4)" [showFavorite]="isReader" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (favoriteRequested)="favorites.toggle($event)" /> }
-    @if (facade.popular().error) { <p class="subtle-note">Mostramos novedades porque la popularidad no está disponible.</p> }
+    <div class="rail__heading">
+      <div>
+        <p>Lo que todos están leyendo</p>
+        <h2 id="popular-title">Más populares</h2>
+      </div>
+      <a routerLink="/app/catalog" [queryParams]="{sort:'reservationCount', direction:'desc'}">Ver todos</a>
+    </div>
+    @if (facade.popular().loading) {
+      <app-skeleton [lines]="4" />
+    } @else if (facade.popularBooks().length) {
+      <app-book-grid
+        [books]="facade.popularBooks().slice(0, 8)"
+        [showFavorite]="isReader"
+        [favoriteResolver]="favoriteResolver"
+        [busyFavoriteIds]="favorites.busyIds()"
+        (favoriteRequested)="favorites.toggle($event)" />
+    }
+    @if (facade.popular().error) {
+      <p class="subtle-note">Mostramos novedades porque la popularidad no está disponible.</p>
+    }
   </section>
 
+  <app-discover-pathways />
+
   @if (isReader) {
-  <section class="rail" aria-labelledby="continue-title">
-    <div class="rail__heading"><div><p>Tu actividad</p><h2 id="continue-title">Continúa leyendo</h2></div><a routerLink="/app/my-library">Mi biblioteca</a></div>
-    @if (facade.activeReading().loading) { <app-skeleton [lines]="3" /> }
-    @else if (facade.activeReading().data; as current) { <app-book-grid [books]="[current]" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (favoriteRequested)="favorites.toggle($event)" /> }
-    @else if (facade.activeReading().error) { <app-error-state title="No pudimos cargar tu lectura actual" [message]="facade.activeReading().error!" (retryRequested)="facade.load()" /> }
-    @else { <p class="subtle-note">Cuando reserves un libro, aparecerá aquí para continuar.</p> }
-  </section>
+    <section class="rail" aria-labelledby="continue-title">
+      <div class="rail__heading">
+        <div>
+          <p>Tu actividad</p>
+          <h2 id="continue-title">Continúa leyendo</h2>
+        </div>
+        <a routerLink="/app/my-library">Mi biblioteca</a>
+      </div>
+      @if (facade.activeReading().loading) {
+        <app-skeleton [lines]="3" />
+      } @else if (facade.activeReading().data; as current) {
+        <app-book-grid
+          [books]="[current]"
+          [favoriteResolver]="favoriteResolver"
+          [busyFavoriteIds]="favorites.busyIds()"
+          (favoriteRequested)="favorites.toggle($event)" />
+      } @else if (facade.activeReading().error) {
+        <app-error-state title="No pudimos cargar tu lectura actual" [message]="facade.activeReading().error!" (retryRequested)="facade.load()" />
+      } @else {
+        <p class="subtle-note">Cuando reserves un libro, aparecerá aquí para continuar.</p>
+      }
+    </section>
+  }
+
+  @if (digitalBooks.length) {
+    <section class="rail" aria-labelledby="digital-collection-title">
+      <div class="rail__heading">
+        <div>
+          <p>Sin esperas de entrega física</p>
+          <h2 id="digital-collection-title">Colección Digital</h2>
+        </div>
+        <a routerLink="/app/catalog" [queryParams]="{mediaType:'digital'}">Ver colección <span aria-hidden="true">↗</span></a>
+      </div>
+      <app-book-grid
+        [books]="digitalBooks.slice(0, 8)"
+        [showFavorite]="isReader"
+        [favoriteResolver]="favoriteResolver"
+        [busyFavoriteIds]="favorites.busyIds()"
+        (favoriteRequested)="favorites.toggle($event)" />
+    </section>
   }
 
   <section class="categories" aria-labelledby="categories-title">
@@ -34,9 +88,11 @@
       </div>
       <a routerLink="/app/catalog">Ver catálogo <span aria-hidden="true">↗</span></a>
     </div>
-    @if (facade.facets().loading) { <app-skeleton [lines]="2" /> }
-    @else if (facade.facets().error) { <app-error-state title="No pudimos cargar las categorías" [message]="facade.facets().error!" (retryRequested)="facade.load()" /> }
-    @else {
+    @if (facade.facets().loading) {
+      <app-skeleton [lines]="2" />
+    } @else if (facade.facets().error) {
+      <app-error-state title="No pudimos cargar las categorías" [message]="facade.facets().error!" (retryRequested)="facade.load()" />
+    } @else {
       <div class="category-list">
         @for (facet of facade.facets().data.slice(0, 8); track facet.value; let index = $index) {
           <a
@@ -57,13 +113,57 @@
     }
   </section>
 
+  <app-discover-editorial />
+
   <section class="rail" aria-labelledby="new-title">
-    <div class="rail__heading"><div><p>Recién llegados</p><h2 id="new-title">Novedades</h2></div><a routerLink="/app/catalog">Ver todos</a></div>
-    @if (facade.newest().data.length) { <app-book-grid [books]="facade.newest().data.slice(0, 4)" [showFavorite]="isReader" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (favoriteRequested)="favorites.toggle($event)" /> }
+    <div class="rail__heading">
+      <div>
+        <p>Recién llegados</p>
+        <h2 id="new-title">Novedades</h2>
+      </div>
+      <a routerLink="/app/catalog">Ver todos</a>
+    </div>
+    @if (facade.newest().data.length) {
+      <app-book-grid
+        [books]="facade.newest().data.slice(0, 8)"
+        [showFavorite]="isReader"
+        [favoriteResolver]="favoriteResolver"
+        [busyFavoriteIds]="favorites.busyIds()"
+        (favoriteRequested)="favorites.toggle($event)" />
+    }
   </section>
 
-  @if (isReader && facade.activity().data; as activity) {
-    <aside class="activity"><div><span>{{ activity.totalReservations }}</span><p>reservas este periodo</p></div><div><span>{{ activity.favorites }}</span><p>favoritos guardados</p></div><a routerLink="/app/my-library">Ver Mi biblioteca</a></aside>
+  @if (physicalBooks.length) {
+    <section class="rail" aria-labelledby="physical-collection-title">
+      <div class="rail__heading">
+        <div>
+          <p>Para lectura en sala y retiro presencial</p>
+          <h2 id="physical-collection-title">Ejemplares Físicos</h2>
+        </div>
+        <a routerLink="/app/catalog" [queryParams]="{mediaType:'physical'}">Ver todos</a>
+      </div>
+      <app-book-grid
+        [books]="physicalBooks.slice(0, 8)"
+        [showFavorite]="isReader"
+        [favoriteResolver]="favoriteResolver"
+        [busyFavoriteIds]="favorites.busyIds()"
+        (favoriteRequested)="favorites.toggle($event)" />
+    </section>
   }
-  @else if (isReader && facade.activity().error) { <app-error-state title="No pudimos cargar tu resumen" [message]="facade.activity().error!" (retryRequested)="facade.load()" /> }
+
+  <app-discover-app-banner
+    [isReader]="isReader"
+    [book]="facade.activeReading().data || facade.popularBooks()[0] || facade.newest().data[0] || null"
+    [hasActiveLoan]="!!facade.activeReading().data" />
+
+  @if (isReader && facade.activity().data; as activity) {
+    <aside class="activity">
+      <div><span>{{ activity.totalReservations }}</span><p>reservas este periodo</p></div>
+      <div><span>{{ activity.favorites }}</span><p>favoritos guardados</p></div>
+      <a routerLink="/app/my-library">Ver Mi biblioteca</a>
+    </aside>
+  }
+  @else if (isReader && facade.activity().error) {
+    <app-error-state title="No pudimos cargar tu resumen" [message]="facade.activity().error!" (retryRequested)="facade.load()" />
+  }
 </div>

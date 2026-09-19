@@ -1,4 +1,4 @@
-<header class="dashboard-header"><div><p class="eyebrow">Administración</p><h1>Vista general</h1><p>Estado actual y actividad del periodo, separados para tomar decisiones sin comparaciones ficticias.</p></div></header>
+<app-staff-page-header icon="space_dashboard" title="Vista general" description="Estado actual y actividad del periodo, separados para tomar decisiones sin comparaciones ficticias."></app-staff-page-header>
 <app-dashboard-period-controls [period]="dashboard.period()" [busy]="dashboard.refreshing()" (periodChange)="dashboard.setPeriod($event)" (refresh)="dashboard.refreshAll()" />
 @if(dashboard.loading()){<section class="dashboard-skeleton" aria-label="Cargando dashboard" aria-busy="true">@for(item of [1,2,3,4];track item){<span></span>}</section>}
 @if(dashboard.error()){<section class="dashboard-error" role="alert"><p>{{dashboard.error()}}</p><button type="button" (click)="dashboard.refreshCore()">Reintentar indicadores</button></section>}

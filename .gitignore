@@ -69,3 +69,5 @@ ehthumbs.db
 /coverage
 /libpeerconnection.log
 /typings
+/playwright-report/
+/test-results/

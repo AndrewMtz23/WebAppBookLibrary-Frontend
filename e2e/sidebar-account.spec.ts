@@ -1,0 +1,36 @@
+import { expect, test } from '@playwright/test';
+
+test('cuenta lateral: correo, tema, controles y perfil en ambos tamaños', async ({ page, request }, info) => {
+  const fixture = await (await request.get('/__qa')).json();
+  expect(fixture.fixture).toBe('booklibrary-phase5');
+  await page.goto('/auth/login');
+  await page.getByRole('textbox', { name: 'Nombre de usuario', exact: true }).fill('qa_admin');
+  await page.locator('input[name="password"]').fill('QaLocalOnly!2026');
+  await page.getByRole('button', { name: 'Iniciar sesión', exact: false }).click();
+  await expect(page).not.toHaveURL(/\/auth\//);
+  await page.goto('/admin/users');
+  const account = page.locator('.sidebar-account');
+  await expect(account.locator('.sidebar-account-card')).toContainText('admin@booklibrary.invalid');
+  const logout = account.getByRole('button', { name: 'Cerrar sesión', exact: true });
+  expect((await logout.boundingBox())!.y).toBeLessThan((await account.locator('.sidebar-account-card').boundingBox())!.y);
+  const light = account.getByRole('button', { name: 'Activar modo claro', exact: true });
+  if (await light.count()) await light.click();
+  await account.screenshot({ path: info.outputPath('sidebar-light.png') });
+  await account.getByRole('button', { name: 'Activar modo oscuro', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('.workspace__sidebar')).toHaveCSS('background-color', 'rgb(23, 29, 41)');
+  await page.addScriptTag({ path: require.resolve('axe-core/axe.min.js') });
+  const violations = await page.evaluate(async () => (await (window as any).axe.run('.sidebar-account', { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] } })).violations.map((v: any) => ({ id: v.id, nodes: v.nodes.map((n: any) => n.failureSummary) })));
+  expect(violations).toEqual([]);
+  await account.screenshot({ path: info.outputPath('sidebar-dark.png') });
+  await account.getByRole('button', { name: 'Contraer navegación', exact: true }).click();
+  await expect(page.locator('.workspace')).toHaveClass(/workspace--sidebar-collapsed/);
+  await expect(account.getByRole('link', { name: 'Mi perfil', exact: true })).toBeVisible();
+  await account.screenshot({ path: info.outputPath('sidebar-collapsed.png') });
+  await account.getByRole('button', { name: 'Expandir navegación', exact: true }).click();
+  await logout.click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.getByRole('button', { name: 'Cancelar', exact: true }).click();
+  await account.getByRole('link', { name: 'Mi perfil', exact: true }).click();
+  await expect(page).toHaveURL(/\/app\/profile$/);
+});

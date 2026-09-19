@@ -12,10 +12,16 @@ describe('READER_ROUTES', () => {
     root.children?.filter(route => expected.includes(route.path ?? '')).forEach(route => expect(route.loadComponent).toBeDefined());
   });
 
-  it('reserves personal reader routes for user accounts', () => {
-    const personal = READER_ROUTES[0].children?.filter(route => ['my-library', 'favorites', 'profile'].includes(route.path ?? '')) ?? [];
+  it('shares profile with all authenticated roles', () => {
+    const profile = READER_ROUTES[0].children?.find(route => route.path === 'profile');
+    expect(profile?.canActivate).toEqual([RoleGuard]);
+    expect(profile?.data?.['roles']).toEqual(['user', 'librarian', 'admin']);
+  });
 
-    expect(personal.length).toBe(3);
+  it('reserves personal reader routes for user accounts', () => {
+    const personal = READER_ROUTES[0].children?.filter(route => ['my-library', 'favorites'].includes(route.path ?? '')) ?? [];
+
+    expect(personal.length).toBe(2);
     personal.forEach(route => {
       expect(route.canActivate).toEqual([RoleGuard]);
       expect(route.data?.['roles']).toEqual(['user']);

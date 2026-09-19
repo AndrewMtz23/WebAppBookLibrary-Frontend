@@ -1,0 +1,87 @@
+name: Integrated browser QA
+
+# Both repositories must contain the compatible QA host/client before this gate runs.
+on:
+  workflow_dispatch:
+    inputs:
+      backend_ref:
+        description: Backend commit or branch containing tools/BookLibrary.QaHost
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: frontend
+      - uses: actions/checkout@v4
+        with:
+          repository: AndrewMtz23/WebAppBookLibrary-Backend
+          ref: ${{ inputs.backend_ref }}
+          path: backend
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Install locked dependencies
+        run: |
+          npm ci --prefix frontend
+          dotnet restore backend/tools/BookLibrary.QaHost/BookLibrary.QaHost.csproj --locked-mode
+      - name: Install browser
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+      - name: Start isolated replica set
+        run: |
+          set -euo pipefail
+          docker run -d --name booklibrary-mongo --network host mongo:8.0.28 --replSet booklibraryqa --bind_ip 127.0.0.1 --port 27184
+          ready=false
+          for attempt in {1..40}; do
+            if docker exec booklibrary-mongo mongosh --port 27184 --quiet --eval 'db.adminCommand({ping:1})' >/dev/null 2>&1; then ready=true; break; fi
+            sleep 1
+          done
+          test "$ready" = true
+          docker exec booklibrary-mongo mongosh --port 27184 --quiet --eval 'rs.initiate({_id:"booklibraryqa",members:[{_id:0,host:"127.0.0.1:27184"}]})'
+          ready=false
+          for attempt in {1..40}; do
+            if docker exec booklibrary-mongo mongosh --port 27184 --quiet --eval 'quit(db.hello().isWritablePrimary ? 0 : 1)' >/dev/null 2>&1; then ready=true; break; fi
+            sleep 1
+          done
+          test "$ready" = true
+      - name: Start QA application
+        run: |
+          dotnet run --project backend/tools/BookLibrary.QaHost/BookLibrary.QaHost.csproj -c Release --no-restore --no-launch-profile > backend-qa.log 2>&1 &
+          cd frontend
+          npx ng serve --port 4284 --proxy-config proxy.e2e.json > ../frontend-qa.log 2>&1 &
+          ready=false
+          for attempt in {1..120}; do
+            if curl --fail --silent http://localhost:4284/__qa > /dev/null; then ready=true; break; fi
+            sleep 1
+          done
+          test "$ready" = true
+      - name: Browser journeys and accessibility
+        working-directory: frontend
+        env:
+          E2E_CHROME_CHANNEL: chromium
+        run: npx playwright test
+      - name: Browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integrated-browser-qa
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
+            *-qa.log
+      - name: Stop isolated database
+        if: always()
+        run: docker rm -f booklibrary-mongo

@@ -15,13 +15,15 @@ body {
   min-height: 100vh;
   margin: 0;
   background:
-    radial-gradient(circle at 10% 0%, rgb(216 155 43 / 8%), transparent 28rem),
+    radial-gradient(circle at 10% 0%, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 28rem),
     var(--color-canvas);
   color: var(--color-text);
   font-family: var(--font-body);
   font-size: var(--text-md);
   line-height: 1.6;
   text-rendering: optimizeLegibility;
+  transition: background var(--duration-base) var(--ease-out),
+              color var(--duration-base) var(--ease-out);
 }
 
 button,

@@ -1,0 +1,30 @@
+<section class="pathways-section" aria-labelledby="pathways-title">
+  <div class="pathways-section__intro">
+    <span class="pathways-section__badge">Explora a tu ritmo</span>
+    <h2 id="pathways-title" class="pathways-section__title">¿Qué quieres descubrir hoy?</h2>
+    <p class="pathways-section__description">
+      Nuestra plataforma te conecta con lo mejor de la biblioteca: desde lecturas ágiles para tus momentos libres hasta acceso digital inmediato o préstamo físico en sala.
+    </p>
+    <a routerLink="/app/catalog" class="pathways-section__cta">
+      Explorar más <span aria-hidden="true">→</span>
+    </a>
+  </div>
+
+  <div class="pathways-section__grid">
+    @for (item of pathways; track item.title) {
+      <a
+        [routerLink]="item.link"
+        [queryParams]="item.queryParams"
+        class="pathway-card"
+        [class.pathway-card--blue]="item.variant === 'blue'"
+        [class.pathway-card--green]="item.variant === 'green'"
+        [class.pathway-card--amber]="item.variant === 'amber'">
+        <div class="pathway-card__icon-wrapper">
+          <mat-icon>{{ item.icon }}</mat-icon>
+        </div>
+        <h3 class="pathway-card__title">{{ item.title }}</h3>
+        <p class="pathway-card__description">{{ item.description }}</p>
+      </a>
+    }
+  </div>
+</section>

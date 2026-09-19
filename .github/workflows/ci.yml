@@ -10,8 +10,14 @@ permissions:
 jobs:
   test-build-audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check sensitive files
+        run: python scripts/check-sensitive-files.py
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -19,8 +25,16 @@ jobs:
       - name: Install
         run: npm ci
       - name: Test
-        run: npm test -- --watch=false --browsers=ChromeHeadless
+        run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
+      - name: Reduced motion in Chrome
+        run: npm run test:reduced-motion
       - name: Build
         run: npm run build -- --configuration production
       - name: Audit production dependencies
         run: npm audit --omit=dev
+      - name: Coverage evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: coverage/

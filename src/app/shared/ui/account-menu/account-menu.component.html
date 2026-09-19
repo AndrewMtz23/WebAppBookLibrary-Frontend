@@ -7,8 +7,8 @@
       aria-haspopup="menu"
       aria-controls="account-menu-panel"
       (click)="toggle($event)">
-      <app-avatar [name]="activeSession.user.username" [imageUrl]="activeSession.user.avatarUrl" size="small" />
-      <span>{{ activeSession.user.username }}</span>
+      <app-avatar [name]="activeSession.user.displayName || activeSession.user.username" [imageUrl]="activeSession.user.avatarUrl" size="small" />
+      <span>{{ activeSession.user.displayName || activeSession.user.username }}</span>
       <mat-icon aria-hidden="true">{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
     </button>
 
@@ -17,7 +17,7 @@
         <header class="account-menu__identity">
           <app-avatar [name]="activeSession.user.username" [imageUrl]="activeSession.user.avatarUrl" />
           <div>
-            <strong>{{ activeSession.user.username }}</strong>
+            <strong>{{ activeSession.user.displayName || activeSession.user.username }}</strong>
             <span>{{ activeSession.user.email }}</span>
             <small>{{ roleLabel(activeSession.user.role) }}</small>
           </div>
@@ -29,10 +29,10 @@
             <span>{{ panelLabel(activeSession.user.role) }}</span>
           </a>
 
+          <a role="menuitem" routerLink="/app/profile" (click)="close()"><mat-icon aria-hidden="true">manage_accounts</mat-icon><span>Mi perfil</span></a>
           @if (activeSession.user.role === 'user') {
             <a role="menuitem" routerLink="/app/my-library" (click)="close()"><mat-icon aria-hidden="true">bookmarks</mat-icon><span>Mi biblioteca</span></a>
             <a role="menuitem" routerLink="/app/favorites" (click)="close()"><mat-icon aria-hidden="true">favorite_border</mat-icon><span>Mis favoritos</span></a>
-            <a role="menuitem" routerLink="/app/profile" (click)="close()"><mat-icon aria-hidden="true">manage_accounts</mat-icon><span>Mi perfil</span></a>
           } @else {
             <a role="menuitem" routerLink="/app/discover" (click)="close()"><mat-icon aria-hidden="true">public</mat-icon><span>Sitio público</span></a>
           }

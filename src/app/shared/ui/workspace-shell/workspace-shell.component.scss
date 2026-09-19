@@ -14,13 +14,11 @@
 .workspace__profile { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-3); margin-top: auto; padding-top: var(--space-5); border-top: 1px solid var(--color-ink-soft); }
 .workspace__profile span { display: flex; min-width: 0; flex-direction: column; }
 .workspace__profile strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.workspace__profile-link { color: inherit; text-decoration: none; }
+.workspace__profile-link:hover { text-decoration: underline; }
 .workspace__profile small { color: var(--color-surface-muted); }
 .workspace__profile button { color: var(--color-surface); }
 .workspace__body { min-width: 0; }
-.workspace__topbar { position: sticky; z-index: var(--z-sticky); top: 0; display: flex; align-items: center; justify-content: space-between; min-height: var(--topbar-height); padding: var(--space-3) clamp(var(--space-5), 4vw, var(--space-10)); border-bottom: 1px solid var(--color-border); background: rgb(244 240 232 / 92%); backdrop-filter: blur(14px); }
-.workspace__topbar > div { display: flex; flex-direction: column; }
-.workspace__topbar span { color: var(--color-text-muted); font-size: var(--text-xs); }
-.workspace__top-profile { flex-direction: row !important; align-items: center; gap: var(--space-2); }
 .workspace__content { width: min(100%, var(--content-max)); margin-inline: auto; padding: clamp(var(--space-5), 4vw, var(--space-10)); }
 .workspace--reader .workspace__content { width: 100%; max-width: none; padding: 0; }
 .workspace__mobile-nav { display: none; }
@@ -153,7 +151,6 @@
 @media (max-width: 800px) {
   .workspace { display: block; padding-bottom: 4.75rem; }
   .workspace__sidebar { display: none; }
-  .workspace__topbar { min-height: 4rem; padding-inline: var(--space-4); }
   .workspace__content { padding: var(--space-5) var(--space-4); }
   .workspace__mobile-nav { position: fixed; z-index: var(--z-sticky); inset: auto 0 0; display: grid; grid-template-columns: repeat(5, 1fr); min-height: 4.5rem; padding-bottom: env(safe-area-inset-bottom); border-top: 1px solid var(--color-border); background: var(--color-surface); box-shadow: 0 -8px 24px rgb(13 27 42 / 8%); }
   .workspace__mobile-nav a { display: flex; align-items: center; justify-content: center; flex-direction: column; min-width: 0; gap: var(--space-1); color: var(--color-text-muted); font-size: .65rem; text-decoration: none; }

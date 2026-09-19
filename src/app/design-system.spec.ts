@@ -1,4 +1,7 @@
 describe('editorial design system', () => {
+  let originalTheme: string | null;
+  beforeEach(() => { originalTheme = document.documentElement.getAttribute('data-theme'); document.documentElement.setAttribute('data-theme', 'light'); });
+  afterEach(() => { if (originalTheme === null) document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', originalTheme); });
   const cssVariable = (name: string): string =>
     getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 

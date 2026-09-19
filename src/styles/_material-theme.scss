@@ -40,3 +40,10 @@ $theme: mat.m2-define-light-theme((
   --mat-snack-bar-button-color: var(--color-text-on-ink);
   border-inline-start: 4px solid var(--color-danger);
 }
+
+$dark-theme: mat.m2-define-dark-theme((color: (
+  primary: mat.m2-define-palette(mat.$m2-blue-palette, 300),
+  accent: mat.m2-define-palette(mat.$m2-amber-palette, 300),
+  warn: mat.m2-define-palette(mat.$m2-red-palette, 300)
+)));
+[data-theme="dark"] { @include mat.all-component-colors($dark-theme); }

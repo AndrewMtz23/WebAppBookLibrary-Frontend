@@ -1,10 +1,12 @@
+import { MatIconModule } from '@angular/material/icon';
+import { AvatarComponent } from '../../../shared/ui/avatar/avatar.component';
 import { Component, ElementRef, Injector, afterNextRender, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { A11yModule } from '@angular/cdk/a11y';
 import { StaffLoansFacade } from '../data-access/staff-loans.facade';
 import { DEFAULT_STAFF_LOAN_QUERY } from '../data-access/staff-loans.models';
-@Component({ selector: 'app-staff-loans', standalone: true, imports: [CommonModule, FormsModule, A11yModule], templateUrl: './staff-loans.component.html', styleUrl: './staff-loans.scss' })
+@Component({ selector: 'app-staff-loans', standalone: true, imports: [AvatarComponent, MatIconModule, CommonModule, FormsModule, A11yModule], templateUrl: './staff-loans.component.html', styleUrl: './staff-loans.scss' })
 export class StaffLoansComponent {
   readonly vm = inject(StaffLoansFacade); draft = { ...DEFAULT_STAFF_LOAN_QUERY }; validation = '';
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);

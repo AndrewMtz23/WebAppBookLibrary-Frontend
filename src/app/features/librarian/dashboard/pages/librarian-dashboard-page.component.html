@@ -1,4 +1,4 @@
-<header class="dashboard-header"><div><p class="eyebrow">Operación bibliotecaria</p><h1>Pulso de la biblioteca</h1><p>Trabajo pendiente, devoluciones e inventario con cifras conciliadas.</p></div><a class="primary-link" routerLink="/librarian/books" [queryParams]="{create:true}">Crear libro</a></header>
+<app-staff-page-header icon="space_dashboard" title="Pulso de la biblioteca" description="Trabajo pendiente, devoluciones e inventario con cifras conciliadas."><a class="primary-link" routerLink="/librarian/books" [queryParams]="{create:true}">Crear libro</a></app-staff-page-header>
 <app-dashboard-period-controls [period]="dashboard.period()" [busy]="dashboard.refreshing()" (periodChange)="dashboard.setPeriod($event)" (refresh)="dashboard.refresh()" />
 @if(dashboard.loading()){<section class="dashboard-skeleton" aria-label="Cargando dashboard" aria-busy="true">@for(item of [1,2,3,4];track item){<span></span>}</section>}
 @if(dashboard.error()){<section class="dashboard-error" role="alert"><p>{{dashboard.error()}}</p><button type="button" (click)="dashboard.refresh()">Reintentar</button></section>}

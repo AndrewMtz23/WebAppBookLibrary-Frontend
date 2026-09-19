@@ -1,3 +1,4 @@
+import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { A11yModule } from '@angular/cdk/a11y';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,15 +9,17 @@ import { NavigationGroup, NavigationItem } from '../../../core/navigation/naviga
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { SiteFooterComponent } from '../site-footer/site-footer.component';
-import { AccountMenuComponent } from '../account-menu/account-menu.component';
+import { ReaderNavbarComponent } from '../reader-navbar/reader-navbar.component';
+import { AdminFooterComponent } from '../admin-footer/admin-footer.component';
 
-@Component({ selector: 'app-workspace-shell', standalone: true, imports: [A11yModule, AccountMenuComponent, AppBrandComponent, AvatarComponent, SiteFooterComponent, MatButtonModule, MatIconModule, MatTooltipModule, RouterLink, RouterLinkActive, RouterOutlet], templateUrl: './workspace-shell.component.html', styleUrls: ['./workspace-shell.component.scss'], changeDetection: ChangeDetectionStrategy.OnPush })
+@Component({ selector: 'app-workspace-shell', standalone: true, imports: [ThemeToggleComponent, A11yModule, AdminFooterComponent, ReaderNavbarComponent, AppBrandComponent, AvatarComponent, SiteFooterComponent, MatButtonModule, MatIconModule, MatTooltipModule, RouterLink, RouterLinkActive, RouterOutlet], templateUrl: './workspace-shell.component.html', styleUrls: ['./workspace-shell.component.scss'], changeDetection: ChangeDetectionStrategy.OnPush })
 export class WorkspaceShellComponent {
   private readonly sidebarStorageKey = 'booklibrary_sidebar_collapsed';
 
   @Input({ required: true }) navigation: readonly NavigationItem[] = [];
   @Input() navigationGroups: readonly NavigationGroup[] = [];
   @Input({ required: true }) username = '';
+  @Input() email = '';
   @Input() avatarUrl: string | null = null;
   @Input({ required: true }) contextLabel = '';
   @Input() variant: 'reader' | 'staff' = 'staff';
@@ -26,10 +29,6 @@ export class WorkspaceShellComponent {
   isLogoutDialogOpen = false;
   isLoggingOut = false;
   private readonly collapsedGroups = new Set<string>();
-
-  get readerPrimaryNavigation(): readonly NavigationItem[] {
-    return this.navigation.filter(item => item.label !== 'Perfil');
-  }
 
   get mobileNavigation(): readonly NavigationItem[] {
     if (this.variant === 'reader') return this.navigation.slice(0, 5);

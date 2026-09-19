@@ -54,4 +54,7 @@ export class ReaderService {
   getProfile(): Observable<ReaderProfile> {
     return this.http.get<ReaderProfile>('/api/profile/me');
   }
+  updateProfile(request: import('../models/reader.models').UpdateProfileRequest): Observable<ReaderProfile> {
+    return this.http.put<ReaderProfile>('/api/profile/me', request);
+  }
 }

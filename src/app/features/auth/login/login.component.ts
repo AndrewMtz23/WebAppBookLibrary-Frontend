@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ApiError } from 'src/app/core/http/api-error';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoginRequest } from 'src/app/shared/models/auth-request.model';
-import { landingRouteForRole } from 'src/app/core/auth/role-landing';
+import { returnRouteForRole } from 'src/app/core/auth/return-route';
 
 @Component({
     selector: 'app-login',
@@ -23,7 +23,8 @@ export class LoginComponent {
   constructor(
     private readonly authService: AuthService,
     private readonly router: Router,
-    private readonly snackBar: MatSnackBar
+    private readonly snackBar: MatSnackBar,
+    private readonly route: ActivatedRoute
   ) {}
 
   togglePasswordVisibility(event: MouseEvent): void {
@@ -48,7 +49,7 @@ export class LoginComponent {
           duration: 3000,
           panelClass: ['success-snackbar']
         });
-        void this.router.navigate([landingRouteForRole(response.user.role)]);
+        void this.router.navigateByUrl(returnRouteForRole(this.route.snapshot.queryParamMap.get('returnUrl'), response.user.role));
       },
       error: (error: ApiError) => {
         this.isLoading = false;

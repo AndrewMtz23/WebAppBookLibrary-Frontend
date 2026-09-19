@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { of, Subject } from 'rxjs';
 import { ApiError } from 'src/app/core/http/api-error';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -31,7 +31,8 @@ describe('LoginComponent', () => {
       imports: [FormsModule, MaterialModule, NoopAnimationsModule],
       providers: [
         { provide: AuthService, useValue: { login } },
-        { provide: Router, useValue: { navigate } },
+        { provide: Router, useValue: { navigate, navigateByUrl: navigate } },
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } },
         { provide: MatSnackBar, useValue: { open: jasmine.createSpy('open') } }
       ]
     }).compileComponents();
@@ -46,7 +47,7 @@ describe('LoginComponent', () => {
 
     component.login();
 
-    expect(navigate).toHaveBeenCalledWith(['/admin/dashboard']);
+    expect(navigate).toHaveBeenCalledWith('/admin/dashboard');
   });
 
   it('keeps the loading state active while the successful navigation replaces the login page', () => {

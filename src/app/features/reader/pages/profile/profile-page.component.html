@@ -1,27 +1,61 @@
 <div class="profile-page">
-  <app-page-header [config]="{ eyebrow: 'Cuenta', title: 'Perfil', description: 'Tu identidad lectora y un resumen de tu actividad.' }" />
+  <app-page-header [config]="{ eyebrow: 'Tu espacio personal', title: 'Mi cuenta', description: 'Una cuenta que se siente tuya. Mantén tus datos al día.' }" />
   @if (facade.profile().loading) {
     <app-skeleton [lines]="6" />
   } @else if (facade.profile().error) {
     <app-error-state [message]="facade.profile().error!" (retryRequested)="facade.load()" />
   } @else if (facade.profile().data; as profile) {
-    <section class="identity" aria-labelledby="identity-name">
-      <app-avatar [name]="displayName(profile)" [imageUrl]="profile.avatarUrl" size="large" />
-      <div><p class="role">Lector</p><h2 id="identity-name">{{ displayName(profile) }}</h2><p>@{{ profile.username }} · {{ profile.email }}</p></div>
-    </section>
+    <div class="profile-grid">
+      <aside class="identity-card" aria-labelledby="identity-name">
+        <div class="identity-banner" aria-hidden="true"><mat-icon>auto_stories</mat-icon></div>
+        <div class="identity">
+          <app-avatar [name]="draft.displayName || displayName(profile)" [imageUrl]="previewUrl" size="large" />
+          <span class="role">{{ roleLabels[profile.role] }}</span>
+          <h2 id="identity-name">{{ displayName(profile) }}</h2>
+          <p>@{{ profile.username }}</p><p class="identity-email">{{ profile.email }}</p>
+        </div>
+        <dl class="account-details">
+          <div><dt>Miembro desde</dt><dd>{{ profile.createdAt | date:'longDate':'UTC' }}</dd></div>
+          <div><dt>Último acceso (UTC)</dt><dd>{{ profile.lastLoginAt ? (profile.lastLoginAt | date:'medium':'UTC') : 'Primer acceso' }}</dd></div>
+        </dl>
+      </aside>
+      <section class="edit-card" aria-labelledby="edit-title">
+        <header><span class="section-icon"><mat-icon aria-hidden="true">manage_accounts</mat-icon></span><div><h2 id="edit-title">Datos personales</h2><p>Así te identificas en BookLibrary.</p></div></header>
+        <form #profileForm="ngForm" (ngSubmit)="save(profileForm, profile)">
+          <fieldset [disabled]="facade.saving()">
+            <legend class="sr-only">Editar mis datos</legend>
+            <label for="profile-name">Nombre visible</label>
+            <input id="profile-name" name="displayName" [(ngModel)]="draft.displayName" #nameField="ngModel" required maxlength="120" autocomplete="name" aria-describedby="name-help">
+            <p id="name-help" class="field-help">El nombre que aparece en tu perfil y en el menú de tu cuenta.</p>
+            @if (nameField.touched && !draft.displayName.trim()) { <p class="field-error" role="alert">Escribe tu nombre visible.</p> }
+            <label for="profile-email">Correo electrónico</label>
+            <input id="profile-email" name="email" type="email" [(ngModel)]="draft.email" #emailField="ngModel" required email maxlength="254" autocomplete="email" aria-describedby="email-help">
+            <p id="email-help" class="field-help">Usa un correo válido que no esté registrado en otra cuenta.</p>
+            @if (emailField.touched && emailField.invalid) { <p class="field-error" role="alert">Escribe un correo electrónico válido.</p> }
+            <label for="profile-avatar">URL de foto de perfil <span class="optional">Opcional</span></label>
+            <input id="profile-avatar" name="avatarUrl" type="url" [(ngModel)]="draft.avatarUrl" #avatarField="ngModel" maxlength="2048" placeholder="https://…" aria-describedby="avatar-help">
+            <p id="avatar-help" class="field-help">Enlace HTTPS a una imagen. La vista previa aparece en tu tarjeta; déjalo vacío para usar tus iniciales.</p>
+            @if (avatarField.touched && draft.avatarUrl.trim() && !previewUrl) { <p class="field-error" role="alert">Usa una URL HTTPS sin usuario ni contraseña.</p> }
+            <p class="account-note"><mat-icon aria-hidden="true">lock_outline</mat-icon>Tu nombre de usuario y tu rol se administran por separado.</p>
+          </fieldset>
+          @if (facade.saveError()) { <p class="save-error" role="alert">{{ facade.saveError() }}</p> }
+          @if (facade.conflict()) { <button class="secondary" type="button" (click)="facade.load()">Recargar perfil y descartar cambios</button> }
+          <div class="form-actions">
+            <span aria-live="polite">{{ facade.saving() ? 'Guardando tus datos…' : changed(profile) ? 'Tienes cambios sin guardar.' : 'Tus datos están actualizados.' }}</span>
+            <div><button class="secondary" type="button" [disabled]="facade.saving() || !changed(profile)" (click)="reset(profile, profileForm)">Cancelar</button><button class="primary" type="submit" [disabled]="facade.saving() || facade.conflict() || profileForm.invalid || !draft.displayName.trim() || (draft.avatarUrl.trim() && !previewUrl) || !profile.updatedAt || !changed(profile)">{{ facade.saving() ? 'Guardando…' : 'Guardar cambios' }}</button></div>
+          </div>
+        </form>
+      </section>
+    </div>
+    @if (profile.role === 'user') {
     <section class="metrics" aria-label="Resumen de actividad">
       <article><span>{{ facade.activeReservations().data ?? '—' }}</span><h3>Reservas activas</h3>@if (facade.activeReservations().error) { <p>No disponible</p> }</article>
       <article><span>{{ facade.returnedBooks().data ?? '—' }}</span><h3>Libros devueltos</h3>@if (facade.returnedBooks().error) { <p>No disponible</p> }</article>
       <article><span>{{ facade.favorites().data ?? '—' }}</span><h3>Favoritos</h3>@if (facade.favorites().error) { <p>No disponible</p> }</article>
     </section>
-    <section class="account-details" aria-labelledby="details-title">
-      <h2 id="details-title">Datos de la cuenta</h2>
-      <dl>
-        <div><dt>Miembro desde</dt><dd>{{ profile.createdAt | date:'longDate' }}</dd></div>
-        <div><dt>Último acceso</dt><dd>{{ profile.lastLoginAt ? (profile.lastLoginAt | date:'medium') : 'Primer acceso' }}</dd></div>
-        <div><dt>Rol</dt><dd>Lector</dd></div>
-      </dl>
-    </section>
-    <section class="session" aria-labelledby="session-title"><div><h2 id="session-title">Sesión</h2><p>Cierra tu sesión en este dispositivo.</p></div><button mat-stroked-button type="button" (click)="logout()"><mat-icon>logout</mat-icon> Cerrar sesión</button></section>
+    } @else {
+      <section class="work-tools" aria-labelledby="tools-title"><div><h2 id="tools-title">Tu espacio de trabajo</h2><p>Continúa con las tareas de la biblioteca.</p></div><a [routerLink]="profile.role === 'admin' ? '/admin/dashboard' : '/librarian/dashboard'"><mat-icon aria-hidden="true">space_dashboard</mat-icon>Ir a mi panel<mat-icon aria-hidden="true">arrow_forward</mat-icon></a></section>
+    }
+    <section class="session" aria-labelledby="session-title"><div><h2 id="session-title">Sesión</h2><p>Cierra tu sesión en este dispositivo.</p></div><button class="logout-button" type="button" [disabled]="facade.saving()" (click)="logout()"><mat-icon aria-hidden="true">logout</mat-icon> Cerrar sesión</button></section>
   }
 </div>
