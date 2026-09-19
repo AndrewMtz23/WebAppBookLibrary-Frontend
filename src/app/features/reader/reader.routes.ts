@@ -20,7 +20,7 @@ export const READER_ROUTES: Routes = [{
       loadComponent: () => import('./pages/my-library/my-library-page.component').then(m => m.MyLibraryPageComponent)
     },
     { path: 'favorites', canActivate: [RoleGuard], data: { roles: ['user'] }, loadComponent: () => import('./pages/favorites/favorites-page.component').then(m => m.FavoritesPageComponent) },
-    { path: 'profile', canActivate: [RoleGuard], data: { roles: ['user'] }, loadComponent: () => import('./pages/profile/profile-page.component').then(m => m.ProfilePageComponent) },
+    { path: 'profile', canActivate: [RoleGuard], data: { roles: ['user', 'librarian', 'admin'] }, loadComponent: () => import('./pages/profile/profile-page.component').then(m => m.ProfilePageComponent) },
     { path: '', pathMatch: 'full', redirectTo: 'discover' }
   ]
 }];

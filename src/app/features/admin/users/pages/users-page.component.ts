@@ -1,3 +1,4 @@
+import { StaffPageHeaderComponent } from '../../../../shared/ui/staff-page-header/staff-page-header.component';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { AdminUsersComponent } from '../components/admin-users.component';
 import { AdminUsersFacade } from '../data-access/admin-users.facade';
@@ -5,10 +6,9 @@ import { AdminUsersFacade } from '../data-access/admin-users.facade';
 @Component({
   selector: 'app-admin-users-page',
   standalone: true,
-  imports: [AdminUsersComponent],
+  imports: [StaffPageHeaderComponent, AdminUsersComponent],
   providers: [AdminUsersFacade],
-  template: `<header><p class="eyebrow">Administración</p><h1>Usuarios</h1><p>Consulta identidades seguras y concede o retira acceso con una confirmación explícita.</p></header><app-admin-users />`,
-  styleUrl: '../components/admin-users.scss',
+  template: `<app-staff-page-header icon="group" title="Control de usuarios" description="Administra las cuentas, sus roles y su acceso a la biblioteca."></app-staff-page-header><app-admin-users />`,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UsersPageComponent {}

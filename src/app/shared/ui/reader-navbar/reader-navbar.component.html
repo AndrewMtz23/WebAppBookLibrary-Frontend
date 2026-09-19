@@ -1,0 +1,25 @@
+    <header
+      class="reader-navbar" [class.reader-navbar--mobile]="showOnMobile"
+      [attr.aria-hidden]="blocked ? 'true' : null"
+      [attr.inert]="blocked ? '' : null">
+      <div class="reader-navbar__inner">
+        <app-brand [route]="items[0]?.route ?? ['/']" />
+
+        <nav class="reader-navbar__navigation" aria-label="Navegación de lectura">
+          @for (item of primaryNavigation; track item.label) {
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="is-active"
+              [routerLinkActiveOptions]="{ exact: item.exact ?? false }">
+              <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        </nav>
+
+        <div class="reader-navbar__account">
+          <app-theme-toggle />
+          <app-account-menu />
+        </div>
+      </div>
+    </header>

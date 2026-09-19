@@ -1,8 +1,13 @@
 :host { display: block; }
 
 .site-footer {
-  color: var(--color-surface-muted);
+  color: #dce3f0;
   background: var(--color-ink);
+}
+
+:host-context([data-theme="dark"]) .site-footer {
+  background: #080a0e;
+  color: #a5b3ca;
 }
 
 .site-footer__inner,
@@ -21,7 +26,7 @@
 .site-footer__identity {
   max-width: 27rem;
 
-  app-brand { --brand-color: var(--color-surface); }
+  app-brand { --brand-color: #f5f7fc; }
   p { max-width: 24rem; margin: var(--space-5) 0 0; line-height: 1.7; }
 }
 
@@ -41,13 +46,13 @@ nav {
   }
 
   a {
-    color: var(--color-surface-muted);
+    color: #dce3f0;
     text-decoration: none;
     text-underline-offset: .3rem;
   }
 
   a:hover,
-  a:focus-visible { color: var(--color-surface); text-decoration: underline; }
+  a:focus-visible { color: #ffffff; text-decoration: underline; }
 }
 
 .site-footer__base {
@@ -55,7 +60,7 @@ nav {
   justify-content: space-between;
   gap: var(--space-4);
   padding-block: var(--space-5);
-  border-top: 1px solid var(--color-ink-soft);
+  border-top: 1px solid #34425a;
   font-size: var(--text-sm);
 }
 

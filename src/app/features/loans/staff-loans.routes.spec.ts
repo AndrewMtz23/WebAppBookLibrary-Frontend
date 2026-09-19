@@ -15,8 +15,8 @@ describe('Staff circulation route integration', () => {
     const harness = await RouterTestingHarness.create(); const http = TestBed.inject(HttpTestingController);
     await harness.navigateByUrl('/admin/loans?status=returned&dateField=returnedAt&page=2');
     let req = http.expectOne(r=>r.url === '/api/loans'); expect(req.request.params.get('status')).toBe('returned'); expect(req.request.params.get('page')).toBe('2'); req.flush({items:[],totalItems:0,page:2,totalPages:0});
-    expect(harness.routeNativeElement?.textContent).toContain('Administración');
+    expect(harness.routeNativeElement?.textContent).toContain('Supervisa reservas');
     await harness.navigateByUrl('/librarian/loans?status=cancelled&dateField=cancelledAt'); req = http.expectOne(r=>r.url === '/api/loans'); expect(req.request.params.get('dateField')).toBe('cancelledAt'); req.flush({items:[],totalItems:0,page:1,totalPages:0});
-    expect(harness.routeNativeElement?.textContent).toContain('Operación'); http.verify();
+    expect(harness.routeNativeElement?.textContent).toContain('Registra devoluciones'); http.verify();
   });
 });

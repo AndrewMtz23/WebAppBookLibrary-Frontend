@@ -35,7 +35,8 @@ describe('AdminUsersComponent', () => {
   it('submits all editable fields in one update and refreshes the visible user', async () => {
     const fixture = TestBed.createComponent(AdminUsersComponent); fixture.detectChanges(); const http = TestBed.inject(HttpTestingController);
     http.expectOne(request => request.url === '/api/admin/users').flush({ items: [target], page: 1, pageSize: 20, totalItems: 1, totalPages: 1, hasPreviousPage: false, hasNextPage: false }); fixture.detectChanges();
-    (fixture.nativeElement.querySelector('[data-user-id]') as HTMLButtonElement).click();
+    const opener = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('[data-user-id]')).find(button => button.getClientRects().length > 0)!;
+    opener.focus(); opener.click();
     http.expectOne('/api/admin/users/target').flush(target); fixture.detectChanges(); await fixture.whenStable();
     const name = fixture.nativeElement.querySelector('input[name="displayName"]') as HTMLInputElement;
     name.value = 'Ana Actualizada'; name.dispatchEvent(new Event('input'));
@@ -60,15 +61,26 @@ describe('AdminUsersComponent', () => {
     const toast = TestBed.inject(OverlayContainer).getContainerElement().querySelector('mat-snack-bar-container');
     expect(toast?.textContent).toContain('Usuario actualizado');
     expect(toast?.textContent).toContain('Cerrar');
+    await fixture.whenStable();
+    const visibleOpener = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('[data-user-id]')).find(button => button.getClientRects().length > 0);
+    expect(document.activeElement).toBe(visibleOpener!);
   });
 
-  it('shows a visible reason and disables self access removal', () => {
+  it('explains self access protection only on attempted changes and never sends a mutation', () => {
     const self = { ...target, id: 'self', username: 'root', role: 'admin' };
     const fixture = TestBed.createComponent(AdminUsersComponent); fixture.detectChanges(); const http = TestBed.inject(HttpTestingController);
     http.expectOne(request => request.url === '/api/admin/users').flush({ items: [self], page: 1, pageSize: 20, totalItems: 1, totalPages: 1, hasPreviousPage: false, hasNextPage: false }); fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.self-note').textContent).toContain('no puedes quitarte acceso');
-    expect(fixture.nativeElement.querySelector('[data-user-status]')?.disabled).toBeTrue();
-    expect(fixture.nativeElement.querySelector('[data-user-delete]')?.disabled).toBeTrue();
+    expect(fixture.nativeElement.querySelector('.self-note')).toBeNull();
+    const notifications = TestBed.inject(OverlayContainer).getContainerElement();
+    expect(notifications.querySelector('mat-snack-bar-container')).toBeNull();
+    for (const selector of ['[data-user-status]', '[data-user-delete]']) {
+      const button = fixture.nativeElement.querySelector(selector) as HTMLButtonElement;
+      expect(button.disabled).toBeFalse();
+      button.click(); fixture.detectChanges();
+      expect(notifications.textContent).toContain('no puedes quitarte acceso administrativo');
+      expect(fixture.nativeElement.querySelector('[role="alertdialog"]')).toBeNull();
+      http.expectNone(request => request.method === 'PUT' || request.method === 'DELETE');
+    }
   });
 
   it('renders icon actions and confirms logical deletion without removing the account', () => {

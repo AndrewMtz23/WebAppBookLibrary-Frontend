@@ -1,13 +1,84 @@
-<article class="featured">
-  <div class="featured__copy">
-    <p class="featured__eyebrow">Lectura destacada</p>
-    <h2>{{ book.title }}</h2>
-    <p class="featured__author">{{ book.authors.join(', ') }}</p>
-    <p class="featured__meta">{{ book.genres[0] || 'Colección general' }} · {{ book.mediaType === 'digital' ? 'Digital' : 'Físico' }}</p>
-    <a [routerLink]="['/app/catalog', book.id]">Conocer el libro <mat-icon>arrow_forward</mat-icon></a>
-  </div>
-  <div class="featured__cover">
-    @if (book.coverUrl) { <img [src]="book.coverUrl" [alt]="'Portada de ' + book.title" /> }
-    @else { <span>{{ book.title.slice(0, 1) }}</span> }
-  </div>
+<article class="featured" (mouseenter)="pause()" (mouseleave)="resume()">
+  @if (currentBook; as active) {
+    <div class="featured__copy">
+      <div class="featured__meta-row">
+        <p class="featured__eyebrow">
+          Lectura destacada
+          @if (effectiveBooks.length > 1) {
+            <span class="featured__counter">· {{ currentIndex + 1 }} / {{ effectiveBooks.length }}</span>
+          }
+        </p>
+      </div>
+
+      <h2>{{ active.title }}</h2>
+      <p class="featured__author">{{ active.authors.join(', ') }}</p>
+
+      <div class="featured__badges">
+        <span class="badge badge--genre">{{ active.genres[0] || 'Colección general' }}</span>
+        <span class="badge" [class.badge--digital]="active.mediaType === 'digital'" [class.badge--physical]="active.mediaType === 'physical'">
+          {{ active.mediaType === 'digital' ? 'Digital' : 'Físico' }}
+        </span>
+        @if (active.mediaType === 'physical') {
+          <span class="badge badge--copies">
+            {{ (active.availableCopies ?? 0) > 0 ? (active.availableCopies + ' disponibles') : 'En reserva' }}
+          </span>
+        }
+      </div>
+
+      <div class="featured__actions">
+        <a [routerLink]="['/app/catalog', active.id]" class="featured__cta">
+          Conocer el libro <mat-icon>arrow_forward</mat-icon>
+        </a>
+
+        @if (effectiveBooks.length > 1) {
+          <div class="featured__nav">
+            <button type="button" class="nav-btn" (click)="prev()" aria-label="Libro anterior">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <button type="button" class="nav-btn" (click)="next()" aria-label="Siguiente libro">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (effectiveBooks.length > 1) {
+        <div class="featured__indicators">
+          @for (b of effectiveBooks; track b.id; let idx = $index) {
+            <button
+              type="button"
+              class="indicator"
+              [class.indicator--active]="idx === currentIndex"
+              [attr.aria-label]="'Ir a libro ' + (idx + 1) + ': ' + b.title"
+              (click)="goTo(idx)">
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="featured__stack-area" aria-hidden="true">
+      <div class="stacked-deck">
+        @for (item of stackedCards; track item.book.id) {
+          <div
+            class="deck-card deck-card--offset-{{ item.offset }}"
+            (click)="item.offset > 0 ? next() : null"
+            [class.deck-card--clickable]="item.offset > 0">
+            @if (item.book.coverUrl && !failedImageIds.has(item.book.id)) {
+              <img
+                [src]="item.book.coverUrl"
+                [alt]="'Portada de ' + item.book.title"
+                (error)="markImageFailed(item.book.id)"
+                loading="eager" />
+            } @else {
+              <div class="deck-card__fallback">
+                <span>{{ item.book.title.slice(0, 1) }}</span>
+              </div>
+            }
+            <div class="deck-card__spine"></div>
+          </div>
+        }
+      </div>
+    </div>
+  }
 </article>

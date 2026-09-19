@@ -1,0 +1,92 @@
+<section class="app-banner" aria-labelledby="app-banner-title">
+  <div class="app-banner__content">
+    <span class="app-banner__tag">Tu Biblioteca Personal</span>
+    <h2 id="app-banner-title" class="app-banner__title">
+      Todas tus lecturas <br>
+      <span class="app-banner__title-accent">en la palma de tu mano</span>
+    </h2>
+    <p class="app-banner__description">
+      Retoma al instante tu último libro, revisa el estado de tus reservas y continúa con tus lecturas digitales desde cualquier pantalla y lugar.
+    </p>
+
+    <div class="app-banner__actions">
+      <a routerLink="/app/catalog" class="app-banner__btn app-banner__btn--primary">
+        Explorar catálogo
+      </a>
+      @if (isReader) {
+        <a routerLink="/app/my-library" class="app-banner__btn app-banner__btn--secondary">
+          Mi biblioteca
+        </a>
+      }
+    </div>
+  </div>
+
+  <div class="app-banner__mockup-wrapper">
+    <div class="phone-mockup">
+      <div class="phone-mockup__speaker"></div>
+      <div class="phone-mockup__camera"></div>
+
+      <div class="phone-screen">
+        <div class="phone-screen__header">
+          <div class="phone-screen__brand">
+            <span class="phone-screen__brand-icon">📚</span>
+            <span class="phone-screen__brand-text">BookLibrary</span>
+          </div>
+          @if (hasActiveLoan) {
+            <span class="phone-screen__badge phone-screen__badge--active">En lectura</span>
+          } @else {
+            <span class="phone-screen__badge phone-screen__badge--neutral">Lectura sugerida</span>
+          }
+        </div>
+
+        @if (book) {
+          <div class="phone-screen__book-card">
+            <div class="phone-screen__cover">
+              @if (book.coverUrl && !imageFailed) {
+                <img
+                  [src]="book.coverUrl"
+                  [alt]="'Portada de ' + book.title"
+                  (error)="markImageFailed()"
+                  loading="lazy" />
+              } @else {
+                <div class="phone-screen__cover-fallback" role="img" [attr.aria-label]="'Portada de ' + book.title">
+                  <span>{{ book.title.slice(0, 1) }}</span>
+                </div>
+              }
+              <div class="phone-screen__cover-overlay">
+                <span class="phone-screen__cover-pill">{{ book.mediaType === 'digital' ? 'Digital' : 'Físico' }}</span>
+              </div>
+            </div>
+
+            <div class="phone-screen__details">
+              <h4 class="phone-screen__title">{{ book.title }}</h4>
+              <p class="phone-screen__author">{{ book.authors[0] || 'Autor por confirmar' }}</p>
+
+              <div class="phone-screen__progress-box">
+                <div class="phone-screen__progress-labels">
+                  <span>{{ hasActiveLoan ? 'Progreso de lectura' : 'Disponibilidad' }}</span>
+                  <b>{{ hasActiveLoan ? '64%' : (book.mediaType === 'digital' ? 'Acceso directo' : (book.availableCopies ? book.availableCopies + ' disp.' : 'En reserva')) }}</b>
+                </div>
+                <div class="phone-screen__progress-bar">
+                  <div class="phone-screen__progress-fill" [style.width]="hasActiveLoan ? '64%' : '100%'"></div>
+                </div>
+              </div>
+
+              <a [routerLink]="['/app/catalog', book.id]" class="phone-screen__action-btn">
+                {{ hasActiveLoan ? 'Continuar leyendo →' : 'Ver y leer →' }}
+              </a>
+            </div>
+          </div>
+        } @else {
+          <div class="phone-screen__empty">
+            <span class="phone-screen__empty-icon">📖</span>
+            <p>Selecciona un libro del catálogo para comenzar a leer.</p>
+            <a routerLink="/app/catalog" class="phone-screen__action-btn">
+              Ver catálogo →
+            </a>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>

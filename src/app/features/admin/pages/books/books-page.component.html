@@ -1,4 +1,4 @@
-<header><p class="eyebrow">Administración</p><h1>Catálogo de libros</h1><p>Administra las fichas, el inventario y la conservación del catálogo.</p></header>
+<app-staff-page-header icon="library_books" title="Catálogo de libros" description="Administra las fichas, el inventario y la conservación del catálogo."></app-staff-page-header>
 <app-staff-book-list [page]="catalog.page()" [query]="catalog.query()" [loading]="catalog.loading()" [error]="catalog.error()" [notice]="catalog.notice()" [editLoading]="catalog.editLoading()" [editorSaving]="catalog.saving()" [canPermanentDelete]="true" (filters)="catalog.filters($event)" (reset)="catalog.reset()" (refresh)="catalog.refresh()" (create)="catalog.create()" (edit)="catalog.edit($event)" (status)="catalog.requestStatus($event)" (permanent)="catalog.requestPermanent($event)" (goToPage)="catalog.goToPage($event)" />
 @if (catalog.pending(); as command) {
   <section class="confirmation" role="region" aria-labelledby="confirmation-title">

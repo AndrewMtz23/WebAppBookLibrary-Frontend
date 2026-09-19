@@ -1,6 +1,44 @@
-:host { display: inline-flex; }
-.brand { display: inline-flex; align-items: center; gap: var(--space-3); color: inherit; text-decoration: none; }
-.brand__mark { display: grid; width: 2.5rem; height: 2.5rem; place-items: center; border-radius: 0.8rem; background: var(--color-primary); color: white; box-shadow: 0 8px 20px rgb(37 87 214 / 24%); }
-.brand__mark mat-icon { width: 1.35rem; height: 1.35rem; font-size: 1.35rem; }
-.brand__name { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.035em; }
-.brand__name span { color: var(--color-primary); }
+:host {
+  display: inline-flex;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3, 0.75rem);
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand__logo {
+  display: block;
+  width: 2.25rem;
+  height: 2.25rem;
+  object-fit: contain;
+  flex-shrink: 0;
+  transition: transform var(--duration-fast, 120ms) var(--ease-out, ease);
+}
+
+.brand:hover .brand__logo {
+  transform: scale(1.08);
+}
+
+.brand__name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: inherit;
+}
+
+.brand__name span {
+  color: var(--brand-color, var(--color-primary));
+}
+
+:host-context([data-theme="dark"]),
+:host-context(.workspace__sidebar),
+:host-context(footer),
+:host-context(.site-footer) {
+  .brand__logo {
+    filter: brightness(1.6) contrast(1.15) drop-shadow(0 0 1px rgba(255, 255, 255, 0.4));
+  }
+}

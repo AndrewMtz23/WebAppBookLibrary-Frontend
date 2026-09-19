@@ -1,7 +1,9 @@
+import { CreateUserDialogComponent } from './create-user-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ChangeDetectionStrategy, Component, ElementRef, Injector, afterNextRender, effect, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { OperationNotificationService } from '../../../../core/services/operation-notification.service';
 import { AdminUsersFacade } from '../data-access/admin-users.facade';
 import { AdminUser, AdminUserQuery, DEFAULT_ADMIN_USER_QUERY, ROLE_LABELS, UpdateAdminUserRequest } from '../data-access/admin-users.models';
 import { UserDetailDrawerComponent } from './user-detail-drawer.component';
@@ -10,7 +12,7 @@ import { UserMutationConfirmationComponent } from './user-mutation-confirmation.
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [MatIconModule, MatTooltipModule, FormsModule, UserDetailDrawerComponent, UserMutationConfirmationComponent],
+  imports: [CreateUserDialogComponent, MatIconModule, MatTooltipModule, FormsModule, UserDetailDrawerComponent, UserMutationConfirmationComponent],
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -19,14 +21,23 @@ export class AdminUsersComponent {
   readonly vm = inject(AdminUsersFacade);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
+  private readonly notifications = inject(OperationNotificationService);
   readonly labels = ROLE_LABELS;
   draft = { ...DEFAULT_ADMIN_USER_QUERY };
+  creating = false;
+  created() { this.creating = false; this.vm.refresh(); }
   validation = '';
   private mutationOpener: HTMLElement | null = null;
   private hadPending = false;
+  private lastSelectedId: string | null = null;
 
   constructor() {
     effect(() => { this.draft = { ...this.vm.query() }; });
+    effect(() => {
+      const selectedId = this.vm.selectedId();
+      if (this.lastSelectedId && !selectedId) this.restoreEditorFocus(this.lastSelectedId);
+      this.lastSelectedId = selectedId;
+    });
     effect(() => {
       const pending = !!this.vm.pending();
       if (this.hadPending && !pending) this.restoreMutationFocus();
@@ -45,16 +56,21 @@ export class AdminUsersComponent {
   date(value: string | null) { return value ? new Intl.DateTimeFormat('es-MX', { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(value)) : 'Sin registro'; }
   filtered() { const q = this.vm.query(); return ['query','role','isActive','createdFrom','createdTo','lastLoginFrom','lastLoginTo'].some(key => !!q[key as keyof AdminUserQuery]); }
   open(user: AdminUser, _event: Event) { this.vm.open(user.id); }
-  close() {
-    const id = this.vm.selectedId(); this.vm.close();
+  close() { this.vm.close(); }
+  private restoreEditorFocus(id: string) {
     afterNextRender(() => setTimeout(() => setTimeout(() => {
       const opener = Array.from(this.host.nativeElement.querySelectorAll<HTMLButtonElement>('[data-user-id]')).find(button => button.dataset['userId'] === id && button.getClientRects().length > 0);
       (opener ?? this.host.nativeElement.querySelector<HTMLButtonElement>('[data-refresh]'))?.focus();
     })), { injector: this.injector });
   }
   role(user: AdminUser, nextRole: AdminUser['role']) { this.mutationOpener = document.activeElement as HTMLElement | null; this.vm.requestRole(user, nextRole); }
-  status(user: AdminUser) { this.mutationOpener = document.activeElement as HTMLElement | null; this.vm.requestStatus(user); }
-  remove(user: AdminUser) { this.mutationOpener = document.activeElement as HTMLElement | null; this.vm.requestPermanent(user); }
+  status(user: AdminUser) { if (this.blockSelfAccessChange(user)) return; this.mutationOpener = document.activeElement as HTMLElement | null; this.vm.requestStatus(user); }
+  remove(user: AdminUser) { if (this.blockSelfAccessChange(user)) return; this.mutationOpener = document.activeElement as HTMLElement | null; this.vm.requestPermanent(user); }
+  private blockSelfAccessChange(user: AdminUser): boolean {
+    if (!this.vm.isSelf(user)) return false;
+    this.notifications.error('Tu cuenta: no puedes quitarte acceso administrativo.');
+    return true;
+  }
   update(user: AdminUser, request: UpdateAdminUserRequest) { this.vm.save(user, request); }
   cancelMutation() { this.vm.dismiss(); }
   private restoreMutationFocus() { afterNextRender(() => { const fallback = this.host.nativeElement.querySelector<HTMLElement>('[data-refresh]'); (this.mutationOpener?.isConnected ? this.mutationOpener : fallback)?.focus(); this.mutationOpener = null; }, { injector: this.injector }); }

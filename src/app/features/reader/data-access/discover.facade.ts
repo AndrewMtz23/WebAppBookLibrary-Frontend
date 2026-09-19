@@ -21,11 +21,35 @@ export class DiscoverFacade {
   readonly activeReading = signal<ResourceState<BookSummary | null>>(state(null));
   readonly popularBooks = computed(() => this.popular().data.some(book => book.reservationCount > 0) ? this.popular().data : this.newest().data);
 
+  readonly allBooks = computed(() => {
+    const map = new Map<string, BookSummary>();
+    for (const b of this.popular().data) map.set(b.id, b);
+    for (const b of this.newest().data) map.set(b.id, b);
+    return Array.from(map.values());
+  });
+
+  readonly featuredHeroBooks = computed(() => {
+    const list = this.allBooks();
+    return list.length > 0 ? list.slice(0, 6) : this.newest().data.slice(0, 6);
+  });
+
+  readonly digitalBooks = computed(() => {
+    return this.allBooks().filter(b => b.mediaType === 'digital');
+  });
+
+  readonly physicalBooks = computed(() => {
+    return this.allBooks().filter(b => b.mediaType === 'physical');
+  });
+
+  readonly classicBooks = computed(() => {
+    return this.allBooks().filter(b => b.genres.some(g => g.toLowerCase().includes('clásico')));
+  });
+
   constructor() { this.load(); }
 
   load(): void {
-    this.request(this.catalog.search({ ...DEFAULT_CATALOG_QUERY, pageSize: 8 }), this.newest, page => page.items, 'No pudimos cargar las novedades.');
-    this.request(this.catalog.search({ ...DEFAULT_CATALOG_QUERY, pageSize: 8, sort: 'reservationCount', direction: 'desc' }), this.popular, page => page.items, 'La selección popular no está disponible.');
+    this.request(this.catalog.search({ ...DEFAULT_CATALOG_QUERY, pageSize: 24 }), this.newest, page => page.items, 'No pudimos cargar las novedades.');
+    this.request(this.catalog.search({ ...DEFAULT_CATALOG_QUERY, pageSize: 24, sort: 'reservationCount', direction: 'desc' }), this.popular, page => page.items, 'La selección popular no está disponible.');
     this.request(this.catalog.getFacets(), this.facets, value => value, 'No pudimos cargar las categorías.');
     if (this.auth.sessionSnapshot?.user.role === 'user') {
       this.request(this.reader.getDashboard(), this.activity, value => value, 'Tu actividad no está disponible por ahora.');

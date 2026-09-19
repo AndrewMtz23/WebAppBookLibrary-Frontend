@@ -1,0 +1,4 @@
+{
+  "/api": { "target": "http://127.0.0.1:7184", "secure": false },
+  "/__qa": { "target": "http://127.0.0.1:7184", "secure": false }
+}

@@ -5,8 +5,9 @@ export interface Favorite { id: string; bookId: string; createdAt: string; }
 export interface DigitalAccess { resourceUrl: string; }
 export interface ReaderProfile {
   id: string; displayName: string; username: string; email: string; avatarUrl?: string | null;
-  role: 'user'; createdAt: string; lastLoginAt: string | null;
+  role: 'user' | 'librarian' | 'admin'; createdAt: string; lastLoginAt: string | null; updatedAt?: string;
 }
+export interface UpdateProfileRequest { displayName: string; email: string; avatarUrl: string | null; expectedUpdatedAt: string; }
 export interface MetricCount { key: string; count: number; }
 export interface ReaderDashboard {
   generatedAt: string; from: string; to: string; totalReservations: number;

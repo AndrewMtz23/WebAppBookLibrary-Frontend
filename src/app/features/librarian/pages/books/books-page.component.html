@@ -1,4 +1,4 @@
-<header><p class="eyebrow">Operación bibliotecaria</p><h1>Catálogo de libros</h1><p>Mantén las fichas y la disponibilidad de la biblioteca al día.</p></header>
+<app-staff-page-header icon="library_books" title="Catálogo de libros" description="Mantén las fichas y la disponibilidad de la biblioteca al día."></app-staff-page-header>
 <app-staff-book-list [page]="catalog.page()" [query]="catalog.query()" [loading]="catalog.loading()" [error]="catalog.error()" [notice]="catalog.notice()" [editLoading]="catalog.editLoading()" [editorSaving]="catalog.saving()" [canPermanentDelete]="false" (filters)="catalog.filters($event)" (reset)="catalog.reset()" (refresh)="catalog.refresh()" (create)="catalog.create()" (edit)="catalog.edit($event)" (status)="catalog.requestStatus($event)"  (goToPage)="catalog.goToPage($event)" />
 @if (catalog.pending(); as command) {
   <section class="confirmation" role="region" aria-labelledby="confirmation-title">

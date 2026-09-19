@@ -1,6 +1,6 @@
 import { ParamMap } from '@angular/router';
 import { LoanSummary } from '../../../shared/models/loan.model';
-export interface StaffLoan extends LoanSummary { bookTitle: string | null; username: string | null; displayName: string | null; }
+export interface StaffLoan extends LoanSummary { bookCoverUrl?: string | null; userAvatarUrl?: string | null; bookTitle: string | null; username: string | null; displayName: string | null; }
 export interface StaffLoanDetail { loan: StaffLoan; history: readonly { eventType: 'created' | 'returned' | 'cancelled'; timestamp: string; actorUsername: string | null; source: 'audit' | 'recorded-date' }[]; historyTruncated: boolean; }
 export type LoanCommand = 'return' | 'cancel';
 export interface StaffLoanQuery { query: string; status: string; mediaType: string; userId: string; bookId: string; from: string; to: string; dueFrom: string; dueTo: string; dateField: string; sort: string; direction: string; page: number; pageSize: number; }

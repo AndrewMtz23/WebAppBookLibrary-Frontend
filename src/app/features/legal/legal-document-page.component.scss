@@ -2,21 +2,6 @@
 
 .legal-page { min-height: 100dvh; }
 
-.legal-header {
-  position: sticky;
-  z-index: var(--z-sticky);
-  top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: var(--topbar-height);
-  padding-inline: max(var(--space-5), calc((100% - var(--content-max)) / 2));
-  border-bottom: 1px solid var(--color-border);
-  background: rgb(255 253 248 / 96%);
-  box-shadow: 0 4px 18px rgb(13 27 42 / 6%);
-  backdrop-filter: blur(14px);
-
-}
 
 main {
   width: min(calc(100% - 2.5rem), 58rem);
@@ -72,6 +57,5 @@ article > section {
 }
 
 @media (max-width: 680px) {
-  .legal-header { padding-inline: var(--space-4); }
   article > section { grid-template-columns: 1fr; gap: var(--space-4); }
 }

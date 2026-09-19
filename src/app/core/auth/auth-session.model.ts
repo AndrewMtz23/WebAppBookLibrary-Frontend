@@ -3,6 +3,7 @@ export type UserRole = 'user' | 'librarian' | 'admin';
 export interface AuthenticatedUser {
   readonly id: string;
   readonly username: string;
+  readonly displayName?: string;
   readonly email: string;
   readonly avatarUrl?: string | null;
   readonly role: UserRole;
@@ -28,5 +29,6 @@ export const isAuthSession = (value: unknown): value is AuthSession => {
     typeof user.username === 'string' && user.username.length > 0 &&
     typeof user.email === 'string' && user.email.length > 0 &&
     (user.avatarUrl === undefined || user.avatarUrl === null || typeof user.avatarUrl === 'string') &&
+    (user.displayName === undefined || typeof user.displayName === 'string') &&
     isUserRole(user.role);
 };

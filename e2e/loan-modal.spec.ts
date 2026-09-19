@@ -1,0 +1,52 @@
+import { expect, test } from '@playwright/test';
+
+test('préstamos: identidades separadas, imágenes, modal centrada y foco', async ({ page, request }, info) => {
+  const fixture = await (await request.get('/__qa')).json();
+  expect(fixture.fixture).toBe('booklibrary-phase5');
+  expect(fixture.databaseName).toMatch(/^booklibrary_ui_test_[a-f0-9]{32}$/);
+  const login = await request.post('/api/auth/login', { data: { username: 'qa_user', password: 'QaLocalOnly!2026' } });
+  expect(login.ok()).toBeTruthy();
+  const auth = await login.json();
+  const reserved = await request.post('/api/loans', { headers: { Authorization: `Bearer ${auth.token}` }, data: { bookId: fixture.books[0].id } });
+  expect([201, 409]).toContain(reserved.status());
+  // Supply deterministic image assets; real Mongo projection is covered by LoanIdentityImagesTests.
+  await page.route('https://images.example.test/**', route => route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="140"><rect width="100" height="140" fill="#5140cf"/><text x="14" y="70" fill="white">LECTURA</text></svg>' }));
+  await page.route('**/api/loans**', async route => {
+    if (route.request().method() !== 'GET') return route.continue();
+    const response = await route.fetch(); const data = await response.json();
+    const enrich = (loan: any) => ({ ...loan, bookCoverUrl: 'https://images.example.test/book.svg', userAvatarUrl: 'https://images.example.test/user.svg' });
+    if (data.items) data.items = data.items.map(enrich);
+    if (data.loan) data.loan = enrich(data.loan);
+    await route.fulfill({ response, json: data });
+  });
+  await page.goto('/auth/login');
+  await page.getByRole('textbox', { name: 'Nombre de usuario', exact: true }).fill('qa_admin');
+  await page.locator('input[name="password"]').fill('QaLocalOnly!2026');
+  await page.getByRole('button', { name: 'Iniciar sesión', exact: false }).click();
+  await expect(page).not.toHaveURL(/\/auth\//);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/admin/loans');
+  await expect(page.getByRole('columnheader', { name: 'Libro', exact: true })).toBeVisible();
+  await expect(page.getByRole('columnheader', { name: 'Usuario', exact: true })).toBeVisible();
+  await expect(page.locator('tbody .loan-cover img').first()).toBeVisible();
+  await expect(page.locator('tbody app-avatar img').first()).toBeVisible();
+  const trigger = page.locator('table button[data-detail]').first();
+  await expect(trigger.locator('mat-icon')).toHaveText('visibility');
+  await trigger.click();
+  const modal = page.getByRole('dialog', { name: 'Detalle del préstamo' });
+  await expect(modal.locator('.loan-participants')).toBeVisible();
+  const bounds = (await modal.boundingBox())!;
+  expect(Math.abs(bounds.x + bounds.width / 2 - 720)).toBeLessThan(3);
+  await expect(modal.getByRole('heading', { name: 'Historial de movimientos' })).toBeVisible();
+  await expect(modal.getByRole('button', { name: 'Registrar devolución' })).toBeVisible();
+  await page.addScriptTag({ path: require.resolve('axe-core/axe.min.js') });
+  const violations = await page.evaluate(async () => (await (window as any).axe.run('.loan-modal', { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] } })).violations.map((v: any) => ({ id: v.id, nodes: v.nodes.map((n: any) => n.failureSummary) })));
+  expect(violations).toEqual([]);
+  await page.screenshot({ path: info.outputPath('loan-modal-desktop.png'), fullPage: true });
+  await page.keyboard.press('Escape'); await expect(modal).toBeHidden(); await expect(trigger).toBeFocused();
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.locator('.mobile-cards .view-loan').first().click();
+  await expect(modal).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
+  await page.screenshot({ path: info.outputPath('loan-modal-mobile.png'), fullPage: true });
+});

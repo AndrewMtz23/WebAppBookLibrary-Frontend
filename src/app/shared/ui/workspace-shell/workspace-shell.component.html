@@ -1,32 +1,10 @@
 <div
   class="workspace"
+  [class.workspace--staff]="variant === 'staff'"
   [class.workspace--reader]="variant === 'reader'"
   [class.workspace--sidebar-collapsed]="variant === 'staff' && isSidebarCollapsed">
   @if (variant === 'reader') {
-    <header
-      class="reader-navbar"
-      [attr.aria-hidden]="isLogoutDialogOpen || isLoggingOut ? 'true' : null"
-      [attr.inert]="isLogoutDialogOpen || isLoggingOut ? '' : null">
-      <div class="reader-navbar__inner">
-        <app-brand [route]="navigation[0]?.route ?? ['/']" />
-
-        <nav class="reader-navbar__navigation" aria-label="Navegación de lectura">
-          @for (item of readerPrimaryNavigation; track item.label) {
-            <a
-              [routerLink]="item.route"
-              routerLinkActive="is-active"
-              [routerLinkActiveOptions]="{ exact: item.exact ?? false }">
-              <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
-              <span>{{ item.label }}</span>
-            </a>
-          }
-        </nav>
-
-        <div class="reader-navbar__account">
-          <app-account-menu />
-        </div>
-      </div>
-    </header>
+    <app-reader-navbar [navigation]="navigation" [blocked]="isLogoutDialogOpen || isLoggingOut" />
   } @else {
     <aside
       class="workspace__sidebar"
@@ -35,16 +13,7 @@
       [attr.inert]="isLogoutDialogOpen || isLoggingOut ? '' : null">
       <div class="workspace__brand-row">
         <app-brand [compact]="isSidebarCollapsed" [route]="navigation[0]?.route ?? ['/']" />
-        <button
-          mat-icon-button
-          class="workspace__collapse"
-          type="button"
-          [attr.aria-label]="isSidebarCollapsed ? 'Expandir navegación' : 'Contraer navegación'"
-          [matTooltip]="isSidebarCollapsed ? 'Expandir navegación' : 'Contraer navegación'"
-          matTooltipPosition="right"
-          (click)="toggleSidebar()">
-          <mat-icon>{{ isSidebarCollapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
-        </button>
+
       </div>
 
       <p class="workspace__context">{{ contextLabel }}</p>
@@ -98,12 +67,24 @@
         }
       </nav>
 
-      <div class="workspace__profile">
-        <app-avatar [name]="username" [imageUrl]="avatarUrl" />
-        <span><strong>{{ username }}</strong><small>{{ contextLabel }}</small></span>
-        <button mat-icon-button type="button" aria-label="Cerrar sesión" matTooltip="Cerrar sesión" matTooltipPosition="right" (click)="requestLogout()">
-          <mat-icon>logout</mat-icon>
+      <div class="sidebar-account">
+        <button class="sidebar-logout" type="button" aria-label="Cerrar sesión" matTooltip="Cerrar sesión" [matTooltipDisabled]="!isSidebarCollapsed" matTooltipPosition="right" (click)="requestLogout()"><mat-icon aria-hidden="true">logout</mat-icon><span>Cerrar sesión</span></button>
+        <div class="sidebar-controls"><app-theme-toggle />
+        <button
+          mat-icon-button
+          class="workspace__collapse"
+          type="button"
+          [attr.aria-label]="isSidebarCollapsed ? 'Expandir navegación' : 'Contraer navegación'"
+          [matTooltip]="isSidebarCollapsed ? 'Expandir navegación' : 'Contraer navegación'"
+          matTooltipPosition="right"
+          (click)="toggleSidebar()">
+          <mat-icon>{{ isSidebarCollapsed ? 'keyboard_double_arrow_right' : 'keyboard_double_arrow_left' }}</mat-icon>
         </button>
+        </div>
+        <a class="sidebar-account-card" routerLink="/app/profile" aria-label="Mi perfil" [matTooltip]="username" [matTooltipDisabled]="!isSidebarCollapsed" matTooltipPosition="right">
+          <app-avatar [name]="username" [imageUrl]="avatarUrl" />
+          <span><strong>{{ username }}</strong><small>{{ email }}</small></span>
+        </a>
       </div>
     </aside>
   }
@@ -112,13 +93,9 @@
     class="workspace__body"
     [attr.aria-hidden]="isLogoutDialogOpen || isLoggingOut ? 'true' : null"
     [attr.inert]="isLogoutDialogOpen || isLoggingOut ? '' : null">
-    @if (variant === 'staff') {
-      <header class="workspace__topbar">
-        <div><span>Espacio de trabajo</span><strong>{{ contextLabel }}</strong></div>
-        <div class="workspace__top-profile"><app-avatar [name]="username" [imageUrl]="avatarUrl" size="small" /><span>{{ username }}</span></div>
-      </header>
-    }
+
     <main id="main-content" class="workspace__content" tabindex="-1"><router-outlet /></main>
+    @if (variant === 'staff') { <app-admin-footer [username]="username" /> }
   </div>
 
   @if (variant === 'reader') {

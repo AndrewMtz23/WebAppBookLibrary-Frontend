@@ -6,7 +6,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({ selector: 'app-reader-shell', standalone: true, imports: [WorkspaceShellComponent], template: `<app-workspace-shell variant="reader" [navigation]="navigation" [username]="username" [avatarUrl]="avatarUrl" contextLabel="Área de lectura" />`, changeDetection: ChangeDetectionStrategy.OnPush })
 export class ReaderShellComponent {
   get navigation() { return readerNavigationForRole(this.auth.sessionSnapshot?.user.role ?? 'user'); }
-  get username(): string { return this.auth.sessionSnapshot?.user.username ?? 'Lector'; }
+  get username(): string { return this.auth.sessionSnapshot?.user.displayName || this.auth.sessionSnapshot?.user.username || 'Lector'; }
   get avatarUrl(): string | null { return this.auth.sessionSnapshot?.user.avatarUrl ?? null; }
   constructor(private readonly auth: AuthService) {}
 }

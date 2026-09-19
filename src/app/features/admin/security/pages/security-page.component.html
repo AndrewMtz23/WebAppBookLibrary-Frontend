@@ -1,5 +1,5 @@
 <section>
-  <header class="dashboard-header"><div><p class="eyebrow">Administración · señales reales</p><h1>Seguridad operacional</h1><p>Actividad inusual y respuestas HTTP derivadas exclusivamente de eventos registrados.</p></div><button class="primary-link" type="button" (click)="refresh()">Actualizar</button></header>
+  <app-staff-page-header icon="shield" title="Seguridad operacional" description="Actividad inusual y respuestas HTTP derivadas exclusivamente de eventos registrados."><button class="primary-link" type="button" (click)="refresh()">Actualizar</button></app-staff-page-header>
   <app-dashboard-period-controls [period]="period()" [busy]="loading()" (periodChange)="setPeriod($event)" (refresh)="refresh()"/>
   @if(loading()&&!data()){<div class="dashboard-skeleton" aria-busy="true"><span></span><span></span><span></span><span></span></div>}
   @if(error()){<div class="dashboard-error" role="alert"><p>{{error()}}</p><button type="button" (click)="refresh()">Reintentar</button></div>}

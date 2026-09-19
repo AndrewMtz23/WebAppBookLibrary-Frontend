@@ -22,7 +22,7 @@ describe('StaffBookListComponent permissions and filters', () => {
     fixture.componentRef.setInput('page', { items: [book], totalItems: 1 });
     fixture.componentRef.setInput('editorSaving', true); fixture.detectChanges();
     const buttons = [...fixture.nativeElement.querySelectorAll('button')] as HTMLButtonElement[];
-    const editorCommands = buttons.filter(button => ['Crear libro', 'Editar'].includes(button.textContent!.trim()));
+    const editorCommands = buttons.filter(button => button.matches('.toolbar .primary') || button.textContent!.trim() === 'Editar');
     expect(editorCommands.length).toBe(3);
     expect(editorCommands.every(button => button.disabled)).toBeTrue();
   });

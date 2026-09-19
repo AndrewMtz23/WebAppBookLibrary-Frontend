@@ -1,4 +1,4 @@
-<div class="toolbar"><p role="status">{{ page?.totalItems ?? '—' }} libros{{ loading && page ? ' · Actualizando…' : '' }}</p><div class="actions"><button type="button" (click)="refresh.emit()" [disabled]="loading">Actualizar</button><button type="button" class="primary" (click)="create.emit()" [disabled]="editorSaving">Crear libro</button></div></div>
+<div class="toolbar"><p role="status">{{ page?.totalItems ?? '—' }} libros{{ loading && page ? ' · Actualizando…' : '' }}</p><div class="actions"><button type="button" class="primary" (click)="create.emit()" [disabled]="editorSaving"><span aria-hidden="true">+</span> Crear libro</button><button type="button" (click)="refresh.emit()" [disabled]="loading">Actualizar</button></div></div>
 <form class="filters" (ngSubmit)="filters.emit(draft)">
   <label class="search">Buscar<input name="query" [(ngModel)]="draft.query" maxlength="200" placeholder="Título, autor o ISBN"></label>
   <label>Género<input name="genre" [(ngModel)]="draft.genre" placeholder="Todos los géneros"></label>
