@@ -20,6 +20,7 @@
       } @else if (!facade.items().length) {
         <app-empty-state title="No encontramos libros" description="Prueba otra búsqueda o limpia los filtros para explorar toda la colección." icon="search_off" actionLabel="Limpiar filtros" (actionRequested)="facade.clearFilters()" />
       } @else {
+        @if (facade.error()) { <app-error-state [message]="facade.error()!" (retryRequested)="facade.retry()" /> }
         @if (facade.refreshing()) { <div class="refresh-line" aria-hidden="true"></div> }
         <app-book-grid [books]="facade.items()" [showFavorite]="isReader" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (bookOpened)="trackBookOpen()" (favoriteRequested)="favorites.toggle($event)" />
         <nav class="pagination" aria-label="Paginación del catálogo">

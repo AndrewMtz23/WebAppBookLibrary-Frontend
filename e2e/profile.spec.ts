@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { randomUUID } from 'node:crypto';
 
 test.beforeEach(async ({ request }) => {
   const marker = await request.get('/__qa');
@@ -9,11 +10,17 @@ test.beforeEach(async ({ request }) => {
 });
 
 for (const role of ['user', 'librarian', 'admin']) {
-  test(`${role}: editar mi perfil, cancelar, error y persistencia`, async ({ page }, info) => {
+  test(`${role}: editar mi perfil, cancelar, error y persistencia`, async ({ page, request }, info) => {
     test.setTimeout(120_000);
+    const username = `profile_${randomUUID().replaceAll('-', '').slice(0, 12)}`;
+    const admin = await request.post('/api/auth/login', { data: { username: 'qa_admin', password: 'QaLocalOnly!2026' } });
+    expect(admin.ok()).toBeTruthy();
+    const adminToken = (await admin.json()).token;
+    const created = await request.post('/api/admin/users', { headers: { Authorization: `Bearer ${adminToken}` }, data: { username, displayName: `Prueba ${role}`, email: `${username}@example.invalid`, role, password: 'QaLocalOnly!2026' } });
+    expect(created.ok()).toBeTruthy();
     await page.route('https://images.example.test/profile.svg', route => route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="royalblue"/></svg>' }));
     await page.goto('/auth/login');
-    await page.getByRole('textbox', { name: 'Nombre de usuario', exact: true }).fill(`qa_${role}`);
+    await page.getByRole('textbox', { name: 'Nombre de usuario', exact: true }).fill(username);
     await page.locator('input[name="password"]').fill('QaLocalOnly!2026');
     await page.getByRole('button', { name: 'Iniciar sesión', exact: false }).click();
     await expect(page).not.toHaveURL(/\/auth\//);
@@ -26,7 +33,7 @@ for (const role of ['user', 'librarian', 'admin']) {
     await expect(name).toHaveValue(original);
     await name.fill(`Mi perfil ${role}`);
     await page.locator('#profile-avatar').fill('https://images.example.test/profile.svg');
-    await page.getByLabel('Correo electrónico', { exact: true }).fill(`profile_${role}@example.test`);
+    await page.getByLabel('Correo electrónico', { exact: true }).fill(`${username}_updated@example.invalid`);
     await page.getByRole('button', { name: 'Guardar cambios', exact: true }).click();
     await expect(page.locator('mat-snack-bar-container')).toContainText('Perfil actualizado.');
     await expect(page.locator('#identity-name')).toHaveText(`Mi perfil ${role}`);

@@ -12,7 +12,7 @@ for (const role of ['admin', 'librarian', 'user', 'guest']) {
     const fixture = await (await request.get('/__qa')).json();
     expect(fixture.fixture).toBe('booklibrary-phase5');
     expect(fixture.databaseName).toMatch(/^booklibrary_ui_test_[a-f0-9]{32}$/);
-    if (role === 'admin') {
+    if (role === 'admin' || role === 'librarian') {
       const login = await request.post('/api/auth/login', { data: { username: 'qa_user', password: 'QaLocalOnly!2026' } });
       expect(login.ok()).toBeTruthy();
       const auth = await login.json();
