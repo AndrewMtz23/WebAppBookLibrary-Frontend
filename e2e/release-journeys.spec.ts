@@ -191,7 +191,7 @@ test('paginación restaura filtros, muestra un libro y conserva resultados al fa
   await expect(page.locator('app-book-card')).toContainText(`${title} A`);
 });
 
-test('teclado: modal, restauración de foco y ampliación de contenido', async ({ page }, info) => {
+test('teclado: modal, restauración de foco y reflow a 640 píxeles CSS', async ({ page }, info) => {
   await login(page, 'qa_admin');
   await page.goto('/admin/users');
   const edit = page.getByRole('button', { name: 'Editar usuario qa_admin', exact: true }).first();
@@ -206,10 +206,12 @@ test('teclado: modal, restauración de foco y ampliación de contenido', async (
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
   await expect(edit).toBeFocused();
-  await page.setViewportSize({ width: 1280, height: 960 });
-  // CSS magnification checks content reflow; this is not a screen-reader or browser-zoom certification.
-  await page.evaluate(() => document.documentElement.style.zoom = '2');
+  // A 1280px window at 200% browser zoom has about 640 CSS pixels available.
+  // Test that layout width directly: CSS zoom does not change media queries.
+  // This remains a reflow check, not actual browser-zoom or screen-reader certification.
+  await page.setViewportSize({ width: 640, height: 480 });
   await expect(page.getByRole('heading', { name: 'Control de usuarios' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
-  await page.screenshot({ path: info.outputPath('content-magnified-200.png'), fullPage: true });
+  await expect(page.locator('.mobile-cards')).toBeVisible();
+  await page.screenshot({ path: info.outputPath('content-reflow-640.png'), fullPage: true });
 });
