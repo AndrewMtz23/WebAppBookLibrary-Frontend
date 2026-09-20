@@ -19,7 +19,7 @@
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--color-text-muted);
-    opacity: 0.85;
+    opacity: 1;
   }
 
   &__stage {
@@ -100,7 +100,7 @@
     padding: 0.7rem 1.6rem;
     border-radius: var(--radius-pill);
     border: 1.5px solid var(--color-accent);
-    color: var(--color-accent);
+    color: var(--color-warning);
     background: transparent;
     font-size: 0.875rem;
     font-weight: 700;

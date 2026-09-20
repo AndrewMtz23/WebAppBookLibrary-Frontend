@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { Subject, throwError } from 'rxjs';
 import { ReaderService } from './reader.service';
 import { ReservationsFacade } from './reservations.facade';
+import { ApiError, toApiError } from '../../../core/http/api-error';
 
 describe('ReservationsFacade', () => {
   let reader: jasmine.SpyObj<ReaderService>;
@@ -39,7 +40,7 @@ describe('ReservationsFacade', () => {
     expect(facade.message()?.toLowerCase()).toContain('confirma tu conexión');
   });
 
-  function problem(code: string): HttpErrorResponse {
-    return new HttpErrorResponse({ status: 409, error: { code } });
+  function problem(code: string): ApiError {
+    return toApiError(new HttpErrorResponse({ status: 409, error: { code } }));
   }
 });

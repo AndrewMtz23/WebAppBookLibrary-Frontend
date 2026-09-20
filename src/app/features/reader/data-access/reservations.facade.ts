@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Subject, finalize } from 'rxjs';
 import { ReaderService } from './reader.service';
+import { ApiError } from '../../../core/http/api-error';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationsFacade {
@@ -26,12 +27,12 @@ export class ReservationsFacade {
         this.message.set('Tu reserva quedó confirmada.');
         this.confirmed.next(bookId);
       },
-      error: (error: HttpErrorResponse) => this.message.set(this.errorMessage(error))
+      error: (error: HttpErrorResponse | ApiError) => this.message.set(this.errorMessage(error))
     });
   }
 
-  private errorMessage(error: HttpErrorResponse): string {
-    const code = error.error?.code;
+  private errorMessage(error: HttpErrorResponse | ApiError): string {
+    const code = error instanceof ApiError ? error.code : error.error?.code;
     if (code === 'duplicate_active_reservation' || code === 'duplicate_active') return 'Ya tienes una reserva activa de este libro.';
     if (code === 'book_unavailable') return 'Este libro no tiene ejemplares disponibles por ahora.';
     if (error.status === 0) return 'No recibimos confirmación. Confirma tu conexión y revisa Mi biblioteca antes de intentar otra vez.';

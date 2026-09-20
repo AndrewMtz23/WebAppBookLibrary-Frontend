@@ -1,5 +1,21 @@
 # Phase 5: browser quality evidence
 
+## Current delivery — 2026-09-19
+
+Final local browser run: **26 passed, zero failures (4.0 minutes)**. Full report: ignored `playwright-report/`; screenshots/traces: ignored `test-results/`. GitHub execution is independently recorded in Actions for the published commit.
+
+The earlier evidence below is historical. Current local verification: 220 unit tests and two reduced-motion checks passed in Chrome 153; production build passed at 865.30 kB initial / 189.50 kB estimated transfer, within the existing 900 kB warning / 1 MB error budgets. Production dependency audit reports zero vulnerabilities. The matching backend passed 251 tests with no skips.
+
+The browser suite now contains 26 tests, including every required phase-5 journey: digital registration/access, last physical copy with a real second-reader conflict and return, librarian creation/inventory/return, administrative role/state changes with audit, overdue dashboard drilldown, and expired-session return. Additional checks cover shared profile editing for all roles, dialogs, sidebar, light/dark contrast, four viewport sizes, pagination/filter restoration, slow/timeout/503/empty/recovered data, focus trapping/restoration and 200% CSS magnification. Profile tests create independent accounts; staff dark-mode tests seed their own reservation.
+
+These journeys exposed fixes for lost domain error codes after HTTP error conversion, silent refresh failure with existing catalog results, light-mode contrast and long-name mobile overflow. The physical-copy conflict now displays its specific message; failed catalog refresh preserves the results and offers a visible retry.
+
+`Integrated browser QA` runs on push, pull request and optional manual dispatch. It pins compatible backend `bd2cb8983fd30bffe7b69ac00f35dfd2bdd4dc6f` by default and permits an explicit manual override. It creates only local fictitious MongoDB data, retains browser evidence and stops its database container. The ordinary CI adds a pinned, checksum-verified Gitleaks scan of fetched Git history with redacted output. npm 10 lockfile compatibility was reproduced and fixed; earlier successful frontend CI run: `35446677052`.
+
+Release acceptance still requires owner-configured branch protection, authorized staging/snapshot/restore evidence, deployment monitoring and human screen-reader/actual browser-zoom review. CSS magnification and axe do not certify WCAG compliance. External digital-resource interception checks application navigation, not the provider's uptime. See the backend `docs/release-operations.md` for measured API latency, proposed alerts, migration rehearsal and rollout/rollback instructions.
+
+## Historical first delivery — 2026-09-18
+
 Local verification on 2026-09-18, Windows and Chrome 152. The matching backend contains `tools/BookLibrary.QaHost`; see its `docs/phase5-quality.md` for the isolated MongoDB replica set and API startup. No Atlas data is used.
 
 ## Repeat the checks
