@@ -4,6 +4,7 @@ import { Subject, throwError } from 'rxjs';
 import { ReaderService } from './reader.service';
 import { ReservationsFacade } from './reservations.facade';
 import { ApiError, toApiError } from '../../../core/http/api-error';
+import { SessionScopeService } from '../../../core/auth/session-scope.service';
 
 describe('ReservationsFacade', () => {
   let reader: jasmine.SpyObj<ReaderService>;
@@ -21,6 +22,25 @@ describe('ReservationsFacade', () => {
     facade.reserve('book-1');
     expect(reader.reserve).toHaveBeenCalledTimes(1);
     expect(facade.isBusy('book-1')).toBeTrue();
+  });
+
+  it('ignores a previous account response without clearing the current request', () => {
+    const previous = new Subject<any>();
+    const current = new Subject<any>();
+    reader.reserve.and.returnValues(previous, current);
+    facade.reserve('book-1');
+    TestBed.inject(SessionScopeService).invalidate();
+    expect(facade.isBusy('book-1')).toBeFalse();
+    facade.reserve('book-1');
+    previous.next({});
+    previous.complete();
+    expect(facade.successfulBookId()).toBeNull();
+    expect(facade.message()).toBeNull();
+    expect(facade.isBusy('book-1')).toBeTrue();
+    current.next({});
+    current.complete();
+    expect(facade.successfulBookId()).toBe('book-1');
+    expect(facade.isBusy('book-1')).toBeFalse();
   });
 
   it('maps duplicate and unavailable domain errors to useful feedback', () => {

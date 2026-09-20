@@ -15,11 +15,16 @@ export class AuthInterceptor implements HttpInterceptor {
   ) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler) {
-    const token = this.auth.getToken();
+    const credentialRequest = /\/auth\/(login|register)(?:[/?#]|$)/.test(request.url);
+    const sessionToken = this.auth.sessionSnapshot?.token;
+    const token = credentialRequest ? null : this.auth.getToken();
+    if (!credentialRequest && sessionToken && !token) {
+      this.sessionNotification.handleExpiredSession(this.router.url);
+    }
     const authenticated = token ? request.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : request;
     return next.handle(authenticated).pipe(catchError(error => {
       const apiError = toApiError(error);
-      if (apiError.status === 401) {
+      if (apiError.status === 401 && token && token === this.auth.sessionSnapshot?.token) {
         this.sessionNotification.handleExpiredSession(this.router.url);
       }
       return throwError(() => apiError);

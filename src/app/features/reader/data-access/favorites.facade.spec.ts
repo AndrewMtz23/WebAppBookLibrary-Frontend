@@ -3,6 +3,7 @@ import { Subject } from 'rxjs';
 import { BookSummary } from '../../../shared/models/book.model';
 import { ReaderService } from './reader.service';
 import { FavoritesFacade } from './favorites.facade';
+import { SessionScopeService } from '../../../core/auth/session-scope.service';
 
 describe('FavoritesFacade', () => {
   let reader: jasmine.SpyObj<ReaderService>;
@@ -10,6 +11,19 @@ describe('FavoritesFacade', () => {
   beforeEach(() => {
     reader = jasmine.createSpyObj<ReaderService>('ReaderService', ['addFavorite', 'removeFavorite']);
     TestBed.configureTestingModule({ providers: [FavoritesFacade, { provide: ReaderService, useValue: reader }] });
+  });
+
+  it('clears personal state and ignores a delayed response after identity changes', () => {
+    const response = new Subject<never>();
+    reader.addFavorite.and.returnValue(response);
+    const facade = TestBed.inject(FavoritesFacade);
+    const target = book(false);
+    facade.toggle(target);
+    TestBed.inject(SessionScopeService).invalidate();
+    response.error(new Error('old request'));
+    expect(facade.isFavorite(target)).toBeFalse();
+    expect(facade.isBusy(target.id)).toBeFalse();
+    expect(facade.error()).toBeNull();
   });
 
   it('updates immediately and ignores a second request while busy', () => {

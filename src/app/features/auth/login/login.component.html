@@ -28,7 +28,7 @@
       <mat-icon>{{ isLoading ? 'hourglass_empty' : 'login' }}</mat-icon>
       {{ isLoading ? 'Iniciando sesión…' : 'Iniciar sesión' }}
     </button>
-    <p class="auth-form__switch">¿Aún no tienes cuenta? <a mat-button color="primary" routerLink="/auth/register">Crear cuenta</a></p>
+    <p class="auth-form__switch">¿Aún no tienes cuenta? <a mat-button color="primary" routerLink="/auth/register" [queryParams]="authQuery">Crear cuenta</a></p>
   </form>
 </article>
 

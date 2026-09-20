@@ -44,9 +44,10 @@
       </section>
     }
   } @else {
-    <a class="account-menu__signin" routerLink="/auth/login">
-      <mat-icon aria-hidden="true">person</mat-icon><span>Ingresar</span>
-    </a>
+    <div class="account-menu__guest">
+      <a class="account-menu__signin" routerLink="/auth/login" [queryParams]="authQuery">Iniciar sesión</a>
+      <a class="account-menu__signin account-menu__register" routerLink="/auth/register" [queryParams]="authQuery">Registrarse</a>
+    </div>
   }
 </div>
 

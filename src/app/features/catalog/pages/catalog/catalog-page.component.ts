@@ -1,3 +1,4 @@
+import { ReaderActionAccessService } from '../../../../core/auth/reader-action-access.service';
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatBottomSheet, MatBottomSheetModule, MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bottom-sheet';
@@ -57,8 +58,13 @@ export class CatalogPageComponent {
   private readonly bottomSheet = inject(MatBottomSheet);
   private readonly analytics = inject(ReaderAnalyticsService);
   private readonly auth = inject(AuthService);
+  private readonly actionAccess = inject(ReaderActionAccessService);
+  get showReaderActions(): boolean { return !this.auth.sessionSnapshot || this.isReader; }
   readonly facets = signal<readonly BookFacet[]>([]);
-  readonly favoriteResolver = (book: import('../../../../shared/models/book.model').BookSummary): boolean => this.favorites.isFavorite(book);
+  readonly favoriteResolver = (book: import('../../../../shared/models/book.model').BookSummary): boolean => this.isReader && this.favorites.isFavorite(book);
+  toggleFavorite(book: import('../../../../shared/models/book.model').BookSummary): void {
+    if (this.actionAccess.ensureReader('favorite', book.id)) this.favorites.toggle(book);
+  }
   get isReader(): boolean { return this.auth.sessionSnapshot?.user.role === 'user'; }
   @ViewChild('resultsHeading') private resultsHeading?: ElementRef<HTMLElement>;
 

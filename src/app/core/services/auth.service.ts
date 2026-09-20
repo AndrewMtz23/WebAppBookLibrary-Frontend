@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { SessionScopeService } from '../auth/session-scope.service';
 import { BehaviorSubject, distinctUntilChanged, map, Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { isTokenExpired } from '../auth/jwt-token';
@@ -13,6 +14,7 @@ const LEGACY_STORAGE_KEYS = ['jwt_token', 'user', 'user_role', 'user_id', 'user_
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly scope = inject(SessionScopeService);
   private readonly sessionSubject = new BehaviorSubject<AuthSession | null>(this.restoreSession());
   readonly session$ = this.sessionSubject.asObservable();
   readonly currentUser = this.session$.pipe(
@@ -35,6 +37,7 @@ export class AuthService {
     localStorage.removeItem(SESSION_STORAGE_KEY);
     LEGACY_STORAGE_KEYS.forEach(key => localStorage.removeItem(key));
     this.sessionSubject.next(null);
+    this.scope.invalidate();
   }
 
   syncCurrentUser(user: AuthenticatedUser): void {
@@ -47,7 +50,11 @@ export class AuthService {
 
   get sessionSnapshot(): AuthSession | null { return this.sessionSubject.value; }
   get isAuthenticated(): boolean { return this.isLoggedIn(); }
-  getToken(): string | null { return this.sessionSnapshot?.token ?? null; }
+  getToken(): string | null {
+    const token = this.sessionSnapshot?.token ?? null;
+    if (token && isTokenExpired(token)) { this.logout(); return null; }
+    return token;
+  }
 
   isLoggedIn(): boolean {
     const token = this.getToken();
@@ -96,6 +103,7 @@ export class AuthService {
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(response));
     LEGACY_STORAGE_KEYS.forEach(key => localStorage.removeItem(key));
     this.sessionSubject.next(response);
+    this.scope.invalidate();
   }
 
   private restoreSession(): AuthSession | null {

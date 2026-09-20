@@ -33,7 +33,7 @@ describe('AccountMenuComponent', () => {
 
   it('shows a sign-in action for visitors', () => {
     const { fixture } = setup(null);
-    expect(fixture.nativeElement.querySelector('a[href="/auth/login"]')?.textContent).toContain('Ingresar');
+    expect(fixture.nativeElement.querySelector('a[href^="/auth/login"]')?.textContent).toContain('Iniciar sesi' + String.fromCharCode(243) + 'n');
     expect(fixture.nativeElement.querySelector('.account-menu__trigger')).toBeNull();
   });
 
@@ -47,6 +47,37 @@ describe('AccountMenuComponent', () => {
     expect(menu.textContent).toContain('lilithargueta@gmail.com');
     expect(menu.textContent).toContain('ADMIN');
     expect(menu.querySelector('a[href="/admin/dashboard"]')?.textContent).toContain('Panel administrativo');
+  });
+
+  it('keeps the logout overlay viewport-sized inside the reader navbar', () => {
+    const { fixture } = setup(adminSession);
+    const navbar = document.createElement('header');
+    navbar.className = 'reader-navbar';
+    // The navbar is desktop-only; keep it visible at Karma's default viewport.
+    navbar.style.display = 'block';
+    navbar.style.height = '72px';
+    document.body.appendChild(navbar);
+    navbar.appendChild(fixture.nativeElement);
+    try {
+      (fixture.nativeElement.querySelector('.account-menu__trigger') as HTMLButtonElement).click();
+      fixture.detectChanges();
+      (fixture.nativeElement.querySelector('.account-menu__logout') as HTMLButtonElement).click();
+      fixture.detectChanges();
+      const overlay = fixture.nativeElement.querySelector('.account-logout-overlay') as HTMLElement;
+      const dialog = fixture.nativeElement.querySelector('.account-logout-dialog') as HTMLElement;
+      overlay.style.animation = 'none';
+      dialog.style.animation = 'none';
+      const bounds = overlay.getBoundingClientRect();
+      expect(Math.abs(bounds.top)).toBeLessThan(1);
+      expect(Math.abs(bounds.height - window.innerHeight)).toBeLessThan(1);
+      const card = dialog.getBoundingClientRect();
+      expect(card.top).toBeGreaterThanOrEqual(0);
+      expect(card.bottom).toBeLessThanOrEqual(window.innerHeight);
+      expect(Math.abs(card.top + card.height / 2 - window.innerHeight / 2)).toBeLessThan(1);
+    } finally {
+      fixture.destroy();
+      navbar.remove();
+    }
   });
 
   it('confirms logout and shows its progress before clearing the session', fakeAsync(() => {

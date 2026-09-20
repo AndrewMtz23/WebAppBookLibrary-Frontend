@@ -1,6 +1,6 @@
 # Entrada pública y acciones con autenticación
 
-Estado: propuesta revisada contra el código; pendiente de revisión del documento antes del plan de implementación. Fecha: 20 de septiembre de 2026.
+Estado: aprobado e implementado localmente; evidencia final en docs/phase5-quality.md. Fecha: 20 de septiembre de 2026.
 
 ## Propósito y alcance acordado
 

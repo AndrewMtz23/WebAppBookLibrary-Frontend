@@ -17,6 +17,6 @@ export class StaffShellComponent {
   constructor(private readonly auth: AuthService, private readonly router: Router) {}
   logout(): void {
     this.auth.logout();
-    setTimeout(() => void this.router.navigate(['/auth/login']), 650);
+    setTimeout(() => void this.router.navigate(['/app/discover']), 650);
   }
 }

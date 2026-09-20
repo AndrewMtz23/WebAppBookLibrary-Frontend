@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 import { of, Subject } from 'rxjs';
 import { ApiError } from 'src/app/core/http/api-error';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -28,15 +29,16 @@ describe('LoginComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [LoginComponent],
-      imports: [FormsModule, MaterialModule, NoopAnimationsModule],
+      imports: [FormsModule, MaterialModule, NoopAnimationsModule, RouterTestingModule],
       providers: [
         { provide: AuthService, useValue: { login } },
-        { provide: Router, useValue: { navigate, navigateByUrl: navigate } },
-        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } },
         { provide: MatSnackBar, useValue: { open: jasmine.createSpy('open') } }
       ]
     }).compileComponents();
 
+    const router = TestBed.inject(Router);
+    spyOn(router, 'navigate').and.callFake((...args) => { navigate(...args); return Promise.resolve(true); });
+    spyOn(router, 'navigateByUrl').and.callFake((...args) => { navigate(...args); return Promise.resolve(true); });
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
   });

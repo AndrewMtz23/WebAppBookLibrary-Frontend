@@ -3,12 +3,23 @@
   z-index: var(--z-sticky);
   top: 0;
   min-height: var(--topbar-height);
-  background: color-mix(in srgb, var(--color-surface) 96%, transparent);
   border-bottom: 1px solid var(--color-border);
   box-shadow: 0 4px 18px rgb(13 27 42 / 7%);
-  backdrop-filter: blur(14px);
   transition: background var(--duration-base) var(--ease-out),
               border-color var(--duration-base) var(--ease-out);
+}
+
+// Keep the blur off the navbar itself: it would make fixed descendants
+// (including the account dialogs) use the navbar as their containing block.
+.reader-navbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--color-surface) 96%, transparent);
+  backdrop-filter: blur(14px);
+  transition: background var(--duration-base) var(--ease-out);
 }
 
 .reader-navbar__inner {
@@ -74,6 +85,10 @@
 }
 
 @media (max-width: 800px) { .reader-navbar { display: none; } }
+
+@media (max-width: 480px) {
+  .reader-navbar--mobile .brand__name { display: none; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .reader-navbar__navigation a,

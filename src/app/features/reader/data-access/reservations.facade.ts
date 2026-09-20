@@ -1,17 +1,24 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { Subject, finalize } from 'rxjs';
+import { Subject, finalize, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SessionScopeService } from '../../../core/auth/session-scope.service';
 import { ReaderService } from './reader.service';
 import { ApiError } from '../../../core/http/api-error';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationsFacade {
+  private readonly scope = inject(SessionScopeService);
   private readonly reader = inject(ReaderService);
   private readonly busy = signal<ReadonlySet<string>>(new Set());
   readonly message = signal<string | null>(null);
   readonly successfulBookId = signal<string | null>(null);
   private readonly confirmed = new Subject<string>();
   readonly confirmed$ = this.confirmed.asObservable();
+
+  constructor() {
+    this.scope.changed$.pipe(takeUntilDestroyed()).subscribe(() => { this.busy.set(new Set()); this.resetFeedback(); });
+  }
 
   resetFeedback(): void { this.message.set(null); this.successfulBookId.set(null); }
 
@@ -21,7 +28,8 @@ export class ReservationsFacade {
     if (this.isBusy(bookId)) return;
     this.setBusy(bookId, true);
     this.message.set(null);
-    this.reader.reserve(bookId).pipe(finalize(() => this.setBusy(bookId, false))).subscribe({
+    const version = this.scope.version;
+    this.reader.reserve(bookId).pipe(takeUntil(this.scope.changed$), finalize(() => { if (version === this.scope.version) this.setBusy(bookId, false); })).subscribe({
       next: () => {
         this.successfulBookId.set(bookId);
         this.message.set('Tu reserva quedó confirmada.');

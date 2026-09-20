@@ -24,10 +24,10 @@
     } @else if (facade.popularBooks().length) {
       <app-book-grid
         [books]="facade.popularBooks().slice(0, 8)"
-        [showFavorite]="isReader"
+        [showFavorite]="showReaderActions"
         [favoriteResolver]="favoriteResolver"
         [busyFavoriteIds]="favorites.busyIds()"
-        (favoriteRequested)="favorites.toggle($event)" />
+        (favoriteRequested)="toggleFavorite($event)" />
     }
     @if (facade.popular().error) {
       <p class="subtle-note">Mostramos novedades porque la popularidad no está disponible.</p>
@@ -52,7 +52,7 @@
           [books]="[current]"
           [favoriteResolver]="favoriteResolver"
           [busyFavoriteIds]="favorites.busyIds()"
-          (favoriteRequested)="favorites.toggle($event)" />
+          (favoriteRequested)="toggleFavorite($event)" />
       } @else if (facade.activeReading().error) {
         <app-error-state title="No pudimos cargar tu lectura actual" [message]="facade.activeReading().error!" (retryRequested)="facade.load()" />
       } @else {
@@ -72,10 +72,10 @@
       </div>
       <app-book-grid
         [books]="digitalBooks.slice(0, 8)"
-        [showFavorite]="isReader"
+        [showFavorite]="showReaderActions"
         [favoriteResolver]="favoriteResolver"
         [busyFavoriteIds]="favorites.busyIds()"
-        (favoriteRequested)="favorites.toggle($event)" />
+        (favoriteRequested)="toggleFavorite($event)" />
     </section>
   }
 
@@ -126,10 +126,10 @@
     @if (facade.newest().data.length) {
       <app-book-grid
         [books]="facade.newest().data.slice(0, 8)"
-        [showFavorite]="isReader"
+        [showFavorite]="showReaderActions"
         [favoriteResolver]="favoriteResolver"
         [busyFavoriteIds]="favorites.busyIds()"
-        (favoriteRequested)="favorites.toggle($event)" />
+        (favoriteRequested)="toggleFavorite($event)" />
     }
   </section>
 
@@ -144,10 +144,10 @@
       </div>
       <app-book-grid
         [books]="physicalBooks.slice(0, 8)"
-        [showFavorite]="isReader"
+        [showFavorite]="showReaderActions"
         [favoriteResolver]="favoriteResolver"
         [busyFavoriteIds]="favorites.busyIds()"
-        (favoriteRequested)="favorites.toggle($event)" />
+        (favoriteRequested)="toggleFavorite($event)" />
     </section>
   }
 

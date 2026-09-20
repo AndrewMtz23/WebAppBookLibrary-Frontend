@@ -1,5 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, map, of, switchMap } from 'rxjs';
+import { Observable, map, of, switchMap, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SessionScopeService } from '../../../core/auth/session-scope.service';
 import { BookSummary } from '../../../shared/models/book.model';
 import { CatalogService } from '../../catalog/data-access/catalog.service';
 import { DEFAULT_CATALOG_QUERY } from '../../catalog/models/catalog-query';
@@ -11,6 +13,7 @@ export interface ResourceState<T> { data: T; loading: boolean; error: string | n
 
 @Injectable()
 export class DiscoverFacade {
+  private readonly scope = inject(SessionScopeService);
   private readonly catalog = inject(CatalogService);
   private readonly reader = inject(ReaderService);
   private readonly auth = inject(AuthService);
@@ -45,7 +48,14 @@ export class DiscoverFacade {
     return this.allBooks().filter(b => b.genres.some(g => g.toLowerCase().includes('clásico')));
   });
 
-  constructor() { this.load(); }
+  constructor() {
+    this.scope.changed$.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.newest.set(state([])); this.popular.set(state([])); this.facets.set(state([]));
+      this.activity.set(state(null)); this.activeReading.set(state(null));
+      this.load();
+    });
+    this.load();
+  }
 
   load(): void {
     this.request(this.catalog.search({ ...DEFAULT_CATALOG_QUERY, pageSize: 24 }), this.newest, page => page.items, 'No pudimos cargar las novedades.');
@@ -65,7 +75,7 @@ export class DiscoverFacade {
   }
 
   private request<T, R>(source: Observable<T>, target: { set(value: ResourceState<R>): void }, select: (value: T) => R, message: string): void {
-    source.subscribe({
+    source.pipe(takeUntil(this.scope.changed$)).subscribe({
       next: value => target.set({ data: select(value), loading: false, error: null }),
       error: () => target.set({ data: (target === this.activity || target === this.activeReading) ? null as R : [] as R, loading: false, error: message })
     });

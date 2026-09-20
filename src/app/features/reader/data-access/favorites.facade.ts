@@ -1,5 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, catchError, finalize, from, map, mergeMap, of, toArray } from 'rxjs';
+import { Observable, catchError, finalize, from, map, mergeMap, of, toArray, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SessionScopeService } from '../../../core/auth/session-scope.service';
 import { BookDetail, BookSummary } from '../../../shared/models/book.model';
 import { CatalogService } from '../../catalog/data-access/catalog.service';
 import { Favorite } from '../models/reader.models';
@@ -9,6 +11,7 @@ export interface FavoriteBook { favoriteId: string; createdAt: string; book: Boo
 
 @Injectable({ providedIn: 'root' })
 export class FavoritesFacade {
+  private readonly scope = inject(SessionScopeService);
   private readonly reader = inject(ReaderService);
   private readonly overrides = signal<Readonly<Record<string, boolean>>>({});
   private readonly busy = signal<ReadonlySet<string>>(new Set<string>());
@@ -21,6 +24,14 @@ export class FavoritesFacade {
   readonly page = signal(1);
   readonly totalPages = signal(0);
   readonly totalItems = signal(0);
+
+  constructor() {
+    this.scope.changed$.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.overrides.set({}); this.busy.set(new Set()); this.list.set([]);
+      this.error.set(null); this.loading.set(false); this.page.set(1);
+      this.totalPages.set(0); this.totalItems.set(0);
+    });
+  }
 
   isFavorite(book: BookSummary): boolean {
     return this.overrides()[book.id] ?? book.isFavorite;
@@ -40,7 +51,8 @@ export class FavoritesFacade {
     const request: Observable<unknown> = next
       ? this.reader.addFavorite(book.id)
       : this.reader.removeFavorite(book.id);
-    request.pipe(finalize(() => this.setBusy(book.id, false))).subscribe({
+    const version = this.scope.version;
+    request.pipe(takeUntil(this.scope.changed$), finalize(() => { if (version === this.scope.version) this.setBusy(book.id, false); })).subscribe({
       error: () => {
         this.setOverride(book.id, previous);
         this.error.set('No pudimos actualizar tus favoritos. Inténtalo de nuevo.');
@@ -51,7 +63,7 @@ export class FavoritesFacade {
   load(catalog: CatalogService, page = 1): void {
     this.loading.set(true);
     this.error.set(null);
-    this.reader.getFavorites(page, 20).subscribe({
+    this.reader.getFavorites(page, 20).pipe(takeUntil(this.scope.changed$)).subscribe({
       next: result => {
         this.page.set(result.page);
         this.totalPages.set(result.totalPages);
@@ -72,7 +84,8 @@ export class FavoritesFacade {
     }
     this.setOverride(book.id, false);
     this.setBusy(book.id, true);
-    this.reader.removeFavorite(book.id).pipe(finalize(() => this.setBusy(book.id, false))).subscribe({
+    const version = this.scope.version;
+    this.reader.removeFavorite(book.id).pipe(takeUntil(this.scope.changed$), finalize(() => { if (version === this.scope.version) this.setBusy(book.id, false); })).subscribe({
       error: () => {
         if (removed) {
           this.list.update(items => {
@@ -95,7 +108,7 @@ export class FavoritesFacade {
         map(book => ({ index, item: book.isActive ? { favoriteId: favorite.id, createdAt: favorite.createdAt, book } : null })),
         catchError(() => of({ index, item: null }))
       ), 4),
-      toArray()
+      toArray(), takeUntil(this.scope.changed$)
     ).subscribe(rows => {
       this.list.set(rows.sort((a, b) => a.index - b.index).flatMap(row => row.item ? [row.item] : []));
       this.loading.set(false);

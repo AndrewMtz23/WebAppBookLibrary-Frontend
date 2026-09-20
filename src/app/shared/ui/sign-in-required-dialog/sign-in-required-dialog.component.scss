@@ -1,0 +1,12 @@
+:host { display: block; color: var(--color-ink); background: var(--color-surface-raised); }
+.prompt { padding: clamp(1.25rem, 4vw, 2rem); text-align: center; }
+.prompt__icon { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; margin: 0 auto 1rem; border-radius: 50%; color: var(--color-primary); background: var(--color-primary-soft); }
+h2 { margin: 0; font: 750 clamp(1.25rem, 4vw, 1.6rem)/1.3 var(--font-body); text-wrap: balance; }
+p { margin: .8rem 0 1.5rem; color: var(--color-text-muted); line-height: 1.6; }
+.prompt__actions { display: grid; gap: .65rem; }
+a, button { display: flex; justify-content: center; align-items: center; min-height: 44px; padding: .65rem 1rem; border-radius: var(--radius-md); font: inherit; font-weight: 650; text-decoration: none; cursor: pointer; }
+a { color: var(--color-ink); border: 1px solid var(--color-border-strong); }
+a.primary { color: var(--color-on-primary); background: var(--color-primary); border-color: var(--color-primary); }
+a:hover { box-shadow: inset 0 0 0 1px currentColor; }
+.explore { width: 100%; margin-top: .75rem; border: 0; background: transparent; color: var(--color-text-muted); }
+.explore:hover { background: var(--color-primary-soft); color: var(--color-ink); }
