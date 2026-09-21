@@ -5,8 +5,7 @@ import { RoleGuard } from '../../core/guards/role.guard';
 describe('READER_ROUTES', () => {
   it('keeps the complete reader journey lazy and available to authenticated roles', () => {
     const root = READER_ROUTES[0];
-    expect(root.canActivate).toEqual([AuthGuard, RoleGuard]);
-    expect(root.data?.['roles']).toEqual(['user', 'librarian', 'admin']);
+    expect(root.canActivate).toBeUndefined();
     const expected = ['discover', 'catalog/:bookId', 'catalog', 'my-library', 'favorites', 'profile'];
     expect(root.children?.filter(route => expected.includes(route.path ?? '')).map(route => route.path)).toEqual(expected);
     root.children?.filter(route => expected.includes(route.path ?? '')).forEach(route => expect(route.loadComponent).toBeDefined());
@@ -14,7 +13,7 @@ describe('READER_ROUTES', () => {
 
   it('shares profile with all authenticated roles', () => {
     const profile = READER_ROUTES[0].children?.find(route => route.path === 'profile');
-    expect(profile?.canActivate).toEqual([RoleGuard]);
+    expect(profile?.canActivate).toEqual([AuthGuard, RoleGuard]);
     expect(profile?.data?.['roles']).toEqual(['user', 'librarian', 'admin']);
   });
 
@@ -23,7 +22,7 @@ describe('READER_ROUTES', () => {
 
     expect(personal.length).toBe(2);
     personal.forEach(route => {
-      expect(route.canActivate).toEqual([RoleGuard]);
+      expect(route.canActivate).toEqual([AuthGuard, RoleGuard]);
       expect(route.data?.['roles']).toEqual(['user']);
     });
   });

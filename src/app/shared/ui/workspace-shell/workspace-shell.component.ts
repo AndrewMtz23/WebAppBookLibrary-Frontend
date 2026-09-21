@@ -20,6 +20,7 @@ export class WorkspaceShellComponent {
   @Input() navigationGroups: readonly NavigationGroup[] = [];
   @Input({ required: true }) username = '';
   @Input() email = '';
+  @Input() guest = false;
   @Input() avatarUrl: string | null = null;
   @Input({ required: true }) contextLabel = '';
   @Input() variant: 'reader' | 'staff' = 'staff';

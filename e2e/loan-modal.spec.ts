@@ -25,7 +25,7 @@ test('préstamos: identidades separadas, imágenes, modal centrada y foco', asyn
   await page.getByRole('button', { name: 'Iniciar sesión', exact: false }).click();
   await expect(page).not.toHaveURL(/\/auth\//);
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/admin/loans');
+  await page.goto(`/admin/loans?bookId=${fixture.books[0].id}&userId=${auth.user.id}&status=active`);
   await expect(page.getByRole('columnheader', { name: 'Libro', exact: true })).toBeVisible();
   await expect(page.getByRole('columnheader', { name: 'Usuario', exact: true })).toBeVisible();
   await expect(page.locator('tbody .loan-cover img').first()).toBeVisible();

@@ -26,7 +26,7 @@
                 "output": "/assets/"
               },
               {
-                "glob": "LibraryLogo.png",
+                "glob": "{LibraryLogo,hatman,alice,rabbit}.png",
                 "input": "public",
                 "output": "/"
               }

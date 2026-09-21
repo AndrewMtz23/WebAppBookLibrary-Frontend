@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ApiError } from 'src/app/core/http/api-error';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoginRequest } from 'src/app/shared/models/auth-request.model';
-import { returnRouteForRole } from 'src/app/core/auth/return-route';
+import { returnRouteForRole, safeAuthReturnUrl } from 'src/app/core/auth/return-route';
 
 @Component({
     selector: 'app-login',
@@ -13,6 +13,7 @@ import { returnRouteForRole } from 'src/app/core/auth/return-route';
     standalone: false
 })
 export class LoginComponent {
+  get authQuery() { return { returnUrl: safeAuthReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl')) }; }
   username = '';
   password = '';
   errorMessage = '';
@@ -62,6 +63,6 @@ export class LoginComponent {
     });
   }
 
-  navigateToRegister(): void { void this.router.navigate(['/auth/register']); }
+  navigateToRegister(): void { void this.router.navigate(['/auth/register'], { queryParams: { returnUrl: safeAuthReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl')) } }); }
   navigateToBooks(): void { void this.router.navigate(['/catalog']); }
 }

@@ -7,6 +7,7 @@ import { PagedResult } from '../../../shared/models/paged-result.model';
 import { CatalogQuery, DEFAULT_CATALOG_QUERY } from '../models/catalog-query';
 import { parseCatalogQuery, serializeCatalogQuery } from '../models/catalog-query-codec';
 import { CatalogService } from './catalog.service';
+import { SessionScopeService } from '../../../core/auth/session-scope.service';
 
 interface CatalogState {
   page: PagedResult<BookSummary> | null;
@@ -17,6 +18,8 @@ interface CatalogState {
 
 @Injectable()
 export class CatalogFacade {
+  private readonly scope = inject(SessionScopeService);
+  private identityVersion = this.scope.version;
   private readonly catalog = inject(CatalogService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -34,9 +37,13 @@ export class CatalogFacade {
   readonly error = computed(() => this.state().error);
 
   constructor() {
-    combineLatest([this.route.queryParamMap, this.retryRequest.pipe(startWith(undefined))]).pipe(
+    combineLatest([this.route.queryParamMap, this.retryRequest.pipe(startWith(undefined)), this.scope.changed$.pipe(startWith(undefined))]).pipe(
       map(([params]) => parseCatalogQuery(params)),
       tap(query => {
+        if (this.identityVersion !== this.scope.version) {
+          this.identityVersion = this.scope.version;
+          this.state.set({ page: null, initialLoading: true, refreshing: false, error: null });
+        }
         this.queryState.set(query);
         const hasPage = this.state().page !== null;
         this.state.update(state => ({ ...state, initialLoading: !hasPage, refreshing: hasPage, error: null }));

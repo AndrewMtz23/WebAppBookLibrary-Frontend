@@ -1,3 +1,4 @@
+import { ReaderActionAccessService } from '../../../../core/auth/reader-action-access.service';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -17,6 +18,8 @@ import { ReaderAnalyticsService } from '../../../../core/analytics/reader-analyt
 import { ReaderService } from '../../../reader/data-access/reader.service';
 import { PublicationDatePipe } from './publication-date.pipe';
 import { AuthService } from '../../../../core/services/auth.service';
+import { SessionScopeService } from '../../../../core/auth/session-scope.service';
+import { takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-book-detail-page', standalone: true,
@@ -24,6 +27,8 @@ import { AuthService } from '../../../../core/services/auth.service';
   templateUrl: './book-detail-page.component.html', styleUrl: './book-detail-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BookDetailPageComponent {
+  private readonly scope = inject(SessionScopeService);
+  private identityVersion = this.scope.version;
   private readonly route = inject(ActivatedRoute);
   private readonly catalog = inject(CatalogService);
   private readonly destroyRef = inject(DestroyRef);
@@ -32,6 +37,8 @@ export class BookDetailPageComponent {
   private readonly analytics = inject(ReaderAnalyticsService);
   private readonly reader = inject(ReaderService);
   private readonly auth = inject(AuthService);
+  private readonly actionAccess = inject(ReaderActionAccessService);
+  get showReaderActions(): boolean { return !this.auth.sessionSnapshot || this.isReader; }
   private readonly retryRequest = new Subject<void>();
   private reservationStateSubscription?: Subscription;
   readonly book = signal<BookDetail | null>(null);
@@ -42,7 +49,7 @@ export class BookDetailPageComponent {
   readonly activePhysical = signal(false);
   readonly imageFailed = signal(false);
   readonly digitalMessage = signal<string | null>(null);
-  readonly favoriteResolver = (book: BookSummary): boolean => this.favorites.isFavorite(book);
+  readonly favoriteResolver = (book: BookSummary): boolean => this.isReader && this.favorites.isFavorite(book);
   get isReader(): boolean { return this.auth.sessionSnapshot?.user.role === 'user'; }
 
   constructor() {
@@ -51,9 +58,13 @@ export class BookDetailPageComponent {
     });
     combineLatest([
       this.route.paramMap.pipe(map(params => params.get('bookId') ?? ''), distinctUntilChanged()),
-      this.retryRequest.pipe(startWith(undefined))
+      this.retryRequest.pipe(startWith(undefined)), this.scope.changed$.pipe(startWith(undefined))
     ]).pipe(
       tap(([id]) => {
+        if (this.identityVersion !== this.scope.version) {
+          this.identityVersion = this.scope.version;
+          this.book.set(null); this.activeDigital.set(false); this.activePhysical.set(false);
+        }
         this.reservationStateSubscription?.unsubscribe();
         if (this.book()?.id !== id) {
           this.reservations.resetFeedback();
@@ -79,11 +90,12 @@ export class BookDetailPageComponent {
   }
 
   retry(): void { this.retryRequest.next(); }
-  reserve(bookId: string): void { this.analytics.trackAction('reservation'); this.reservations.reserve(bookId); }
-  toggleFavorite(book: BookSummary): void { this.analytics.trackAction('favorite'); this.favorites.toggle(book); }
+  reserve(bookId: string): void { if (!this.actionAccess.ensureReader('reserve', bookId)) return; this.analytics.trackAction('reservation'); this.reservations.reserve(bookId); }
+  toggleFavorite(book: BookSummary): void { if (!this.actionAccess.ensureReader('favorite', book.id)) return; this.analytics.trackAction('favorite'); this.favorites.toggle(book); }
   openDigital(bookId: string): void {
     this.analytics.trackAction('digital_open');
-    this.reader.getDigitalAccess(bookId).subscribe({
+    if (!this.actionAccess.ensureReader('reserve', bookId)) return;
+    this.reader.getDigitalAccess(bookId).pipe(takeUntil(this.scope.changed$), takeUntilDestroyed(this.destroyRef)).subscribe({
       next: access => {
         try {
           const url = new URL(access.resourceUrl);
@@ -96,13 +108,13 @@ export class BookDetailPageComponent {
   }
 
   private loadRelated(book: BookDetail): void {
-    this.catalog.search({ ...DEFAULT_CATALOG_QUERY, genre: book.genres[0], pageSize: 5 }).pipe(takeUntilDestroyed(this.destroyRef))
+    this.catalog.search({ ...DEFAULT_CATALOG_QUERY, genre: book.genres[0], pageSize: 5 }).pipe(takeUntil(this.scope.changed$), takeUntilDestroyed(this.destroyRef))
       .subscribe({ next: page => this.related.set(page.items.filter(item => item.id !== book.id).slice(0, 4)), error: () => this.related.set([]) });
   }
 
   private loadReservationState(book: BookDetail): void {
     const bookId = book.id;
-    this.reservationStateSubscription = this.reader.getLoans({ status: 'active', mediaType: book.mediaType, bookId, page: 1, pageSize: 1 }).pipe(takeUntilDestroyed(this.destroyRef))
+    this.reservationStateSubscription = this.reader.getLoans({ status: 'active', mediaType: book.mediaType, bookId, page: 1, pageSize: 1 }).pipe(takeUntil(this.scope.changed$), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: page => {
           if (this.book()?.id !== bookId) return;

@@ -54,3 +54,18 @@ Reports are in `playwright-report/`, screenshots/traces in `test-results/`; both
 ## Still open
 
 The phase-5 release gate is not closed. Complete the remaining physical-inventory and librarian workflows, role/state/audit and dashboard overdue journeys; broader empty/error/offline states; manual keyboard, actual browser zoom and assistive-technology checks; performance baseline beyond bundle size; and the staging/backup/rollout/rollback gates recorded in the backend runbook. Production accessibility or release readiness must not be inferred solely from these seven tests.
+
+
+## 2026-09-20 - Public discovery and authentication prompts
+
+Implemented locally: public `/`, `/app`, Discover, catalog and book detail; guest login/register controls; shared authentication dialog for physical/digital reservation and saving; safe return through registration/login without automatic mutations. Private routes and role restrictions remain enforced by guards and API policies. Session changes cancel pending personal requests and clear favorites/reservation feedback. Public logout/expiration retains browsing; private expiration goes to login.
+
+Final validation: 230 frontend unit tests, 2 reduced-motion browser tests, production build and the full browser suite (32 passed in 4.1 minutes, including six new public-discovery journeys) pass. Final suite used a fresh isolated QA fixture. The backend reports 252 passing tests with zero skipped against isolated loopback MongoDB.
+
+The six new journeys cover anonymous requests without private API calls; physical/digital prompts and keyboard focus; return after login/registration with no implicit action; rejected credentials and unsafe destinations; stock consumed during login; logout/account switching without leaked favorites; expiry on mounted private pages and continued public browsing. Prompt accessibility and geometry are checked at widths 360, 768, 1366 and 1920 in light/dark (height 800 at 360; 900 otherwise). Screenshots were visually inspected, including scrolled mobile content; the narrow guest navbar now shows the logo without overlapping account controls. This does not substitute for actual browser zoom or a human screen-reader assessment.
+
+Independent review found local-token-expiry handling could leave a mounted private page open. Two failing unit tests reproduced expiry before a request and in flight; the fix captures session identity and avoids mutating authentication while comparing response tokens. Old-token 401s cannot clear a newer account. A delayed reservation response regression also verifies the previous request cannot clear a newer request's busy state.
+
+Test harness adjustments: loan-modal selects its own active user/book reservation rather than an unrelated first row; expiry tests advance the browser clock without freezing RxJS debounce time; generated books meet existing description validation. Backend date-dependent future-loan fixture corrected separately. Earlier authorized logout modal fixes are retained in the shared account-menu files.
+
+No new push, PR, deployment or Atlas mutation was performed. Local QA uses fictitious users and an isolated database. Outstanding external phase-5 gates remain documented in the global advances and backend release runbook.

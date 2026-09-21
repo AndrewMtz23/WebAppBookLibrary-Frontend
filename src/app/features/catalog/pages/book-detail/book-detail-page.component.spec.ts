@@ -34,7 +34,7 @@ describe('BookDetailPageComponent', () => {
       { provide: ActivatedRoute, useValue: { paramMap: params.asObservable() } },
       { provide: CatalogService, useValue: catalog },
       { provide: ReaderService, useValue: reader },
-      { provide: AuthService, useValue: { sessionSnapshot: { user: { role: 'user' } } } },
+      { provide: AuthService, useValue: { isLoggedIn: () => true, sessionSnapshot: { user: { role: 'user' } } } },
       { provide: ReservationsFacade, useValue: reservations },
       {
         provide: FavoritesFacade,
@@ -58,7 +58,7 @@ describe('BookDetailPageComponent', () => {
   });
 
   it('renders a read-only catalog preview for staff without requesting reader state', () => {
-    TestBed.overrideProvider(AuthService, { useValue: { sessionSnapshot: { user: { role: 'admin' } } } });
+    TestBed.overrideProvider(AuthService, { useValue: { isLoggedIn: () => true, sessionSnapshot: { user: { role: 'admin' } } } });
     const fixture = TestBed.createComponent(BookDetailPageComponent);
     fixture.detectChanges();
 

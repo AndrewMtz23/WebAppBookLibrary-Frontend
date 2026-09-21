@@ -1,0 +1,10 @@
+<div class="prompt">
+  <span class="prompt__icon" aria-hidden="true"><mat-icon>person_outline</mat-icon></span>
+  <h2 id="sign-in-required-title">Inicia sesión para continuar</h2>
+  <p id="sign-in-required-description">{{ data.action === 'favorite' ? 'Para guardar este libro en tus favoritos necesitas una cuenta.' : 'Para reservar este libro necesitas una cuenta.' }}</p>
+  <div class="prompt__actions">
+    <a class="primary" routerLink="/auth/login" [queryParams]="{ returnUrl: data.returnUrl }" [mat-dialog-close]="true">Iniciar sesión</a>
+    <a routerLink="/auth/register" [queryParams]="{ returnUrl: data.returnUrl }" [mat-dialog-close]="true">Crear cuenta</a>
+  </div>
+  <button class="explore" type="button" mat-dialog-close>Seguir explorando</button>
+</div>

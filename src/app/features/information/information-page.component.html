@@ -1,0 +1,65 @@
+<app-reader-navbar [showOnMobile]="true" />
+<main id="main-content" tabindex="-1">
+  <a class="back-link" routerLink="/app/discover"><mat-icon aria-hidden="true">arrow_back</mat-icon> Volver a descubrir</a>
+  <header class="information-heading">
+    <div>
+      <p class="eyebrow">{{ content.label }}</p>
+      <h1>{{ content.title }}</h1>
+      <p class="intro">{{ content.intro }}</p>
+    </div>
+    <div class="heading-art" aria-hidden="true"><span>BookLibrary</span><mat-icon>{{ content.icon }}</mat-icon><span>Historias que te acompañan.</span></div>
+  </header>
+
+  <div class="information-layout">
+    <nav class="information-nav" aria-label="Conoce BookLibrary">
+      <p class="eyebrow">Tu biblioteca, más cerca</p>
+      @for (link of links; track link.path) {
+        <a [routerLink]="link.path" routerLinkActive="is-active" ariaCurrentWhenActive="page"><mat-icon aria-hidden="true">{{ link.icon }}</mat-icon>{{ link.label }}</a>
+      }
+    </nav>
+    <div class="information-body">
+      @switch (page) {
+        @case ('about') {
+          <section class="prose"><p class="eyebrow">01 / La idea</p><h2>Menos búsquedas pendientes. Más libros por descubrir.</h2><p>BookLibrary es un espacio para consultar el catálogo de una biblioteca y organizar tu actividad como lector. Aquí conviven las historias que quieres leer, los ejemplares que reservas y los recursos digitales a los que puedes acceder.</p><p>Puedes empezar a explorar sin una cuenta. Cuando encuentres tu próxima lectura, inicia sesión para guardarla o reservarla.</p></section>
+          <section><p class="eyebrow">02 / Para quién</p><h2>Una biblioteca compartida, un espacio para cada persona.</h2><div class="feature-grid">
+            <article class="info-card"><mat-icon aria-hidden="true">person_outline</mat-icon><h3>Para lectores</h3><p>Descubre títulos, crea tu selección de favoritos y consulta tus reservas desde Mi biblioteca.</p></article>
+            <article class="info-card"><mat-icon aria-hidden="true">local_library</mat-icon><h3>Para el personal</h3><p>Un lugar para gestionar el catálogo y dar seguimiento a la circulación de libros, con herramientas según cada rol.</p></article>
+          </div></section>
+          <section class="prose"><p class="eyebrow">03 / A tu manera</p><h2>En papel o en pantalla.</h2><p>Revisa la disponibilidad de los libros físicos y conoce las obras digitales desde su ficha. El formato y las condiciones de acceso se muestran antes de reservar.</p><a class="text-link" routerLink="/loan-guide">Conocer los préstamos <mat-icon aria-hidden="true">arrow_forward</mat-icon></a></section>
+        }
+        @case ('help') {
+          <section><p class="eyebrow">Respuestas para empezar</p><h2>Preguntas frecuentes</h2><div class="questions">
+            @for (item of questions; track item.question) {
+              <details><summary>{{ item.question }}<mat-icon aria-hidden="true">add</mat-icon></summary><p>{{ item.answer }}</p></details>
+            }
+          </div></section>
+          <aside class="note"><mat-icon aria-hidden="true">chat_bubble_outline</mat-icon><div><h3>¿Tu duda sigue aquí?</h3><p>Consulta cómo preparar un reporte y a quién dirigirte.</p><a class="text-link" routerLink="/contact">Ir a contacto y soporte <mat-icon aria-hidden="true">arrow_forward</mat-icon></a></div></aside>
+        }
+        @case ('contact') {
+          <section class="prose"><p class="eyebrow">01 / A quién acudir</p><h2>Habla con el personal de tu biblioteca.</h2><p>Reporta los problemas al personal bibliotecario o a la administración responsable de tu cuenta, por los canales de atención de tu biblioteca o directamente en su mostrador.</p><p>Ellos pueden revisar una reserva, comprobar una devolución, atender dudas de tu cuenta y canalizar los fallos técnicos.</p></section>
+          <section><p class="eyebrow">02 / Antes de reportar</p><h2>Estos detalles ayudan a encontrar el problema.</h2><ol class="steps">
+            <li><h3>Indica dónde ocurrió</h3><p>Nombre del libro, sección de la plataforma y dirección de la página.</p></li>
+            <li><h3>Describe qué intentabas hacer</h3><p>Explica los pasos, el resultado que esperabas y lo que apareció. Incluye el mensaje de error y la fecha aproximada.</p></li>
+            <li><h3>Añade contexto</h3><p>Indica el dispositivo y navegador. Si adjuntas una captura por el canal de tu biblioteca, oculta los datos personales de otras personas.</p></li>
+          </ol></section>
+          <aside class="note"><mat-icon aria-hidden="true">lock_outline</mat-icon><div><h3>Tu contraseña se queda contigo.</h3><p>Para explicar un problema no necesitas compartir contraseñas, códigos de acceso ni información de tu sesión.</p></div></aside>
+          <a class="text-link" routerLink="/help">Consultar preguntas frecuentes <mat-icon aria-hidden="true">arrow_forward</mat-icon></a>
+        }
+        @case ('loan-guide') {
+          <section><p class="eyebrow">01 / Elige el formato</p><h2>La misma curiosidad. Dos formas de leer.</h2><div class="feature-grid">
+            <article class="info-card"><mat-icon aria-hidden="true">menu_book</mat-icon><h3>Libros físicos</h3><p class="card-highlight">14 días desde la reserva</p><p>La reserva depende de los ejemplares disponibles. Revisa el vencimiento en Mi biblioteca y coordina la recogida y entrega con el personal.</p></article>
+            <article class="info-card"><mat-icon aria-hidden="true">devices</mat-icon><h3>Libros digitales</h3><p class="card-highlight">Acceso con reserva activa</p><p>No se asigna una fecha de vencimiento al reservar. El recurso se abre en una pestaña externa y su disponibilidad depende también del sitio que lo ofrece.</p></article>
+          </div></section>
+          <section><p class="eyebrow">02 / Paso a paso</p><h2>Tu próxima lectura, en tres pasos.</h2><ol class="steps">
+            <li><h3>Explora la ficha</h3><p>Consulta el formato, la sinopsis y la disponibilidad. Puedes hacerlo sin iniciar sesión.</p></li>
+            <li><h3>Reserva con tu cuenta de lector</h3><p>Pulsa Reservar o Reservar acceso digital. No puedes mantener dos reservas activas del mismo libro. Guardarlo en favoritos es independiente de reservarlo.</p></li>
+            <li><h3>Consulta Mi biblioteca</h3><p>Revisa el estado de tu reserva, la fecha límite de los ejemplares físicos y las acciones disponibles. Desde allí puedes abrir el acceso digital mientras tu reserva esté activa.</p></li>
+          </ol></section>
+          <section class="prose"><p class="eyebrow">03 / Al terminar</p><h2>Devoluciones y cancelaciones.</h2><p>Consulta las acciones de tu reserva en Mi biblioteca. Si el libro es físico, entrega el ejemplar al personal y coordina el registro de la devolución; una acción en pantalla no reemplaza la entrega.</p><p>Si ya no necesitas la reserva, puedes cancelarla cuando esa acción esté disponible. Al devolver o cancelar una reserva digital, deja de estar activa y ya no permite abrir el recurso desde BookLibrary.</p><p>Para dudas sobre un vencimiento, una ampliación del plazo o un estado que no corresponde, consulta al personal. La fecha que aparece en tu préstamo es la referencia para tu reserva concreta.</p></section>
+        }
+      }
+      <section class="closing"><div><p class="eyebrow">Tu siguiente capítulo</p><h2>Encuentra algo que quieras leer.</h2></div><a routerLink="/app/catalog">Explorar catálogo <mat-icon aria-hidden="true">arrow_forward</mat-icon></a></section>
+    </div>
+  </div>
+</main>
+<app-site-footer />

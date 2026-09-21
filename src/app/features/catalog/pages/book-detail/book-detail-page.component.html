@@ -29,7 +29,7 @@
         <div class="availability" [class.availability--out]="item.mediaType === 'physical' && !item.availableCopies">
           <span></span>{{ item.mediaType === 'digital' ? 'Disponible con reserva digital' : (item.availableCopies ? item.availableCopies + (item.availableCopies === 1 ? ' ejemplar disponible' : ' ejemplares disponibles') : 'Sin ejemplares disponibles') }}
         </div>
-        @if (isReader) {
+        @if (showReaderActions) {
         <div class="actions">
           @if (item.mediaType === 'digital' && activeDigital()) {
             <button mat-flat-button type="button" (click)="openDigital(item.id)">Abrir recurso</button>
@@ -55,6 +55,6 @@
         }
       </div>
     </article>
-    <app-related-books [books]="related()" [showFavorite]="isReader" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (favoriteRequested)="toggleFavorite($event)" />
+    <app-related-books [books]="related()" [showFavorite]="showReaderActions" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (favoriteRequested)="toggleFavorite($event)" />
   }
 </div>

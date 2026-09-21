@@ -1,5 +1,6 @@
 import { A11yModule } from '@angular/cdk/a11y';
-import { ChangeDetectionStrategy, Component, HostListener, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, inject } from '@angular/core';
+import { isPublicBrowseRoute, safeAuthReturnUrl } from '../../../core/auth/return-route';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
@@ -19,6 +20,8 @@ import { AvatarComponent } from '../avatar/avatar.component';
 export class AccountMenuComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly changeDetector = inject(ChangeDetectorRef);
+  get authQuery() { return { returnUrl: safeAuthReturnUrl(this.router.url) ?? '/app/discover' }; }
 
   readonly session = toSignal(this.auth.session$, { initialValue: this.auth.sessionSnapshot });
   isOpen = false;
@@ -57,8 +60,11 @@ export class AccountMenuComponent {
     this.isLogoutDialogOpen = false;
     this.isLoggingOut = true;
     setTimeout(() => {
+      const destination = isPublicBrowseRoute(this.router.url) ? this.router.url : '/app/discover';
       this.auth.logout();
-      void this.router.navigate(['/auth/login']);
+      this.isLoggingOut = false;
+      this.changeDetector.markForCheck();
+      void this.router.navigateByUrl(destination);
     }, 650);
   }
 

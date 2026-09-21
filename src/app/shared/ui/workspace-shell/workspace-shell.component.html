@@ -4,7 +4,7 @@
   [class.workspace--reader]="variant === 'reader'"
   [class.workspace--sidebar-collapsed]="variant === 'staff' && isSidebarCollapsed">
   @if (variant === 'reader') {
-    <app-reader-navbar [navigation]="navigation" [blocked]="isLogoutDialogOpen || isLoggingOut" />
+    <app-reader-navbar [showOnMobile]="guest" [navigation]="navigation" [blocked]="isLogoutDialogOpen || isLoggingOut" />
   } @else {
     <aside
       class="workspace__sidebar"
@@ -104,6 +104,7 @@
 
   <nav
     class="workspace__mobile-nav"
+    [style.display]="guest ? 'none' : null"
     aria-label="Navegación móvil"
     [attr.aria-hidden]="isLogoutDialogOpen || isLoggingOut ? 'true' : null"
     [attr.inert]="isLogoutDialogOpen || isLoggingOut ? '' : null">

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { safeAuthReturnUrl } from '../../../core/auth/return-route';
 import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
@@ -18,7 +19,8 @@ export class RegisterComponent {
   hidePassword = true;
   hideConfirmPassword = true;
 
-  constructor(private readonly auth: AuthService, private readonly router: Router, private readonly snackBar: MatSnackBar) {}
+  constructor(private readonly auth: AuthService, private readonly router: Router, private readonly snackBar: MatSnackBar, private readonly route: ActivatedRoute) {}
+  get authQuery() { return { returnUrl: safeAuthReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl')) }; }
 
   togglePasswordVisibility(event: MouseEvent, field: 'password' | 'confirmPassword'): void {
     event.preventDefault();
@@ -41,7 +43,7 @@ export class RegisterComponent {
         this.isLoading = false;
         this.successMessage = 'Cuenta creada. Ya puedes iniciar sesión.';
         this.snackBar.open(this.successMessage, 'Cerrar', { duration: 3500 });
-        void this.router.navigate(['/auth/login']);
+        void this.router.navigate(['/auth/login'], { queryParams: this.authQuery });
       },
       error: error => {
         this.isLoading = false;
@@ -56,5 +58,5 @@ export class RegisterComponent {
     this.errorMessage = ''; this.successMessage = '';
   }
 
-  navigateToLogin(): void { void this.router.navigate(['/auth/login']); }
+  navigateToLogin(): void { void this.router.navigate(['/auth/login'], { queryParams: this.authQuery }); }
 }

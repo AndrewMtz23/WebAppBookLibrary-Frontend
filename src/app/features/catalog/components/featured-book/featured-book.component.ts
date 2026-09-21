@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { CatalogService } from '../../data-access/catalog.service';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { BookSummary } from '../../../../shared/models/book.model';
@@ -16,8 +18,19 @@ interface StackedCard {
   styleUrl: './featured-book.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FeaturedBookComponent implements OnInit, OnDestroy {
+export class FeaturedBookComponent implements OnChanges, OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly catalog = inject(CatalogService);
+  private detailRequest?: Subscription;
+  private descriptionId: string | null = null;
+  private readonly descriptions = new Map<string, string>();
+  description = '';
+  @Input() showFavorite = false;
+  @Input() favoriteResolver: (book: BookSummary) => boolean = book => book.isFavorite;
+  @Input() busyFavoriteIds: ReadonlySet<string> = new Set();
+  @Output() readonly favoriteRequested = new EventEmitter<BookSummary>();
+  focused = false;
+  autoPaused = false;
 
   @Input() set book(value: BookSummary | undefined) {
     this._singleBook = value;
@@ -61,17 +74,49 @@ export class FeaturedBookComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.autoPaused = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.loadDescription();
     this.startAutoAdvance();
+  }
+
+  ngOnChanges(): void {
+    if (this.currentIndex >= this.effectiveBooks.length) this.currentIndex = 0;
+    this.loadDescription();
+  }
+
+  private loadDescription(): void {
+    const id = this.currentBook?.id ?? null;
+    if (id === this.descriptionId) return;
+    this.descriptionId = id;
+    this.detailRequest?.unsubscribe();
+    this.description = id ? this.descriptions.get(id) ?? '' : '';
+    if (!id || this.descriptions.has(id)) return;
+    this.detailRequest = this.catalog.getById(id).subscribe({
+      next: book => {
+        this.descriptions.set(id, book.description);
+        if (this.currentBook?.id === id) {
+          this.description = book.description;
+          this.cdr.markForCheck();
+        }
+      },
+      error: () => { this.cdr.markForCheck(); }
+    });
+  }
+
+  onFocusOut(event: FocusEvent): void {
+    this.focused = !!event.relatedTarget && (event.currentTarget as HTMLElement).contains(event.relatedTarget as Node);
   }
 
   ngOnDestroy(): void {
     this.stopAutoAdvance();
+    this.detailRequest?.unsubscribe();
   }
 
   next(): void {
     const total = this.effectiveBooks.length;
     if (total <= 1) return;
     this.currentIndex = (this.currentIndex + 1) % total;
+    this.loadDescription();
     this.cdr.markForCheck();
   }
 
@@ -79,12 +124,14 @@ export class FeaturedBookComponent implements OnInit, OnDestroy {
     const total = this.effectiveBooks.length;
     if (total <= 1) return;
     this.currentIndex = (this.currentIndex - 1 + total) % total;
+    this.loadDescription();
     this.cdr.markForCheck();
   }
 
   goTo(index: number): void {
     if (index >= 0 && index < this.effectiveBooks.length) {
       this.currentIndex = index;
+      this.loadDescription();
       this.cdr.markForCheck();
     }
   }
@@ -105,7 +152,7 @@ export class FeaturedBookComponent implements OnInit, OnDestroy {
   private startAutoAdvance(): void {
     this.stopAutoAdvance();
     this.autoTimer = setInterval(() => {
-      if (!this.isPaused && this.effectiveBooks.length > 1) {
+      if (!this.isPaused && !this.focused && !this.autoPaused && !document.hidden && this.effectiveBooks.length > 1) {
         this.next();
       }
     }, 5500);
