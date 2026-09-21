@@ -1,6 +1,8 @@
-<article class="featured" (mouseenter)="pause()" (mouseleave)="resume()">
+<article class="featured" (mouseenter)="pause()" (mouseleave)="resume()" (focusin)="focused = true" (focusout)="onFocusOut($event)">
   @if (currentBook; as active) {
     <div class="featured__copy">
+      @for (story of [active]; track story.id) {
+      <div class="featured__story">
       <div class="featured__meta-row">
         <p class="featured__eyebrow">
           Lectura destacada
@@ -10,8 +12,9 @@
         </p>
       </div>
 
-      <h2>{{ active.title }}</h2>
-      <p class="featured__author">{{ active.authors.join(', ') }}</p>
+      <h2 [title]="active.title">{{ active.title }}</h2>
+      <p class="featured__author" [title]="active.authors.join(', ')">{{ active.authors.join(', ') }}</p>
+      <p class="featured__synopsis">{{ description || active.subtitle || '' }}</p>
 
       <div class="featured__badges">
         <span class="badge badge--genre">{{ active.genres[0] || 'Colección general' }}</span>
@@ -24,14 +27,26 @@
           </span>
         }
       </div>
+      </div>
+      }
 
       <div class="featured__actions">
         <a [routerLink]="['/app/catalog', active.id]" class="featured__cta">
           Conocer el libro <mat-icon>arrow_forward</mat-icon>
         </a>
+        @if (showFavorite) {
+          <button type="button" class="featured__save" [disabled]="busyFavoriteIds.has(active.id)"
+            [attr.aria-pressed]="favoriteResolver(active)" (click)="favoriteRequested.emit(active)">
+            <mat-icon aria-hidden="true">{{ favoriteResolver(active) ? 'favorite' : 'favorite_border' }}</mat-icon>
+            {{ favoriteResolver(active) ? 'Guardado' : 'Guardar' }}
+          </button>
+        }
 
         @if (effectiveBooks.length > 1) {
           <div class="featured__nav">
+            <button type="button" class="nav-btn" (click)="autoPaused = !autoPaused" [attr.aria-label]="autoPaused ? 'Reanudar destacados' : 'Pausar destacados'">
+              <mat-icon aria-hidden="true">{{ autoPaused ? 'play_arrow' : 'pause' }}</mat-icon>
+            </button>
             <button type="button" class="nav-btn" (click)="prev()" aria-label="Libro anterior">
               <mat-icon>chevron_left</mat-icon>
             </button>

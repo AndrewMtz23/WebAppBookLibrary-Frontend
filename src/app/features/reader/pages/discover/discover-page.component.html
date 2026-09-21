@@ -4,9 +4,9 @@
   @if (facade.newest().loading && facade.popular().loading) {
     <app-skeleton [lines]="7" />
   } @else if (heroBooks.length) {
-    <app-featured-book [books]="heroBooks" />
+    <app-featured-book [books]="heroBooks" [showFavorite]="showReaderActions" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (favoriteRequested)="toggleFavorite($event)" />
   } @else if (facade.newest().data[0]; as featured) {
-    <app-featured-book [book]="featured" />
+    <app-featured-book [book]="featured" [showFavorite]="showReaderActions" [favoriteResolver]="favoriteResolver" [busyFavoriteIds]="favorites.busyIds()" (favoriteRequested)="toggleFavorite($event)" />
   } @else {
     <app-error-state title="La colección está descansando" [message]="facade.newest().error || 'Vuelve a intentarlo en unos momentos.'" />
   }
@@ -152,9 +152,8 @@
   }
 
   <app-discover-app-banner
-    [isReader]="isReader"
-    [book]="facade.activeReading().data || facade.popularBooks()[0] || facade.newest().data[0] || null"
-    [hasActiveLoan]="!!facade.activeReading().data" />
+    [books]="bannerBooks()"
+    [activeBookId]="facade.activeReading().data?.id ?? null" />
 
   @if (isReader && facade.activity().data; as activity) {
     <aside class="activity">

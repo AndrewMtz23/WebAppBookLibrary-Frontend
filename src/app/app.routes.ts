@@ -7,6 +7,11 @@ export const routes: Routes = [
   { path: 'admin', loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES) },
   { path: 'privacy', data: { document: 'privacy' }, loadComponent: () => import('./features/legal/legal-document-page.component').then(m => m.LegalDocumentPageComponent) },
   { path: 'legal', data: { document: 'legal' }, loadComponent: () => import('./features/legal/legal-document-page.component').then(m => m.LegalDocumentPageComponent) },
+  ...(['about', 'help', 'contact', 'loan-guide'] as const).map(path => ({
+    path, data: { page: path },
+    title: ({ about: 'Sobre BookLibrary', help: 'Ayuda', contact: 'Contacto y soporte', 'loan-guide': 'Guía de préstamos' })[path] + ' | BookLibrary',
+    loadComponent: () => import('./features/information/information-page.component').then(m => m.InformationPageComponent)
+  })),
   { path: 'access-denied', loadComponent: () => import('./features/system/access-denied/access-denied.component').then(m => m.AccessDeniedComponent) },
 
   { path: 'catalog', pathMatch: 'full', redirectTo: 'app/catalog' },

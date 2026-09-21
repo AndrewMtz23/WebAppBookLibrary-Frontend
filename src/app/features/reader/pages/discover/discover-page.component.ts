@@ -1,5 +1,5 @@
 import { ReaderActionAccessService } from '../../../../core/auth/reader-action-access.service';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { BookGridComponent } from '../../../catalog/components/book-grid/book-grid.component';
@@ -30,6 +30,10 @@ import { DiscoverAppBannerComponent } from '../../components/discover-app-banner
 })
 export class DiscoverPageComponent {
   readonly facade = inject(DiscoverFacade);
+  readonly bannerBooks = computed(() => {
+    const active = this.facade.activeReading().data;
+    return [...(active ? [active] : []), ...this.facade.popularBooks(), ...this.facade.newest().data];
+  });
   readonly favorites = inject(FavoritesFacade);
   private readonly auth = inject(AuthService);
   private readonly actionAccess = inject(ReaderActionAccessService);

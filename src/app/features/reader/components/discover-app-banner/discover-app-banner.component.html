@@ -1,4 +1,9 @@
 <section class="app-banner" aria-labelledby="app-banner-title">
+  <div class="app-banner__scenery" aria-hidden="true">
+    <span class="app-banner__shape app-banner__shape--top"></span>
+    <span class="app-banner__shape app-banner__shape--left"></span>
+    <span class="app-banner__shape app-banner__shape--right"></span>
+  </div>
   <div class="app-banner__content">
     <span class="app-banner__tag">Tu Biblioteca Personal</span>
     <h2 id="app-banner-title" class="app-banner__title">
@@ -13,15 +18,12 @@
       <a routerLink="/app/catalog" class="app-banner__btn app-banner__btn--primary">
         Explorar catálogo
       </a>
-      @if (isReader) {
-        <a routerLink="/app/my-library" class="app-banner__btn app-banner__btn--secondary">
-          Mi biblioteca
-        </a>
-      }
     </div>
   </div>
 
-  <div class="app-banner__mockup-wrapper">
+  <div class="app-banner__mockup-wrapper" role="region" aria-roledescription="carrusel" aria-label="Libros sugeridos"
+    (mouseenter)="hovered = true" (mouseleave)="hovered = false"
+    (focusin)="focused = true" (focusout)="onFocusOut($event)">
     <div class="phone-mockup">
       <div class="phone-mockup__speaker"></div>
       <div class="phone-mockup__camera"></div>
@@ -29,7 +31,7 @@
       <div class="phone-screen">
         <div class="phone-screen__header">
           <div class="phone-screen__brand">
-            <span class="phone-screen__brand-icon">📚</span>
+            <img class="phone-screen__brand-icon" src="assets/LibraryLogo.png" alt="" width="24" height="24" />
             <span class="phone-screen__brand-text">BookLibrary</span>
           </div>
           @if (hasActiveLoan) {
@@ -56,6 +58,14 @@
               <div class="phone-screen__cover-overlay">
                 <span class="phone-screen__cover-pill">{{ book.mediaType === 'digital' ? 'Digital' : 'Físico' }}</span>
               </div>
+              @if (hasMultipleBooks) {
+                <div class="carousel-controls">
+                  <button type="button" (click)="paused = !paused" [attr.aria-label]="paused ? 'Reanudar carrusel' : 'Pausar carrusel'">
+                    <mat-icon aria-hidden="true">{{ paused ? 'play_arrow' : 'pause' }}</mat-icon>
+                  </button>
+                  <button type="button" (click)="next()" aria-label="Siguiente libro"><mat-icon aria-hidden="true">chevron_right</mat-icon></button>
+                </div>
+              }
             </div>
 
             <div class="phone-screen__details">
@@ -73,7 +83,7 @@
               </div>
 
               <a [routerLink]="['/app/catalog', book.id]" class="phone-screen__action-btn">
-                {{ hasActiveLoan ? 'Continuar leyendo →' : 'Ver y leer →' }}
+                {{ hasActiveLoan ? 'Continuar leyendo →' : 'Ver catálogo →' }}
               </a>
             </div>
           </div>
@@ -89,4 +99,7 @@
       </div>
     </div>
   </div>
+  <img class="app-banner__character app-banner__character--hatter" src="hatman.png" alt="" aria-hidden="true" loading="lazy" draggable="false" />
+  <img class="app-banner__character app-banner__character--rabbit" src="rabbit.png" alt="" aria-hidden="true" loading="lazy" draggable="false" />
+  <img class="app-banner__character app-banner__character--alice" src="alice.png" alt="" aria-hidden="true" loading="lazy" draggable="false" />
 </section>

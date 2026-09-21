@@ -5,6 +5,8 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { FavoritesFacade } from '../../data-access/favorites.facade';
 import { DiscoverFacade } from '../../data-access/discover.facade';
 import { DiscoverPageComponent } from './discover-page.component';
+import { CatalogService } from '../../../catalog/data-access/catalog.service';
+import { of } from 'rxjs';
 
 describe('DiscoverPageComponent', () => {
   const state = <T>(data: T) => ({ data, loading: false, error: null });
@@ -13,6 +15,7 @@ describe('DiscoverPageComponent', () => {
     const book = { id: '1', title: 'La casa', subtitle: null, authors: ['Autora'], coverUrl: null, mediaType: 'physical' as const, genres: ['Historia'], availableCopies: 1, totalCopies: 1, reservationCount: 3, isFavorite: false, isActive: true };
     TestBed.configureTestingModule({ imports: [DiscoverPageComponent, NoopAnimationsModule], providers: [
       provideRouter([]),
+      { provide: CatalogService, useValue: { getById: () => of({ ...book, description: 'Historia de una casa.' }) } },
       { provide: AuthService, useValue: { sessionSnapshot: { user: { username: 'Elena' } } } },
       { provide: DiscoverFacade, useValue: { load: jasmine.createSpy('load'), newest: () => state([book]), popular: () => state([book]), popularBooks: () => [book], facets: () => state([{ value: 'Historia', count: 4 }]), activity: () => state(null), activeReading: () => state(null) } },
       { provide: FavoritesFacade, useValue: { busyIds: () => new Set(), isFavorite: () => false, toggle: jasmine.createSpy('toggle') } }

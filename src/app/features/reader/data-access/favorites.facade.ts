@@ -6,6 +6,7 @@ import { BookDetail, BookSummary } from '../../../shared/models/book.model';
 import { CatalogService } from '../../catalog/data-access/catalog.service';
 import { Favorite } from '../models/reader.models';
 import { ReaderService } from './reader.service';
+import { OperationNotificationService } from '../../../core/services/operation-notification.service';
 
 export interface FavoriteBook { favoriteId: string; createdAt: string; book: BookDetail; }
 
@@ -13,6 +14,7 @@ export interface FavoriteBook { favoriteId: string; createdAt: string; book: Boo
 export class FavoritesFacade {
   private readonly scope = inject(SessionScopeService);
   private readonly reader = inject(ReaderService);
+  private readonly notifications = inject(OperationNotificationService);
   private readonly overrides = signal<Readonly<Record<string, boolean>>>({});
   private readonly busy = signal<ReadonlySet<string>>(new Set<string>());
   private readonly list = signal<readonly FavoriteBook[]>([]);
@@ -53,9 +55,11 @@ export class FavoritesFacade {
       : this.reader.removeFavorite(book.id);
     const version = this.scope.version;
     request.pipe(takeUntil(this.scope.changed$), finalize(() => { if (version === this.scope.version) this.setBusy(book.id, false); })).subscribe({
+      next: () => this.notifications.success(next ? 'Libro guardado' : 'Libro quitado de favoritos'),
       error: () => {
         this.setOverride(book.id, previous);
         this.error.set('No pudimos actualizar tus favoritos. Inténtalo de nuevo.');
+        this.notifications.error(this.error()!);
       }
     });
   }
@@ -86,6 +90,7 @@ export class FavoritesFacade {
     this.setBusy(book.id, true);
     const version = this.scope.version;
     this.reader.removeFavorite(book.id).pipe(takeUntil(this.scope.changed$), finalize(() => { if (version === this.scope.version) this.setBusy(book.id, false); })).subscribe({
+      next: () => this.notifications.success('Libro quitado de favoritos'),
       error: () => {
         if (removed) {
           this.list.update(items => {
@@ -97,6 +102,7 @@ export class FavoritesFacade {
         }
         this.setOverride(book.id, true);
         this.error.set('No pudimos quitar el favorito. El libro volvió a su posición.');
+        this.notifications.error(this.error()!);
       }
     });
   }

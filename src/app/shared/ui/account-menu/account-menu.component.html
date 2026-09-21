@@ -45,8 +45,8 @@
     }
   } @else {
     <div class="account-menu__guest">
-      <a class="account-menu__signin" routerLink="/auth/login" [queryParams]="authQuery">Iniciar sesión</a>
-      <a class="account-menu__signin account-menu__register" routerLink="/auth/register" [queryParams]="authQuery">Registrarse</a>
+      <a class="account-menu__signin" routerLink="/auth/login" [queryParams]="authQuery"><mat-icon aria-hidden="true">login</mat-icon><span>Iniciar sesión</span></a>
+      <a class="account-menu__signin account-menu__register" routerLink="/auth/register" [queryParams]="authQuery"><mat-icon aria-hidden="true">person_add</mat-icon><span>Registrarse</span></a>
     </div>
   }
 </div>
