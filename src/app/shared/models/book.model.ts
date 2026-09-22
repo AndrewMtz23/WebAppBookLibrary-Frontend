@@ -11,7 +11,11 @@ export type BookInput = Pick<Book, 'title' | 'author' | 'genre' | 'year'>;
 
 export type MediaType = 'physical' | 'digital';
 
+import { CategoryRef } from '../../features/categories/categories.api';
+
 export interface BookSummary {
+  categoryIds?: readonly string[];
+  categories?: readonly CategoryRef[];
   id: string;
   title: string;
   subtitle: string | null;

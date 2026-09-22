@@ -49,7 +49,7 @@ export class StaffBooksFacade {
   }
   private decode(params: ParamMap): StaffBookQuery {
     const q = { ...DEFAULT_STAFF_BOOK_QUERY };
-    for (const key of ['query', 'bookId', 'genre', 'language'] as const) q[key] = (params.get(key) ?? '').slice(0, key === 'query' ? 200 : 100);
+    for (const key of ['query', 'bookId', 'genre', 'categoryId', 'language'] as const) q[key] = (params.get(key) ?? '').slice(0, key === 'query' ? 200 : 100);
     for (const key of ['available', 'isActive', 'lowStock', 'missingResource'] as const) {
       const value = params.get(key); q[key] = value === 'true' || value === 'false' ? value : '';
     }
@@ -93,7 +93,7 @@ export class StaffBooksFacade {
     (id ? this.api.update(id, body) : this.api.create(body)).pipe(takeUntil(this.editorChanged$), takeUntilDestroyed(this.destroyRef), finalize(() => this.saving.set(false))).subscribe({
       next: () => { this.editorOpen.set(false); this.notice.set(id ? 'Libro actualizado.' : 'Libro creado.'); this.notifications.success(this.notice()); this.refresh(); },
       error: error => {
-        this.editorError.set(error.status === 409 ? 'No se guardó: el ISBN, el inventario o el estado actual entran en conflicto. Tu borrador se conserva.' : error.status === 400 ? 'Revisa los datos del libro. El servidor rechazó algunos valores; tu borrador se conserva.' : 'No pudimos guardar el libro. Tu borrador se conserva; puedes reintentar.');
+        this.editorError.set(error.status === 409 ? 'No se guardó: el ISBN, las categorías, el inventario o el estado actual entran en conflicto. Tu borrador se conserva.' : error.status === 400 ? 'Revisa los datos del libro. El servidor rechazó algunos valores; tu borrador se conserva.' : 'No pudimos guardar el libro. Tu borrador se conserva; puedes reintentar.');
         this.notifications.error(this.editorError());
         if (error.status === 409 && id) {
           const isCurrent = () => version === this.editVersion && this.editorOpen() && this.editorRecord()?.book.id === id;

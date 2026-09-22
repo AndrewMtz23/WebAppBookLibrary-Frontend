@@ -81,7 +81,7 @@ test('bibliotecario crea un libro, ajusta inventario y recibe su devolución', a
   await editor.locator('[formControlName="title"]').fill(title);
   await editor.locator('[formControlName="authors"]').fill('Autora de ejemplo');
   await editor.locator('[formControlName="description"]').fill('Descripción completa del libro físico de prueba.');
-  await editor.locator('[formControlName="genres"]').fill('Ensayo');
+  await editor.getByRole('button', { name: 'Ensayo', exact: true }).click();
   await editor.locator('[formControlName="totalCopies"]').fill('1');
   await editor.getByRole('button', { name: 'Guardar libro' }).click();
   await expect(editor).toBeHidden();

@@ -23,6 +23,7 @@ export class CatalogFiltersComponent {
 
   get activeChips(): readonly FilterChip[] {
     const chips: FilterChip[] = [];
+    if (this.query.categoryId) chips.push({ key: 'categoryId', label: this.facets.find(f => f.id === this.query.categoryId)?.value ?? 'Categoría seleccionada' });
     if (this.query.genre) chips.push({ key: 'genre', label: this.query.genre });
     if (this.query.mediaType) chips.push({ key: 'mediaType', label: this.query.mediaType === 'digital' ? 'Digital' : 'Físico' });
     if (this.query.language) chips.push({ key: 'language', label: this.query.language.toUpperCase() });
@@ -36,6 +37,11 @@ export class CatalogFiltersComponent {
     const patch: Partial<CatalogQuery> = { [key]: value };
     if (key === 'mediaType' && value === 'digital') patch.available = null;
     this.queryChanged.emit(patch);
+  }
+
+  selectCategory(value: string): void {
+    const facet = this.facets.find(f => (f.id || f.value) === value);
+    this.queryChanged.emit(facet?.id ? { categoryId: facet.id, genre: null } : { categoryId: null, genre: value || null });
   }
 
   remove(chip: FilterChip): void { this.queryChanged.emit({ [chip.key]: null }); }

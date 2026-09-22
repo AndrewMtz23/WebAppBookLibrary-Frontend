@@ -8,6 +8,7 @@ export const ADMIN_ROUTES: Routes = [{
   children: [
     { path: 'dashboard', loadComponent: () => import('./dashboard/pages/admin-dashboard-page.component').then(m => m.AdminDashboardPageComponent) },
     { path: 'users', loadComponent: () => import('./users/pages/users-page.component').then(m => m.UsersPageComponent) },
+    { path: 'categories', loadComponent: () => import('../categories/categories-page.component').then(m => m.CategoriesPageComponent) },
     { path: 'books', loadComponent: () => import('./pages/books/books-page.component').then(m => m.BooksPageComponent) },
     { path: 'loans', loadComponent: () => import('./pages/loans/loans-page.component').then(m => m.LoansPageComponent) },
     { path: 'logs', loadComponent: () => import('./audit/pages/audit-page.component').then(m => m.AuditPageComponent) },

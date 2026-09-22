@@ -1,6 +1,7 @@
 import { LoanSummary, LoanStatus } from '../../../shared/models/loan.model';
 
-export interface BookFacet { value: string; count: number; }
+export interface BookFacet {
+  id?: string; slug?: string; name?: string; value: string; count: number; }
 export interface Favorite { id: string; bookId: string; createdAt: string; }
 export interface DigitalAccess { resourceUrl: string; }
 export interface ReaderProfile {

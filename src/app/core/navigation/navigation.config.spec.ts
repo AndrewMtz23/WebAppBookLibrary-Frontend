@@ -19,7 +19,7 @@ describe('role navigation configuration', () => {
   it('shows administrative destinations to administrators', () => {
     const labels = navigationForRole('admin').map(item => item.label);
 
-    expect(labels).toEqual(['Dashboard', 'Usuarios', 'Libros', 'Préstamos', 'Logs', 'Seguridad', 'Sitio público']);
+    expect(labels).toEqual(['Dashboard', 'Usuarios', 'Libros', 'Categorías', 'Préstamos', 'Logs', 'Seguridad', 'Sitio público']);
   });
 
   it('organizes staff navigation into role-specific tree areas', () => {

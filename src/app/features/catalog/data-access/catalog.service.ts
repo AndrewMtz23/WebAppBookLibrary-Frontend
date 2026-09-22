@@ -19,6 +19,7 @@ export class CatalogService {
       .set('sort', query.sort)
       .set('direction', query.direction);
     if (query.query) params = params.set('query', query.query);
+    if (query.categoryId) params = params.set('categoryId', query.categoryId);
     if (query.genre) params = params.set('genre', query.genre);
     if (query.mediaType) params = params.set('mediaType', query.mediaType);
     if (query.language) params = params.set('language', query.language);

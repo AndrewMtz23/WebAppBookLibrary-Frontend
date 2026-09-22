@@ -1,6 +1,6 @@
 <section class="editor" aria-labelledby="editor-title">
   <header><div><p class="eyebrow">Ficha del catálogo</p><h2 id="editor-title" tabindex="-1">{{ record ? 'Editar libro' : 'Crear libro' }}</h2></div><button type="button" (click)="cancel.emit()" [disabled]="saving">Cerrar editor</button></header>
-  <p>Los campos con * son obligatorios. Separa autores, géneros y etiquetas con comas.</p>
+  <p>Los campos con * son obligatorios. Separa autores y etiquetas con comas. Selecciona los géneros del catálogo.</p>
   @if (error) { <p role="alert" class="error">{{ error }}</p> }
   @if (conflict) { <p>Hay una versión actual del servidor disponible. Al recargarla se reemplaza tu borrador.</p><button type="button" (click)="reload.emit()" [disabled]="saving">Descartar borrador y recargar versión actual</button> }
   @if (submitted && form.invalid) { <p role="alert" class="error">No se guardó el libro. Corrige los campos marcados a continuación.</p> }
@@ -19,7 +19,7 @@
       <label>Número de páginas<input type="number" min="1" max="100000" step="1" formControlName="pageCount" [attr.aria-invalid]="invalid('pageCount')">@if (invalid('pageCount')) { <small class="error">Usa un entero entre 1 y 100000.</small> }</label>
     </div></fieldset>
     <fieldset [disabled]="saving"><legend>Clasificación</legend><div class="form-grid">
-      <label>Géneros *<input formControlName="genres" [attr.aria-invalid]="invalid('genres')">@if (invalid('genres')) { <small class="error">Entre 1 y 8 géneros distintos, sin valores vacíos.</small> }</label>
+      <app-category-selector class="wide" [ids]="form.controls.categoryIds.value" [existing]="record?.book?.categories ?? []" [legacy]="record?.book?.genres ?? []" [disabled]="saving" [invalid]="invalid('categoryIds')" (idsChange)="form.controls.categoryIds.setValue($event); form.controls.categoryIds.markAsTouched()" />
       <label>Etiquetas<input formControlName="tags" [attr.aria-invalid]="invalid('tags')">@if (invalid('tags')) { <small class="error">Hasta 20 etiquetas distintas, sin valores vacíos.</small> }</label>
       <label class="wide">URL de portada (HTTPS)<input type="url" formControlName="coverUrl" [attr.aria-invalid]="invalid('coverUrl')">@if (invalid('coverUrl')) { <small class="error">Usa una dirección HTTPS válida o deja el campo vacío.</small> }</label>
     </div></fieldset>

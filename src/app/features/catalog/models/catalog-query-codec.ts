@@ -12,6 +12,7 @@ export function parseCatalogQuery(params: ParamMap): CatalogQuery {
   const parsedSort = SORTS.has(sort as CatalogSort) ? sort as CatalogSort : 'createdAt';
   return {
     query: query && query.length >= 2 ? query : null,
+    categoryId: clean(params.get('categoryId')),
     genre: clean(params.get('genre')),
     mediaType: parsedMedia,
     language: clean(params.get('language')),
@@ -26,6 +27,7 @@ export function parseCatalogQuery(params: ParamMap): CatalogQuery {
 export function serializeCatalogQuery(query: CatalogQuery): Params {
   const params: Params = {};
   if (query.query) params['query'] = query.query;
+  if (query.categoryId) params['categoryId'] = query.categoryId;
   if (query.genre) params['genre'] = query.genre;
   if (query.mediaType) params['mediaType'] = query.mediaType;
   if (query.language) params['language'] = query.language;

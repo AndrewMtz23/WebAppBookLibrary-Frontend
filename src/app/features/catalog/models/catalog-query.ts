@@ -5,6 +5,7 @@ export type SortDirection = 'asc' | 'desc';
 
 export interface CatalogQuery {
   query: string | null;
+  categoryId?: string | null;
   genre: string | null;
   mediaType: MediaType | null;
   language: string | null;
@@ -17,6 +18,7 @@ export interface CatalogQuery {
 
 export const DEFAULT_CATALOG_QUERY: CatalogQuery = {
   query: null,
+  categoryId: null,
   genre: null,
   mediaType: null,
   language: null,
