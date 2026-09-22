@@ -17,6 +17,7 @@ const NAVIGATION_ITEMS: readonly NavigationItem[] = [
   { label: 'Dashboard', icon: 'space_dashboard', route: ['/admin/dashboard'], exact: true, roles: ['admin'] },
   { label: 'Usuarios', icon: 'group', route: ['/admin/users'], roles: ['admin'] },
   { label: 'Libros', icon: 'library_books', route: ['/admin/books'], roles: ['admin'] },
+  { label: 'Categorías', icon: 'category', route: ['/admin/categories'], roles: ['admin'] },
   { label: 'Préstamos', icon: 'assignment_return', route: ['/admin/loans'], roles: ['admin'] },
   { label: 'Logs', icon: 'receipt_long', route: ['/admin/logs'], roles: ['admin'] },
   { label: 'Seguridad', icon: 'shield', route: ['/admin/security'], roles: ['admin'] },
@@ -41,7 +42,7 @@ export const navigationGroupsForRole = (role: UserRole): readonly NavigationGrou
   if (role === 'admin') {
     return [
       group('Gestión', 'dashboard_customize', select('Dashboard', 'Usuarios')),
-      group('Biblioteca', 'local_library', select('Libros', 'Préstamos')),
+      group('Biblioteca', 'local_library', select('Libros', 'Categorías', 'Préstamos')),
       group('Control', 'admin_panel_settings', select('Logs', 'Seguridad', 'Sitio público'))
     ];
   }

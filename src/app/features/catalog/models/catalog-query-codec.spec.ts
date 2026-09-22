@@ -27,6 +27,11 @@ describe('catalog query codec', () => {
     });
   });
 
+  it('round trips category IDs alongside legacy genre links', () => {
+    const state = { ...DEFAULT_CATALOG_QUERY, categoryId: 'category-history' };
+    expect(parseCatalogQuery(convertToParamMap(serializeCatalogQuery(state)))).toEqual(state);
+  });
+
   it('accepts relevance only while a text query is present', () => {
     expect(parseCatalogQuery(convertToParamMap({ query: 'historia', sort: 'relevance' })).sort).toBe('relevance');
     expect(parseCatalogQuery(convertToParamMap({ sort: 'relevance' })).sort).toBe('createdAt');

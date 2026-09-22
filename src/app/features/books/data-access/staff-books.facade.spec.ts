@@ -6,6 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { BookEditorComponent } from '../components/book-editor.component';
+import { CategoriesApi } from '../../categories/categories.api';
 import { StaffBooksApi } from './staff-books.api';
 import { StaffBooksFacade } from './staff-books.facade';
 import { BookManagement, BookWriteRequest } from './staff-books.models';
@@ -20,6 +21,9 @@ describe('StaffBooksFacade', () => {
   let params: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   let facade: StaffBooksFacade;
   beforeEach(() => {
+    record.book.categoryIds = ['64b000000000000000000001'];
+    record.book.categories = [{ id: '64b000000000000000000001', name: 'Historia', slug: 'historia', isActive: true }];
+    TestBed.configureTestingModule({ providers: [{ provide: CategoriesApi, useValue: { list: () => of({ items: record.book.categories, page: 1, totalPages: 1, hasNextPage: false, hasPreviousPage: false }) } }] });
     TestBed.configureTestingModule({ providers: [{ provide: MatSnackBar, useValue: { open: jasmine.createSpy('open') } }] });
     api = jasmine.createSpyObj<StaffBooksApi>('api', ['search', 'management', 'create', 'update', 'status', 'permanent']);
     api.search.and.returnValue(of(page)); api.management.and.returnValue(of(record));

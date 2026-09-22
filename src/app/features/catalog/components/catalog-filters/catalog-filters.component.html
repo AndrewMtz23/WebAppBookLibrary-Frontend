@@ -1,9 +1,9 @@
 <div class="filters" aria-label="Filtros del catálogo">
   <div class="filters__heading"><h2>Refina tu búsqueda</h2><button mat-button type="button" (click)="clearRequested.emit()">Limpiar</button></div>
   <label>Género
-    <select [ngModel]="query.genre ?? ''" (ngModelChange)="set('genre', $event)">
+    <select [ngModel]="query.categoryId ?? query.genre ?? ''" (ngModelChange)="selectCategory($event)">
       <option value="">Todos</option>
-      @for (facet of facets; track facet.value) { <option [value]="facet.value">{{ facet.value }} ({{ facet.count }})</option> }
+      @for (facet of facets; track facet.value) { <option [value]="facet.id || facet.value">{{ facet.value }} ({{ facet.count }})</option> }
     </select>
   </label>
   <label>Formato

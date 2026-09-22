@@ -76,6 +76,7 @@ export class CatalogFacade {
     const current = this.queryState();
     return this.patchQuery({
       query: null,
+      categoryId: null,
       genre: null,
       mediaType: null,
       language: null,

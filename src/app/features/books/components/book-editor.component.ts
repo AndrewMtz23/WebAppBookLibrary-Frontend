@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, Output, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
+import { CategorySelectorComponent } from '../../categories/category-selector.component';
 import { BookManagement, BookWriteRequest } from '../data-access/staff-books.models';
 
 const https: ValidatorFn = control => {
@@ -17,7 +18,7 @@ const list = (min: number, max: number): ValidatorFn => control => {
 };
 
 @Component({
-  selector: 'app-book-editor', standalone: true, imports: [ReactiveFormsModule],
+  selector: 'app-book-editor', standalone: true, imports: [ReactiveFormsModule, CategorySelectorComponent],
   templateUrl: './book-editor.component.html', styleUrl: './staff-books.scss'
 })
 export class BookEditorComponent implements OnChanges, AfterViewInit {
@@ -39,7 +40,7 @@ export class BookEditorComponent implements OnChanges, AfterViewInit {
     description: this.fb.nonNullable.control('', trimmed(20, 5000)), publisher: this.fb.nonNullable.control('', Validators.maxLength(160)),
     publishedDate: this.fb.nonNullable.control(''), language: this.fb.nonNullable.control('es', trimmed(1, 35)),
     pageCount: this.fb.control<number | null>(null, [Validators.min(1), Validators.max(100000), integer]),
-    genres: this.fb.nonNullable.control('', list(1, 8)), tags: this.fb.nonNullable.control('', list(0, 20)),
+    categoryIds: this.fb.nonNullable.control<string[]>([], [control => Array.isArray(control.value) && control.value.length >= 1 && control.value.length <= 8 && new Set(control.value).size === control.value.length ? null : { categories: true }]), tags: this.fb.nonNullable.control('', list(0, 20)),
     coverUrl: this.fb.nonNullable.control('', https), mediaType: this.fb.nonNullable.control<'physical' | 'digital'>('physical'),
     digitalResourceUrl: this.fb.nonNullable.control(''), totalCopies: this.fb.control<number | null>(0)
   });
@@ -50,7 +51,7 @@ export class BookEditorComponent implements OnChanges, AfterViewInit {
     const book = this.record?.book;
     this.form.reset({ title: book?.title ?? '', subtitle: book?.subtitle ?? '', authors: book?.authors.join(', ') ?? '', isbn: book?.isbn ?? '',
       description: book?.description ?? '', publisher: book?.publisher ?? '', publishedDate: book?.publishedDate?.slice(0, 10) ?? '', language: book?.language ?? 'es',
-      pageCount: book?.pageCount ?? null, genres: book?.genres.join(', ') ?? '', tags: book?.tags.join(', ') ?? '', coverUrl: book?.coverUrl ?? '',
+      pageCount: book?.pageCount ?? null, categoryIds: [...(book?.categoryIds ?? book?.categories?.map(c => c.id) ?? [])], tags: book?.tags.join(', ') ?? '', coverUrl: book?.coverUrl ?? '',
       mediaType: book?.mediaType ?? 'physical', digitalResourceUrl: this.record?.digitalResourceUrl ?? '', totalCopies: book?.totalCopies ?? 0 });
     this.submitted = false; this.mediaValidators();
   }
@@ -70,7 +71,7 @@ export class BookEditorComponent implements OnChanges, AfterViewInit {
     const values = (text: string) => text.trim() ? text.split(',').map(item => item.trim()) : [];
     this.save.emit({ ...value, title: value.title.trim(), subtitle: optional(value.subtitle), authors: values(value.authors), isbn: optional(value.isbn),
       description: value.description.trim(), publisher: optional(value.publisher), publishedDate: optional(value.publishedDate), language: value.language.trim(),
-      genres: values(value.genres), tags: values(value.tags), coverUrl: optional(value.coverUrl),
+      tags: values(value.tags), coverUrl: optional(value.coverUrl),
       totalCopies: value.mediaType === 'physical' ? value.totalCopies : null,
       digitalResourceUrl: value.mediaType === 'digital' ? optional(value.digitalResourceUrl) : null });
   }
