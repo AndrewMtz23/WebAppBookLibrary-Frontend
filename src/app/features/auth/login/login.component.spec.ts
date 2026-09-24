@@ -44,16 +44,17 @@ describe('LoginComponent', () => {
   });
 
   it('navigates to the authenticated role landing after login', () => {
-    component.username = 'Ada';
+    component.email = ' ada@example.com ';
     component.password = 'valid-password';
 
     component.login();
 
+    expect(login).toHaveBeenCalledWith({ email: 'ada@example.com', password: 'valid-password' });
     expect(navigate).toHaveBeenCalledWith('/admin/dashboard');
   });
 
   it('keeps the loading state active while the successful navigation replaces the login page', () => {
-    component.username = 'Ada';
+    component.email = 'ada@example.com';
     component.password = 'valid-password';
 
     component.login();
@@ -64,7 +65,7 @@ describe('LoginComponent', () => {
   it('shows a blocking loading dialog while authentication is pending', () => {
     const pendingLogin = new Subject<never>();
     login.and.returnValue(pendingLogin);
-    component.username = 'Ada';
+    component.email = 'ada@example.com';
     component.password = 'valid-password';
 
     component.login();
@@ -80,7 +81,7 @@ describe('LoginComponent', () => {
   it('removes the loading dialog when authentication fails', () => {
     const pendingLogin = new Subject<never>();
     login.and.returnValue(pendingLogin);
-    component.username = 'Ada';
+    component.email = 'ada@example.com';
     component.password = 'invalid-password';
 
     component.login();

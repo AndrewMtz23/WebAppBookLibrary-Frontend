@@ -58,7 +58,7 @@ describe('AuthService', () => {
       user: { id: 'u1', username: 'ana', email: 'ana@example.com', role: 'user' as const }
     };
 
-    service.login({ username: 'ana', password: 'Secure1' }).subscribe();
+    service.login({ email: 'ana@example.com', password: 'Secure1' }).subscribe();
     http.expectOne('/api/auth/login').flush(response);
 
     expect(JSON.parse(localStorage.getItem('booklibrary_session')!)).toEqual(response);

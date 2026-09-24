@@ -10,9 +10,10 @@
   </header>
   <form class="auth-form" (ngSubmit)="login()">
     <mat-form-field appearance="outline">
-      <mat-label>Nombre de usuario</mat-label>
-      <input matInput [(ngModel)]="username" name="username" autocomplete="username" required [disabled]="isLoading">
-      <mat-icon matSuffix>person</mat-icon>
+      <mat-label>Correo electrónico</mat-label>
+      <input matInput [(ngModel)]="email" name="email" type="email" inputmode="email" maxlength="254" email #emailField="ngModel" autocomplete="username" required [disabled]="isLoading">
+      <mat-icon matSuffix>mail_outline</mat-icon>
+      <mat-error *ngIf="emailField.invalid">Ingresa un correo electrónico válido.</mat-error>
     </mat-form-field>
     <mat-form-field appearance="outline">
       <mat-label>Contraseña</mat-label>
@@ -24,11 +25,12 @@
     <div class="auth-message auth-message--error" role="alert" *ngIf="errorMessage && !isLoading">
       <mat-icon>error_outline</mat-icon><span>{{ errorMessage }}</span>
     </div>
-    <button mat-flat-button color="primary" class="auth-form__submit" type="submit" [disabled]="isLoading || !username || !password">
+    <button mat-flat-button color="primary" class="auth-form__submit" type="submit" [disabled]="isLoading || !email.trim() || emailField.invalid || !password">
       <mat-icon>{{ isLoading ? 'hourglass_empty' : 'login' }}</mat-icon>
       {{ isLoading ? 'Iniciando sesión…' : 'Iniciar sesión' }}
     </button>
     <p class="auth-form__switch">¿Aún no tienes cuenta? <a mat-button color="primary" routerLink="/auth/register" [queryParams]="authQuery">Crear cuenta</a></p>
+    <p class="auth-form__switch"><a mat-button routerLink="/auth/forgot-password">¿Olvidaste tu contraseña?</a></p>
   </form>
 </article>
 
