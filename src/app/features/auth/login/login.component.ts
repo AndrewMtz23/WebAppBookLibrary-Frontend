@@ -14,7 +14,7 @@ import { returnRouteForRole, safeAuthReturnUrl } from 'src/app/core/auth/return-
 })
 export class LoginComponent {
   get authQuery() { return { returnUrl: safeAuthReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl')) }; }
-  username = '';
+  email = '';
   password = '';
   errorMessage = '';
   isLoading = false;
@@ -34,14 +34,15 @@ export class LoginComponent {
   }
 
   login(): void {
-    if (!this.username || !this.password) {
-      this.errorMessage = 'Ingresa tu usuario y contraseña.';
+    if (this.isLoading) return;
+    if (!this.email.trim() || !this.password) {
+      this.errorMessage = 'Ingresa tu correo y contraseña.';
       return;
     }
 
     this.isLoading = true;
     this.errorMessage = '';
-    const request: LoginRequest = { username: this.username, password: this.password };
+    const request: LoginRequest = { email: this.email.trim(), password: this.password };
 
     this.authService.login(request).subscribe({
       next: response => {

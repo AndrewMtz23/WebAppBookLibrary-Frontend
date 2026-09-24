@@ -15,7 +15,7 @@ export class AuthInterceptor implements HttpInterceptor {
   ) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler) {
-    const credentialRequest = /\/auth\/(login|register)(?:[/?#]|$)/.test(request.url);
+    const credentialRequest = /\/auth\/(login|register|password-reset\/(request|confirm)|email-verification\/confirm)(?:[/?#]|$)/.test(request.url);
     const sessionToken = this.auth.sessionSnapshot?.token;
     const token = credentialRequest ? null : this.auth.getToken();
     if (!credentialRequest && sessionToken && !token) {

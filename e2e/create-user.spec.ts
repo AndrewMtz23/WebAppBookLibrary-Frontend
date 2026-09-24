@@ -1,3 +1,4 @@
+import { qaEmail } from './qa-identity';
 import { expect, test } from '@playwright/test';
 
 test('alta administrativa conserva sesión, maneja duplicados y sidebar tiene contraste', async ({ page, request }, info) => {
@@ -5,7 +6,7 @@ test('alta administrativa conserva sesión, maneja duplicados y sidebar tiene co
   expect(fixture.fixture).toBe('booklibrary-phase5');
   expect(fixture.databaseName).toMatch(/^booklibrary_ui_test_[a-f0-9]{32}$/);
   await page.goto('/auth/login');
-  await page.getByRole('textbox', { name: 'Nombre de usuario', exact: true }).fill('qa_admin');
+  await page.getByRole('textbox', { name: 'Correo electrónico', exact: true }).fill(qaEmail('qa_admin'));
   await page.locator('input[name="password"]').fill('QaLocalOnly!2026');
   await page.getByRole('button', { name: 'Iniciar sesión', exact: false }).click();
   await expect(page).not.toHaveURL(/\/auth\//);
