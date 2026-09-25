@@ -1,10 +1,11 @@
+import { qaEmail } from './qa-identity';
 import { expect, test, Page, APIRequestContext } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 
 const password = 'QaLocalOnly!2026';
 const unique = () => randomUUID().replaceAll('-', '').slice(0, 14);
 async function token(request: APIRequestContext, username: string) {
-  const response = await request.post('/api/auth/login', { data: { username, password } });
+  const response = await request.post('/api/auth/login', { data: { email: qaEmail(username), password } });
   expect(response.ok()).toBeTruthy();
   return (await response.json()).token as string;
 }
@@ -16,7 +17,7 @@ async function reader(request: APIRequestContext) {
 }
 async function login(page: Page, username: string) {
   await page.goto('/auth/login');
-  await page.locator('input[name="username"]').fill(username);
+  await page.locator('input[name="email"]').fill(qaEmail(username));
   await page.locator('input[name="password"]').fill(password);
   await page.getByRole('button', { name: 'Iniciar sesión', exact: false }).click();
   await expect(page).not.toHaveURL(/\/auth\//);
@@ -119,7 +120,7 @@ test('admin cambia rol y estado, invalida sesión y encuentra su auditoría', as
   await page.getByRole('button', { name: 'Confirmar desactivación', exact: true }).click();
   await expect(page.getByRole('alertdialog')).toBeHidden();
   await expect(page.locator('tbody')).toContainText('Inactiva');
-  expect((await request.post('/api/auth/login', { data: { username: account.username, password } })).status()).toBe(401);
+  expect((await request.post('/api/auth/login', { data: { email: qaEmail(account.username), password } })).status()).toBe(401);
   const adminToken = await token(request, 'qa_admin');
   const users = await (await request.get(`/api/admin/users?query=${account.username}`, { headers: { Authorization: `Bearer ${adminToken}` } })).json();
   const userId = users.items[0].id;

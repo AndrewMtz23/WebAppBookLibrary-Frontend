@@ -1,3 +1,4 @@
+import { qaEmail } from './qa-identity';
 import { expect, test } from '@playwright/test';
 
 for (const role of ['admin', 'librarian']) {
@@ -5,7 +6,7 @@ for (const role of ['admin', 'librarian']) {
     const fixture = await (await request.get('/__qa')).json();
     expect(fixture.fixture).toBe('booklibrary-phase5');
     await page.goto('/auth/login');
-    await page.getByRole('textbox', { name: 'Nombre de usuario', exact: true }).fill(`qa_${role}`);
+    await page.getByRole('textbox', { name: 'Correo electrónico', exact: true }).fill(qaEmail(`qa_${role}`));
     await page.locator('input[name="password"]').fill('QaLocalOnly!2026');
     await page.getByRole('button', { name: 'Iniciar sesión', exact: false }).click();
     await expect(page).not.toHaveURL(/\/auth\//);

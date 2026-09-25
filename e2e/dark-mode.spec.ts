@@ -1,3 +1,4 @@
+import { qaEmail } from './qa-identity';
 import { expect, test, Page } from '@playwright/test';
 
 async function inspect(page: Page, label: string, issues: unknown[]) {
@@ -13,7 +14,7 @@ for (const role of ['admin', 'librarian', 'user', 'guest']) {
     expect(fixture.fixture).toBe('booklibrary-phase5');
     expect(fixture.databaseName).toMatch(/^booklibrary_ui_test_[a-f0-9]{32}$/);
     if (role === 'admin' || role === 'librarian') {
-      const login = await request.post('/api/auth/login', { data: { username: 'qa_user', password: 'QaLocalOnly!2026' } });
+      const login = await request.post('/api/auth/login', { data: { email: qaEmail('qa_user'), password: 'QaLocalOnly!2026' } });
       expect(login.ok()).toBeTruthy();
       const auth = await login.json();
       const reserved = await request.post('/api/loans', { headers: { Authorization: `Bearer ${auth.token}` }, data: { bookId: fixture.books[0].id } });
@@ -22,7 +23,7 @@ for (const role of ['admin', 'librarian', 'user', 'guest']) {
     await page.addInitScript(() => localStorage.setItem('booklibrary_theme', 'dark'));
     await page.goto('/auth/login');
     if (role !== 'guest') {
-      await page.getByRole('textbox', { name: 'Nombre de usuario', exact: true }).fill(`qa_${role}`);
+      await page.getByRole('textbox', { name: 'Correo electrónico', exact: true }).fill(qaEmail(`qa_${role}`));
       await page.locator('input[name="password"]').fill('QaLocalOnly!2026');
       await page.getByRole('button', { name: 'Iniciar sesión', exact: false }).click();
       await expect(page).not.toHaveURL(/\/auth\//);
