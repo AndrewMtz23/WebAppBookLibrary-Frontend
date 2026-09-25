@@ -5,6 +5,7 @@ export interface BookFacet {
 export interface Favorite { id: string; bookId: string; createdAt: string; }
 export interface DigitalAccess { resourceUrl: string; }
 export interface ReaderProfile {
+  emailVerifiedAt?: string | null;
   id: string; displayName: string; username: string; email: string; avatarUrl?: string | null;
   role: 'user' | 'librarian' | 'admin'; createdAt: string; lastLoginAt: string | null; updatedAt?: string;
 }

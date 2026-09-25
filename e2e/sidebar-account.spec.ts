@@ -1,10 +1,11 @@
+import { qaEmail } from './qa-identity';
 import { expect, test } from '@playwright/test';
 
 test('cuenta lateral: correo, tema, controles y perfil en ambos tamaños', async ({ page, request }, info) => {
   const fixture = await (await request.get('/__qa')).json();
   expect(fixture.fixture).toBe('booklibrary-phase5');
   await page.goto('/auth/login');
-  await page.getByRole('textbox', { name: 'Nombre de usuario', exact: true }).fill('qa_admin');
+  await page.getByRole('textbox', { name: 'Correo electrónico', exact: true }).fill(qaEmail('qa_admin'));
   await page.locator('input[name="password"]').fill('QaLocalOnly!2026');
   await page.getByRole('button', { name: 'Iniciar sesión', exact: false }).click();
   await expect(page).not.toHaveURL(/\/auth\//);

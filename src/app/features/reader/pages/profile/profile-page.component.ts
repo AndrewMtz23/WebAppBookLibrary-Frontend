@@ -11,11 +11,13 @@ import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.compo
 import { AvatarComponent } from '../../../../shared/ui/avatar/avatar.component';
 import { ReaderProfile } from '../../models/reader.models';
 import { ProfileFacade } from '../../data-access/profile.facade';
+import { ChangePasswordComponent } from './change-password.component';
+import { EmailVerificationComponent } from './email-verification.component';
 
 @Component({
   selector: 'app-profile-page', standalone: true,
   providers: [ProfileFacade],
-  imports: [CommonModule, FormsModule, RouterLink, MatButtonModule, MatIconModule, PageHeaderComponent, ErrorStateComponent, SkeletonComponent, AvatarComponent],
+  imports: [CommonModule, FormsModule, RouterLink, MatButtonModule, MatIconModule, PageHeaderComponent, ErrorStateComponent, SkeletonComponent, AvatarComponent, ChangePasswordComponent, EmailVerificationComponent],
   templateUrl: './profile-page.component.html', styleUrl: './profile-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfilePageComponent {
