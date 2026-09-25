@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -24,6 +26,7 @@ describe('reader route lifecycle', () => {
   let catalog: jasmine.SpyObj<CatalogService>;
 
   beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
     loans = [];
     catalog = jasmine.createSpyObj<CatalogService>('catalog', ['search', 'getById', 'getFacets']);
     catalog.search.and.returnValue(of({ items: [book], page: 1, pageSize: 20, totalItems: 1, totalPages: 1, hasNextPage: false, hasPreviousPage: false }));

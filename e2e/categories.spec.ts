@@ -1,8 +1,9 @@
+import { qaEmail } from './qa-identity';
 import { expect, test, Page } from '@playwright/test';
 
 async function login(page: Page, username: string) {
   await page.goto('/auth/login');
-  await page.locator('input[name="username"]').fill(username);
+  await page.locator('input[name="email"]').fill(qaEmail(username));
   await page.locator('input[name="password"]').fill('QaLocalOnly!2026');
   await page.getByRole('button', { name: 'Iniciar sesión', exact: false }).click();
   await expect(page).not.toHaveURL(/\/auth\//);

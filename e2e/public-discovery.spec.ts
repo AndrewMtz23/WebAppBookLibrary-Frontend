@@ -1,3 +1,4 @@
+import { qaEmail } from './qa-identity';
 import { expect, test, Page } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 
@@ -10,7 +11,7 @@ test.beforeEach(async ({ request, page }) => {
 });
 
 async function signIn(page: Page, username: string) {
-  await page.getByRole('textbox', { name: 'Nombre de usuario', exact: true }).fill(username);
+  await page.getByRole('textbox', { name: 'Correo electrónico', exact: true }).fill(qaEmail(username));
   await page.locator('input[name="password"]').fill(password);
   await page.getByRole('button', { name: 'Iniciar sesión', exact: true }).click();
   await expect(page).not.toHaveURL(/\/auth\//);
@@ -97,7 +98,7 @@ test('registro conserva el destino y no confunde credenciales incorrectas con se
   await page.locator('input[name="confirmPassword"]').fill(password);
   await page.getByRole('button', { name: /Crear cuenta|Registrarse/ }).click();
   await expect(page).toHaveURL(/\/auth\/login\?returnUrl=/);
-  await page.locator('input[name="username"]').fill(username);
+  await page.locator('input[name="email"]').fill(qaEmail(username));
   await page.locator('input[name="password"]').fill('incorrect-password');
   await page.getByRole('button', { name: 'Iniciar sesión', exact: true }).click();
   await expect(page.locator('.auth-message--error')).toBeVisible();
@@ -122,10 +123,10 @@ test('revalida la ultima copia al regresar del login y separa favoritos entre cu
   for (let i = 0; i < 2; i++) {
     const username = `public_${randomUUID().slice(0, 8)}`;
     expect((await request.post('/api/auth/register', { data: { username, password, email: `${username}@example.invalid` } })).ok()).toBeTruthy();
-    const response = await request.post('/api/auth/login', { data: { username, password } });
+    const response = await request.post('/api/auth/login', { data: { email: qaEmail(username), password } });
     accounts.push({ username, token: (await response.json()).token });
   }
-  const staff = await (await request.post('/api/auth/login', { data: { username: 'qa_librarian', password } })).json();
+  const staff = await (await request.post('/api/auth/login', { data: { email: qaEmail('qa_librarian'), password } })).json();
   const created = await request.post('/api/books', { headers: { Authorization: `Bearer ${staff.token}` }, data: {
     title: `Public stock ${randomUUID().slice(0, 8)}`, authors: ['Autor de prueba'], description: 'Libro aislado para comprobar el recorrido de prestamos.', genres: ['Ensayo'], language: 'es', mediaType: 'physical', totalCopies: 1
   } });

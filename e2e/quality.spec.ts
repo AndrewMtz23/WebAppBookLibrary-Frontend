@@ -1,3 +1,4 @@
+import { qaEmail } from './qa-identity';
 import { expect, test, Page } from '@playwright/test';
 const password = 'QaLocalOnly!2026';
 
@@ -12,7 +13,7 @@ test.beforeEach(async ({ request }) => {
 
 async function login(page: Page, role: string) {
   await page.goto('/auth/login');
-  await page.getByRole('textbox', { name: 'Nombre de usuario', exact: true }).fill(`qa_${role}`);
+  await page.getByRole('textbox', { name: 'Correo electrónico', exact: true }).fill(qaEmail(`qa_${role}`));
   await page.locator('input[name="password"]').fill(password);
   await page.getByRole('button', { name: 'Iniciar sesión', exact: false }).click();
   await expect(page).not.toHaveURL(/\/auth\//);
@@ -101,7 +102,7 @@ test('registro, login, reserva digital y apertura desde Mi biblioteca', async ({
   await page.locator('input[name="confirmPassword"]').fill(password);
   await page.getByRole('button', { name: 'Crear cuenta', exact: false }).click();
   await expect(page).toHaveURL(/\/auth\/login/);
-  await page.locator('input[name="username"]').fill(username);
+  await page.locator('input[name="email"]').fill(qaEmail(username));
   await page.locator('input[name="password"]').fill(password);
   await page.getByRole('button', { name: 'Iniciar sesión', exact: false }).click();
   await expect(page).toHaveURL(/\/app\/discover/);
@@ -134,7 +135,7 @@ test('sesión expirada conserva retorno permitido después de login', async ({ p
   });
   await page.goto('/app/favorites');
   await expect(page).toHaveURL(/\/auth\/login\?returnUrl=/);
-  await page.locator('input[name="username"]').fill('qa_user');
+  await page.locator('input[name="email"]').fill(qaEmail('qa_user'));
   await page.locator('input[name="password"]').fill(password);
   await page.getByRole('button', { name: 'Iniciar sesión', exact: false }).click();
   await expect(page).toHaveURL(/\/app\/favorites$/);

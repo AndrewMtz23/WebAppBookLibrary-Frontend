@@ -1,10 +1,11 @@
+import { qaEmail } from './qa-identity';
 import { expect, test } from '@playwright/test';
 
 test('préstamos: identidades separadas, imágenes, modal centrada y foco', async ({ page, request }, info) => {
   const fixture = await (await request.get('/__qa')).json();
   expect(fixture.fixture).toBe('booklibrary-phase5');
   expect(fixture.databaseName).toMatch(/^booklibrary_ui_test_[a-f0-9]{32}$/);
-  const login = await request.post('/api/auth/login', { data: { username: 'qa_user', password: 'QaLocalOnly!2026' } });
+  const login = await request.post('/api/auth/login', { data: { email: qaEmail('qa_user'), password: 'QaLocalOnly!2026' } });
   expect(login.ok()).toBeTruthy();
   const auth = await login.json();
   const reserved = await request.post('/api/loans', { headers: { Authorization: `Bearer ${auth.token}` }, data: { bookId: fixture.books[0].id } });
@@ -20,7 +21,7 @@ test('préstamos: identidades separadas, imágenes, modal centrada y foco', asyn
     await route.fulfill({ response, json: data });
   });
   await page.goto('/auth/login');
-  await page.getByRole('textbox', { name: 'Nombre de usuario', exact: true }).fill('qa_admin');
+  await page.getByRole('textbox', { name: 'Correo electrónico', exact: true }).fill(qaEmail('qa_admin'));
   await page.locator('input[name="password"]').fill('QaLocalOnly!2026');
   await page.getByRole('button', { name: 'Iniciar sesión', exact: false }).click();
   await expect(page).not.toHaveURL(/\/auth\//);
