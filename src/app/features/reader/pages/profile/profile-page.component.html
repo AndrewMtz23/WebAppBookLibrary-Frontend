@@ -56,6 +56,8 @@
     } @else {
       <section class="work-tools" aria-labelledby="tools-title"><div><h2 id="tools-title">Tu espacio de trabajo</h2><p>Continúa con las tareas de la biblioteca.</p></div><a [routerLink]="profile.role === 'admin' ? '/admin/dashboard' : '/librarian/dashboard'"><mat-icon aria-hidden="true">space_dashboard</mat-icon>Ir a mi panel<mat-icon aria-hidden="true">arrow_forward</mat-icon></a></section>
     }
+    <app-change-password />
+    <app-email-verification [email]="profile.email" [verifiedAt]="profile.emailVerifiedAt" />
     <section class="session" aria-labelledby="session-title"><div><h2 id="session-title">Sesión</h2><p>Cierra tu sesión en este dispositivo.</p></div><button class="logout-button" type="button" [disabled]="facade.saving()" (click)="logout()"><mat-icon aria-hidden="true">logout</mat-icon> Cerrar sesión</button></section>
   }
 </div>

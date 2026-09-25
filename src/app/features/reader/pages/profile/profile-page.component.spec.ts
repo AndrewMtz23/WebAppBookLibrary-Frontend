@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
@@ -8,6 +10,7 @@ import { ProfileFacade } from '../../data-access/profile.facade';
 import { ProfilePageComponent } from './profile-page.component';
 
 describe('ProfilePageComponent', () => {
+  beforeEach(() => TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] }));
   it('uses username fallback, renders role and dates, and keeps independent aggregate results', () => {
     const reader = jasmine.createSpyObj<ReaderService>('ReaderService', ['getProfile', 'getLoans', 'getFavorites']);
     reader.getProfile.and.returnValue(of({ id: 'u1', displayName: '', username: 'elena', email: 'elena@example.com', role: 'user', createdAt: '2025-01-02T00:00:00Z', lastLoginAt: '2026-09-06T12:00:00Z' }));
@@ -29,7 +32,7 @@ describe('ProfilePageComponent', () => {
     expect(text).toContain('3');
     expect(text).toContain('7');
     expect(text).toContain('No disponible');
-    expect(text).not.toContain('Cambiar contraseña');
+    expect(text).toContain('Cambiar contraseña');
     expect(text).not.toContain('Eliminar cuenta');
   });
 
