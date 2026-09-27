@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
@@ -8,6 +8,7 @@ import { AccountRecoveryComponent } from './account-recovery.component';
 describe('AccountRecoveryComponent', () => {
   let http: HttpTestingController;
   let location: jasmine.SpyObj<Location>;
+  let fixture: ComponentFixture<AccountRecoveryComponent>;
   const token = 'a'.repeat(43);
   function setup(mode: string) {
     location = jasmine.createSpyObj('Location', ['replaceState']);
@@ -15,9 +16,28 @@ describe('AccountRecoveryComponent', () => {
       { provide: Location, useValue: location },
       { provide: ActivatedRoute, useValue: { snapshot: { data: { mode }, fragment: 'token=' + token } } }] });
     http = TestBed.inject(HttpTestingController);
-    return TestBed.createComponent(AccountRecoveryComponent).componentInstance;
+    fixture = TestBed.createComponent(AccountRecoveryComponent);
+    return fixture.componentInstance;
   }
   afterEach(() => http.verify());
+  it('focuses the error summary and associates it with the password fields', () => {
+    const c = setup('reset'); fixture.detectChanges();
+    c.newPassword = 'Changed1'; c.confirmPassword = 'Different1'; c.submit(); fixture.detectChanges();
+    const alert = fixture.nativeElement.querySelector('[role="alert"]');
+    expect(document.activeElement).toBe(alert);
+    expect(fixture.nativeElement.querySelector('#recovery-confirm').getAttribute('aria-describedby')).toContain(alert.id);
+  });
+  for (const status of [500, 502, 504]) {
+    it(`keeps confirmation retryable during HTTP ${status}`, () => {
+      const c = setup('verify'); c.submit();
+      http.expectOne('/api/auth/email-verification/confirm').flush({}, { status, statusText: 'Server failure' });
+      expect(c.error()).toContain('no está disponible');
+      expect(c.error()).not.toContain('venció');
+      c.submit();
+      http.expectOne('/api/auth/email-verification/confirm').flush(null);
+      expect(c.success()).toBeTrue();
+    });
+  }
   it('removes the token from the URL without consuming it until explicit confirmation', () => {
     const c = setup('verify');
     expect(location.replaceState).toHaveBeenCalled();

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, ElementRef, inject, signal } from '@angular/core';
 import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -17,14 +17,14 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
       @if (mode === 'forgot' || hasToken) {
         <form (ngSubmit)="submit()" #form="ngForm">
           @if (mode === 'forgot') {
-            <label for="recovery-email">Correo electrónico<input id="recovery-email" name="email" type="email" autocomplete="email" required email maxlength="254" [(ngModel)]="email" [disabled]="busy()"></label>
+            <label for="recovery-email">Correo electrónico<input id="recovery-email" name="email" type="email" autocomplete="email" required email maxlength="254" [(ngModel)]="email" [disabled]="busy()" [attr.aria-describedby]="error() ? 'recovery-error' : null"></label>
           }
           @if (mode === 'reset') {
-            <label for="recovery-password">Nueva contraseña<input id="recovery-password" name="newPassword" type="password" autocomplete="new-password" required minlength="5" maxlength="1024" [(ngModel)]="newPassword" [disabled]="busy()" aria-describedby="recovery-policy"></label>
-            <label for="recovery-confirm">Confirmar contraseña<input id="recovery-confirm" name="confirmPassword" type="password" autocomplete="new-password" required maxlength="1024" [(ngModel)]="confirmPassword" [disabled]="busy()"></label>
+            <label for="recovery-password">Nueva contraseña<input id="recovery-password" name="newPassword" type="password" autocomplete="new-password" required minlength="5" maxlength="1024" [(ngModel)]="newPassword" [disabled]="busy()" [attr.aria-describedby]="error() ? 'recovery-policy recovery-error' : 'recovery-policy'"></label>
+            <label for="recovery-confirm">Confirmar contraseña<input id="recovery-confirm" name="confirmPassword" type="password" autocomplete="new-password" required maxlength="1024" [(ngModel)]="confirmPassword" [disabled]="busy()" [attr.aria-describedby]="error() ? 'recovery-error' : null"></label>
             <p id="recovery-policy" class="hint">Al menos 5 caracteres, una mayúscula, una minúscula y un número.</p>
           }
-          @if (error()) { <p role="alert" class="error">{{ error() }}</p> }
+          @if (error()) { <p id="recovery-error" role="alert" class="error" tabindex="-1">{{ error() }}</p> }
           <button type="submit" [disabled]="busy() || form.invalid">{{ busy() ? 'Procesando…' : mode === 'forgot' ? 'Solicitar enlace' : mode === 'reset' ? 'Guardar nueva contraseña' : 'Confirmar mi correo' }}</button>
         </form>
       } @else { <p role="alert">Este enlace está incompleto. Solicita uno nuevo y ábrelo desde tu correo.</p> }
@@ -51,6 +51,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 export class AccountRecoveryComponent {
   private readonly route = inject(ActivatedRoute); private readonly http = inject(HttpClient);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   readonly mode: 'forgot' | 'reset' | 'verify' = this.route.snapshot.data['mode'];
   private token = new URLSearchParams(this.route.snapshot.fragment ?? '').get('token') ?? '';
   readonly hasToken = /^[A-Za-z0-9_-]{43}$/.test(this.token);
@@ -65,14 +67,19 @@ export class AccountRecoveryComponent {
     if (this.busy() || this.success()) return;
     this.error.set('');
     if (this.mode !== 'forgot' && !this.hasToken) return;
-    if (this.mode === 'forgot' && (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email.trim()) || this.email.trim().length > 254)) { this.error.set('Escribe un correo válido.'); return; }
-    if (this.mode === 'reset' && (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{5,}$/.test(this.newPassword) || this.newPassword.length > 1024 || this.newPassword !== this.confirmPassword)) { this.error.set('Revisa los requisitos y que ambas contraseñas coincidan.'); return; }
+    if (this.mode === 'forgot' && (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email.trim()) || this.email.trim().length > 254)) { this.showError('Escribe un correo válido.'); return; }
+    if (this.mode === 'reset' && (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{5,}$/.test(this.newPassword) || this.newPassword.length > 1024 || this.newPassword !== this.confirmPassword)) { this.showError('Revisa los requisitos y que ambas contraseñas coincidan.'); return; }
     this.busy.set(true);
     const path = this.mode === 'forgot' ? 'password-reset/request' : this.mode === 'reset' ? 'password-reset/confirm' : 'email-verification/confirm';
     const body = this.mode === 'forgot' ? { email: this.email.trim() } : this.mode === 'reset' ? { token: this.token, newPassword: this.newPassword } : { token: this.token };
     this.http.post('/api/auth/' + path, body).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => { this.busy.set(false); this.success.set(true); this.token = this.newPassword = this.confirmPassword = ''; },
-      error: response => { this.busy.set(false); this.error.set(response.status === 429 ? 'Espera un minuto antes de intentarlo otra vez.' : response.status === 503 || response.status === 0 ? 'El servicio no está disponible en este momento. Intenta más tarde.' : this.mode === 'forgot' ? 'No pudimos procesar la solicitud. Intenta nuevamente.' : 'El enlace venció, ya se usó o dejó de ser válido. Solicita uno nuevo.'); }
+      error: response => { this.busy.set(false); this.showError(response.status === 429 ? 'Espera un minuto antes de intentarlo otra vez.' : response.status >= 500 || response.status === 0 ? 'El servicio no está disponible en este momento. Intenta más tarde.' : this.mode === 'forgot' ? 'No pudimos procesar la solicitud. Intenta nuevamente.' : 'El enlace venció, ya se usó o dejó de ser válido. Solicita uno nuevo.'); }
     });
+  }
+  private showError(message: string): void {
+    this.error.set(message);
+    this.changeDetector.detectChanges();
+    this.element.nativeElement.querySelector<HTMLElement>('#recovery-error')?.focus();
   }
 }
