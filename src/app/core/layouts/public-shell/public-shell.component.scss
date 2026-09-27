@@ -5,7 +5,7 @@
 .public-shell__story app-brand { align-self: flex-start; --brand-color: #f5f7fc; }
 .public-shell__copy { position: relative; z-index: 2; max-width: 39rem; margin-block: auto; }
 .public-shell__eyebrow { margin: 0 0 var(--space-4); color: var(--color-accent); font-size: var(--text-sm); font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
-.public-shell h1 { max-width: 12ch; margin: 0; font-family: var(--font-display); font-size: clamp(2.8rem, 5.8vw, 6rem); font-weight: 600; line-height: .98; letter-spacing: -.045em; }
+.public-shell h1 { max-width: 12ch; margin: 0; color: inherit; font-family: var(--font-display); font-size: clamp(2.8rem, 5.8vw, 6rem); font-weight: 600; line-height: .98; letter-spacing: -.045em; }
 .public-shell__copy > p:last-child { max-width: 34rem; margin: var(--space-6) 0 0; color: #dce3f0; font-size: var(--text-lg); line-height: 1.7; }
 .public-shell__artwork { position: absolute; right: -5rem; bottom: 5rem; width: min(28vw, 24rem); height: min(28vw, 24rem); opacity: .72; z-index: 1; }
 .public-shell__sun { position: absolute; inset: 4% 8% auto auto; width: 46%; aspect-ratio: 1; border: 1px solid var(--color-accent); border-radius: 50%; }
