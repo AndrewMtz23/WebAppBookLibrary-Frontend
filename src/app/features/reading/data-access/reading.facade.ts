@@ -1,6 +1,6 @@
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, Subject, Subscription, finalize, takeUntil } from 'rxjs';
+import { Observable, Subject, Subscription, TimeoutError, finalize, takeUntil } from 'rxjs';
 import { SessionScopeService } from '../../../core/auth/session-scope.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { OperationNotificationService } from '../../../core/services/operation-notification.service';
@@ -21,6 +21,7 @@ export class ReadingFacade {
   private listRequest?: Subscription;
   private latestRequest?: Subscription;
   private query: ReadingQuery = {};
+  private requiresReload = false;
   private readonly saved = new Subject<void>();
   readonly saved$ = this.saved.asObservable();
   readonly list = signal(state(empty()));
@@ -29,15 +30,20 @@ export class ReadingFacade {
   readonly saveError = signal('');
   readonly conflict = signal(false);
   constructor() { this.scope.changed$.pipe(takeUntilDestroyed()).subscribe(() => this.clear()); }
-  clear(): void { this.list.set(state(empty())); this.latest.set(state(null)); this.saving.set(false); this.resetFeedback(); }
-  resetFeedback(): void { this.saveError.set(''); this.conflict.set(false); }
+  clear(): void { this.requiresReload = false; this.list.set(state(empty())); this.latest.set(state(null)); this.saving.set(false); this.resetFeedback(); }
+  resetFeedback(): void { if (this.requiresReload) return; this.saveError.set(''); this.conflict.set(false); }
   load(query: ReadingQuery): void {
     this.query = query; this.listRequest?.unsubscribe();
     if (!this.auth.sessionSnapshot) { this.clear(); return; }
     const version = this.scope.version;
+    const reconcilesMutation = this.requiresReload;
     this.list.set({ ...this.list(), loading: true, error: null });
     this.listRequest = this.api.list(query).pipe(takeUntil(this.scope.changed$), takeUntilDestroyed(this.destroy)).subscribe({
-      next: data => { if (version === this.scope.version) this.list.set(state(data)); },
+      next: data => {
+        if (version !== this.scope.version) return;
+        if (reconcilesMutation) { this.requiresReload = false; this.resetFeedback(); }
+        this.list.set(state(data));
+      },
       error: () => { if (version === this.scope.version) this.list.set({ ...this.list(), loading: false, error: 'No pudimos cargar tus lecturas. Intenta de nuevo.' }); }
     });
   }
@@ -64,8 +70,11 @@ export class ReadingFacade {
       },
       error: error => {
         if (version !== this.scope.version) return;
-        this.conflict.set(error.status === 409);
-        this.saveError.set(error.status === 409 ? 'La lectura cambió en otro dispositivo. Conservamos tu borrador; recarga antes de guardar.' : error.status === 404 ? 'El libro ya no está disponible. Puedes quitar su seguimiento.' : 'No pudimos guardar. Revisa tu conexión y los datos; tus cambios siguen en el formulario.');
+        const uncertain = error.status === 0 || error.status >= 500 || error instanceof TimeoutError;
+        this.requiresReload = error.status === 409 || uncertain;
+        if (this.requiresReload) this.listRequest?.unsubscribe();
+        this.conflict.set(error.status === 409 || uncertain);
+        this.saveError.set(uncertain ? 'No pudimos confirmar el resultado. El cambio puede haberse guardado. Conservamos tu borrador; recarga para consultar el estado del servidor antes de volver a intentarlo.' : error.status === 409 ? 'La lectura cambió en otro dispositivo. Conservamos tu borrador; recarga antes de guardar.' : error.status === 404 ? 'El libro ya no está disponible. Puedes quitar su seguimiento.' : 'No pudimos guardar. Revisa tu conexión y los datos; tus cambios siguen en el formulario.');
       }
     });
   }

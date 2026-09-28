@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { DestroyRef, Injectable, inject } from '@angular/core';
 import { SessionScopeService } from '../auth/session-scope.service';
 import { BehaviorSubject, distinctUntilChanged, map, Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -22,7 +22,23 @@ export class AuthService {
     distinctUntilChanged()
   );
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {
+    const sync = (event: StorageEvent) => {
+      if (event.storageArea !== localStorage || (event.key !== null && event.key !== SESSION_STORAGE_KEY)) return;
+      // Read the latest storage value: queued events may describe an older login.
+      let next: AuthSession | null = null;
+      try {
+        const value: unknown = JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY) ?? 'null');
+        if (isAuthSession(value) && !isTokenExpired(value.token)) next = value;
+      } catch { /* Invalid external session behaves as logged out; never echo storage events. */ }
+      const previous = this.sessionSnapshot;
+      if (JSON.stringify(previous) === JSON.stringify(next)) return;
+      this.sessionSubject.next(next);
+      if (previous?.token !== next?.token || previous?.user.id !== next?.user.id || previous?.user.role !== next?.user.role) this.scope.invalidate();
+    };
+    window.addEventListener('storage', sync);
+    inject(DestroyRef).onDestroy(() => window.removeEventListener('storage', sync));
+  }
 
   login(request: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${environment.apiUrl}${API_URLS.AUTH.LOGIN}`, request)

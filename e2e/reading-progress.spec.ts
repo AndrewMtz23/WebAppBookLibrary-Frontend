@@ -103,9 +103,50 @@ test('invitado recibe acceso a login y un fallo de guardado conserva el borrador
   await page.goto('/app/reading'); await page.getByRole('button', { name: 'Actualizar lectura' }).click();
   await page.route('**/api/reading/my/books/*', route => route.request().method() === 'PUT' ? route.fulfill({ status: 503, contentType: 'application/problem+json', body: '{}' }) : route.continue());
   await page.getByRole('spinbutton', { name: 'Porcentaje leído' }).fill('60'); await page.getByRole('button', { name: 'Guardar progreso', exact: true }).click();
-  await expect(page.getByRole('alert')).toContainText('No pudimos guardar');
+  await expect(page.getByRole('alert')).toContainText('No pudimos confirmar');
   await expect(page.getByRole('spinbutton', { name: 'Porcentaje leído' })).toHaveValue('60');
   await expect(page.locator('.reading-card')).toContainText('37 %');
+});
+
+test('respuesta perdida después del commit: conserva borrador y recupera el avance guardado', async ({ page, request }) => {
+  const f = await fixture(request); await login(page, f.email); await begin(page, f.book.id);
+  await page.goto('/app/reading'); await page.getByRole('button', { name: 'Actualizar lectura' }).click();
+  let writes = 0;
+  await page.route('**/api/reading/my/books/*', async route => {
+    if (route.request().method() !== 'PUT') return route.continue();
+    writes++; const response = await route.fetch(); expect(response.ok()).toBeTruthy(); await route.abort('connectionreset');
+  });
+  await page.getByRole('spinbutton', { name: 'Porcentaje leído' }).fill('60');
+  await page.getByRole('button', { name: 'Guardar progreso', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('puede haberse guardado');
+  await expect(page.getByRole('spinbutton', { name: 'Porcentaje leído' })).toHaveValue('60');
+  await expect(page.getByRole('button', { name: 'Guardar progreso', exact: true })).toBeDisabled();
+  await page.getByRole('button', { name: 'Actualizar lectura' }).click();
+  await expect(page.getByRole('button', { name: 'Guardar progreso', exact: true })).toBeDisabled();
+  await expect(page.locator('.reading-card')).toContainText('37 %');
+  await page.getByRole('button', { name: 'Recargar y descartar borrador' }).click();
+  await expect(page.locator('.reading-card')).toContainText('60 %'); expect(writes).toBe(1);
+});
+
+test('dos pestañas comparten logout y cambio de cuenta sin aceptar una lectura pendiente anterior', async ({ page, context, request }) => {
+  const f = await fixture(request); const stranger = await fixture(request);
+  await login(page, f.email); await begin(page, f.book.id);
+  const other = await context.newPage();
+  await other.goto('/app/reading'); await expect(other.locator('.reading-card')).toContainText('37 %');
+  let release!: () => void; const gate = new Promise<void>(resolve => release = resolve); let captured = false;
+  await other.route('**/api/reading/my?*', async route => {
+    const response = await route.fetch(); captured = true; await gate;
+    await route.fulfill({ response }).catch(() => {});
+  }, { times: 1 });
+  await other.reload(); await expect.poll(() => captured).toBeTruthy();
+  await page.locator('.account-menu__trigger').click();
+  await page.getByRole('menuitem', { name: 'Cerrar sesión' }).click();
+  await page.getByRole('button', { name: 'Sí, cerrar sesión' }).click();
+  await expect(other.locator('.reading-card')).toHaveCount(0);
+  await login(page, stranger.email); release();
+  await other.goto('/app/reading'); await expect(other.locator('.reading-card')).toHaveCount(0);
+  await expect(other.getByRole('heading', { name: 'Tu próxima historia te espera' })).toBeVisible();
+  expect((await (await request.get('/api/reading/my', { headers: stranger.headers })).json()).items).toEqual([]);
 });
 
 for (const theme of ['light', 'dark']) test(`lectura responsive, teclado y accesibilidad: ${theme}`, async ({ page, request }, info) => {

@@ -10,7 +10,7 @@ import { PagedResult } from '../../shared/models/paged-result.model';
   styles: [`.chips, .options { display: flex; flex-wrap: wrap; gap: .5rem; margin-block: .75rem; } .options button[aria-pressed=true] { border-color: var(--color-primary); background: var(--color-primary-soft); }`],
   template: `
     <div role="group" aria-labelledby="category-label"><p id="category-label">Géneros * · {{ ids.length }}/8 seleccionados</p>
-    <div class="chips" aria-label="Géneros seleccionados">@for (id of ids; track id) { <button type="button" [disabled]="disabled" (click)="toggle(id)" [attr.aria-label]="'Quitar ' + label(id)">{{ label(id) }} ×</button> }</div>
+    <div class="chips" role="group" aria-label="Géneros seleccionados">@for (id of ids; track id) { <button type="button" [disabled]="disabled" (click)="toggle(id)" [attr.aria-label]="'Quitar ' + label(id)">{{ label(id) }} ×</button> }</div>
     @if (legacy.length && !existing.length) { <p>Clasificación anterior: {{ legacy.join(', ') }}. Selecciona sus equivalentes del catálogo para guardar; no se crean categorías automáticamente.</p> }
     <label>Buscar géneros<input [disabled]="disabled" [ngModel]="query" (ngModelChange)="search($event)" [ngModelOptions]="{standalone:true}" maxlength="80" placeholder="Buscar en el catálogo"></label>
     @if (loading()) { <p role="status">Cargando géneros…</p> }

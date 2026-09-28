@@ -34,3 +34,15 @@ npx playwright test e2e/reading-progress.spec.ts e2e/account-recovery.spec.ts e2
 Lectura cubre tres roles, invitado, persistencia, conflictos entre dispositivos, aislamiento, fallo de guardado, reconciliación y préstamos/favoritos intactos. Accesibilidad automatizada con axe y comprobaciones de teclado/foco en claro/oscuro y 360/768/1366/1920 px.
 
 Rollback: revertir el cliente junto con backend; conservar la colección de seguimiento para restauración posterior. La entrega permanece en `feat/phase-8-reading-progress`; publicación y despliegue son pasos separados.
+
+## Cierre para uso real (28/09/2026)
+
+`AuthService` escucha cambios de sesión entre pestañas del mismo origen. Lee el valor actual de localStorage para ignorar eventos atrasados, valida su forma/vencimiento y cancela datos personales al cambiar identidad/token/rol o cerrar sesión. No reescribe el storage al recibir el evento. Cambios de perfil de la misma identidad actualizan la presentación sin reiniciar solicitudes. La suscripción se retira al destruir el servicio.
+
+Las peticiones de lectura tienen un límite de 20 segundos. Un fallo de transporte, timeout o 5xx puede ocurrir después de guardar: se conserva el borrador, se informa que el resultado es desconocido y se bloquean nuevos envíos. El usuario puede recargar explícitamente para consultar el servidor y descartar el borrador. La apertura de otra tarjeta no elimina el bloqueo; solo una recarga exitosa lo resuelve. No se reenvía automáticamente una mutación incierta.
+
+Pruebas adicionales: dos pestañas del mismo BrowserContext con logout/login y respuesta pendiente; PUT confirmado en backend cuya respuesta se corta; timeout; sincronización sin bucles y rechazo de datos de sesión inválidos. Suite unitaria: 263/263. Los 10 recorridos de lectura pasan. La suite completa de navegador y los checks remotos se registran en el PR.
+
+La revisión independiente detectó el desbloqueo al reabrir la tarjeta, reproducido y corregido. La suite completa detectó además un `aria-label` sobre un div de categorías sin rol: se le asignó `role=group`, manteniendo las comprobaciones axe.
+
+El workflow integrado fija un SHA compatible del backend de fase 8. Desplegar primero API/índices, después cliente; mantener artefactos compatibles para rollback. Las puertas de staging, respaldo real, collector/alertas y aceptación humana con lector de pantalla/zoom real al 200 % siguen requiriendo el entorno de puesta en operación. No se declaran cubiertas por las pruebas locales.

@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { ReadingFacade } from './reading.facade';
@@ -53,4 +53,25 @@ describe('ReadingFacade', () => {
     facade.load({}); http.expectOne(r => r.url === '/api/reading/my').flush(empty);
     expect(facade.list().error).toBeNull(); expect(facade.list().data.items.length).toBe(0);
   });
+
+  it('requires a server reload after a response is lost instead of repeating an uncertain write', () => {
+    facade.remove('book', 'abc:1');
+    http.expectOne(r => r.method === 'DELETE').error(new ProgressEvent('error'));
+    expect(facade.saving()).toBeFalse(); expect(facade.conflict()).toBeTrue();
+    expect(facade.saveError()).toContain('confirmar');
+    expect(notices.success).not.toHaveBeenCalled();
+    facade.resetFeedback(); // Opening a card again must not bypass reconciliation.
+    facade.remove('book', 'abc:1'); http.expectNone(r => r.method === 'DELETE');
+    facade.load({});
+    http.expectOne(r => r.method === 'GET').flush(empty);
+    expect(facade.conflict()).toBeFalse(); expect(facade.saveError()).toBe('');
+  });
+
+  it('ends a stalled write after twenty seconds without claiming failure or success', fakeAsync(() => {
+    facade.remove('book', 'abc:1'); const pending = http.expectOne(r => r.method === 'DELETE');
+    tick(20_000);
+    expect(pending.cancelled).toBeTrue(); expect(facade.saving()).toBeFalse();
+    expect(facade.conflict()).toBeTrue(); expect(facade.saveError()).toContain('confirmar');
+    expect(notices.success).not.toHaveBeenCalled();
+  }));
 });
