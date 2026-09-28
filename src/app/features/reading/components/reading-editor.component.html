@@ -7,7 +7,7 @@
       <label>Estado<select name="status" [(ngModel)]="status"><option value="want_to_read">Quiero leer</option><option value="reading">Leyendo</option><option value="finished">Terminado</option></select></label>
       <label>Registrar por<select name="mode" [(ngModel)]="mode" (ngModelChange)="changeMode()"><option value="percent">Porcentaje</option>@if (canUsePages) { <option value="page">Página</option> }</select></label>
     </div>
-    @if (status === 'reading') {
+    @if (status === 'reading' || (status === 'finished' && mode === 'page' && adopt)) {
       <label>{{ mode === 'page' ? 'Página actual' : 'Porcentaje leído' }}
         <input name="progress" type="number" step="1" min="0" [max]="mode === 'page' ? total : 100" required [(ngModel)]="value" [attr.aria-describedby]="(localError || error) ? 'reading-editor-error' : 'reading-progress-help'" />
       </label>

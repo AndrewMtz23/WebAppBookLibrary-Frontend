@@ -42,4 +42,13 @@ describe('ReadingEditorComponent', () => {
     expect(f.componentInstance.canUsePages).toBeFalse();
     f.componentInstance.value = 100; f.componentInstance.submit(); expect(saved).toHaveBeenCalledWith(jasmine.objectContaining({ progressPercent: 100 }));
   });
+  it('does not silently change the page of a finished book when adopting a new total', () => {
+    const f = create({ ...readingFixture, status: 'finished', currentPage: 100, progressPercent: 100 }, 200);
+    const saved = jasmine.createSpy(); f.componentInstance.save.subscribe(saved);
+    f.componentInstance.adopt = true; f.detectChanges();
+    expect(f.nativeElement.querySelector('input[name=progress]')).toBeTruthy();
+    f.componentInstance.submit(); expect(saved).not.toHaveBeenCalled();
+    f.componentInstance.value = 200; f.componentInstance.submit();
+    expect(saved).toHaveBeenCalledWith(jasmine.objectContaining({ currentPage: 200 }));
+  });
 });

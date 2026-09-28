@@ -362,3 +362,5 @@ app-discover-app-banner {
     transform: none;
   }
 }
+.continue-reading { padding: 1.5rem; border: 1px solid var(--color-border); border-radius: 1rem; background: var(--color-surface); color: var(--color-text); }
+.continue-reading a { color: var(--color-primary); }.continue-reading progress { width: min(100%, 24rem); accent-color: var(--color-primary); display: block; margin: 1rem 0; }

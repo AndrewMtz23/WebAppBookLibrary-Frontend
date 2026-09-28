@@ -37,9 +37,11 @@ export class ReadingEditorComponent implements OnChanges {
   submit(): void {
     if (this.busy || this.conflict || this.entry?.bookAvailable === false) return;
     this.localError = '';
-    const value = this.status === 'want_to_read' ? 0 : this.status === 'finished' ? (this.mode === 'page' ? this.total : 100) : this.value;
+    const reconcileFinished = this.entry?.status === 'finished' && this.status === 'finished' && this.mode === 'page' && this.adopt;
+    const value = this.status === 'want_to_read' ? 0 : this.status === 'finished' && !reconcileFinished ? (this.mode === 'page' ? this.total : 100) : this.value;
     if (value === null || !Number.isInteger(value) || value < 0 || value > (this.mode === 'page' ? this.total ?? -1 : 100)) return this.fail('Introduce un avance entero dentro del total indicado.');
     if (this.needsConfirmation && !this.confirmReset) return this.fail('Confirma el cambio de estado antes de guardar.');
+    if (reconcileFinished && value !== this.total) return this.fail('Para conservar el estado Terminado, confirma la última página del nuevo total. También puedes reabrir la lectura.');
     if (this.entry?.status === 'finished' && this.status === 'reading' && value === (this.mode === 'page' ? this.total : 100)) return this.fail('Para reabrir la lectura, introduce un avance menor al total.');
     this.save.emit({ status: this.status, progressMode: this.mode, progressPercent: this.mode === 'percent' ? value : null,
       currentPage: this.mode === 'page' ? value : null, expectedRevision: this.entry?.revision ?? null,

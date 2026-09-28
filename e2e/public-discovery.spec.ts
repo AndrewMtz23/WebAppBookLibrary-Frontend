@@ -21,7 +21,7 @@ test('visitante: descubre, consulta libros y abre una modal accesible sin petici
   test.setTimeout(180_000);
   const marker = await (await request.get('/__qa')).json();
   const calls: string[] = [];
-  page.on('request', r => { if (/\/api\/(?:loans|favorites|profile|dashboard)/.test(r.url())) calls.push(`${r.method()} ${r.url()}`); });
+  page.on('request', r => { if (/\/api\/(?:loans|favorites|profile|dashboard|reading)/.test(r.url())) calls.push(`${r.method()} ${r.url()}`); });
   await page.goto('/');
   await expect(page).toHaveURL(/\/app\/discover$/);
   await expect(page.getByRole('link', { name: 'Iniciar sesión', exact: true })).toBeVisible();
@@ -47,6 +47,10 @@ test('visitante: descubre, consulta libros y abre una modal accesible sin petici
       await page.keyboard.press(key);
       expect(await dialog.evaluate(el => el.contains(document.activeElement))).toBeTruthy();
     }
+    // Measure the settled dialog, not its temporary translucent entrance frame.
+    await dialog.evaluate(async el => {
+      await Promise.all(el.getAnimations({ subtree: true }).map(animation => animation.finished.catch(() => {})));
+    });
     await page.addScriptTag({ path: require.resolve('axe-core/axe.min.js') });
     const issues = await page.evaluate(async () => (await (window as any).axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] } })).violations.map((v: any) => ({ id: v.id, nodes: v.nodes.map((n: any) => n.target) })));
     expect(issues).toEqual([]);

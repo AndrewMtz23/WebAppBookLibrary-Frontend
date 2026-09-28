@@ -43,20 +43,16 @@
           <p>Tu actividad</p>
           <h2 id="continue-title">Continúa leyendo</h2>
         </div>
-        <a routerLink="/app/my-library">Mi biblioteca</a>
+        <a routerLink="/app/reading">Mis lecturas</a>
       </div>
       @if (facade.activeReading().loading) {
         <app-skeleton [lines]="3" />
       } @else if (facade.activeReading().data; as current) {
-        <app-book-grid
-          [books]="[current]"
-          [favoriteResolver]="favoriteResolver"
-          [busyFavoriteIds]="favorites.busyIds()"
-          (favoriteRequested)="toggleFavorite($event)" />
+        <article class="continue-reading"><h3><a [routerLink]="['/app/catalog', current.bookId]">{{ current.title }}</a></h3><p>{{ current.progressPercent }} % leído</p><progress [value]="current.progressPercent" max="100" aria-label="Progreso guardado"></progress><a routerLink="/app/reading">Actualizar progreso →</a></article>
       } @else if (facade.activeReading().error) {
         <app-error-state title="No pudimos cargar tu lectura actual" [message]="facade.activeReading().error!" (retryRequested)="facade.load()" />
       } @else {
-        <p class="subtle-note">Cuando reserves un libro, aparecerá aquí para continuar.</p>
+        <p class="subtle-note">Cuando comiences una lectura desde la ficha de un libro, aparecerá aquí.</p>
       }
     </section>
   }
