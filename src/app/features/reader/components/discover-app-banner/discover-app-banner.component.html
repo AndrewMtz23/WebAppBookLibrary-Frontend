@@ -34,7 +34,7 @@
             <img class="phone-screen__brand-icon" src="assets/LibraryLogo.png" alt="" width="24" height="24" />
             <span class="phone-screen__brand-text">BookLibrary</span>
           </div>
-          @if (hasActiveLoan) {
+          @if (hasReading) {
             <span class="phone-screen__badge phone-screen__badge--active">En lectura</span>
           } @else {
             <span class="phone-screen__badge phone-screen__badge--neutral">Lectura sugerida</span>
@@ -56,7 +56,7 @@
                 </div>
               }
               <div class="phone-screen__cover-overlay">
-                <span class="phone-screen__cover-pill">{{ book.mediaType === 'digital' ? 'Digital' : 'Físico' }}</span>
+                <span class="phone-screen__cover-pill">{{ hasReading ? 'Tu lectura' : 'Del catálogo' }}</span>
               </div>
               @if (hasMultipleBooks) {
                 <div class="carousel-controls">
@@ -70,20 +70,18 @@
 
             <div class="phone-screen__details">
               <h4 class="phone-screen__title">{{ book.title }}</h4>
-              <p class="phone-screen__author">{{ book.authors[0] || 'Autor por confirmar' }}</p>
+              <p class="phone-screen__author">{{ hasReading ? 'Tu última actividad guardada' : 'Una historia por descubrir' }}</p>
 
               <div class="phone-screen__progress-box">
                 <div class="phone-screen__progress-labels">
-                  <span>{{ hasActiveLoan ? 'Progreso de lectura' : 'Disponibilidad' }}</span>
-                  <b>{{ hasActiveLoan ? '64%' : (book.mediaType === 'digital' ? 'Acceso directo' : (book.availableCopies ? book.availableCopies + ' disp.' : 'En reserva')) }}</b>
+                  <span>{{ hasReading ? 'Progreso de lectura' : 'Lectura sugerida' }}</span>
+                  @if (reading) { <b>{{ reading.progressPercent }}%</b> }
                 </div>
-                <div class="phone-screen__progress-bar">
-                  <div class="phone-screen__progress-fill" [style.width]="hasActiveLoan ? '64%' : '100%'"></div>
-                </div>
+                @if (reading) { <div class="phone-screen__progress-bar" role="progressbar" aria-label="Progreso de lectura" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="reading.progressPercent"><div class="phone-screen__progress-fill" [style.width.%]="reading.progressPercent"></div></div> }
               </div>
 
               <a [routerLink]="['/app/catalog', book.id]" class="phone-screen__action-btn">
-                {{ hasActiveLoan ? 'Continuar leyendo →' : 'Ver catálogo →' }}
+                {{ hasReading ? 'Ver mi libro →' : 'Ver ficha →' }}
               </a>
             </div>
           </div>

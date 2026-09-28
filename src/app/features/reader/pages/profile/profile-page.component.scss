@@ -48,3 +48,7 @@ button:disabled { opacity: .55; cursor: default; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 @media(max-width: 800px) { .profile-grid { grid-template-columns: 1fr; } }
 @media(max-width: 480px) { .metrics { grid-template-columns: 1fr; } .form-actions > div { width: 100%; } .form-actions button { flex: 1; } }
+:host .latest-reading { margin: 1.5rem 0; padding: 1.5rem; border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); border-radius: 1rem; }
+:host .latest-reading h2 { font-family: var(--font-display); margin: 0 0 1rem; }
+:host .latest-reading a { color: var(--color-primary); display: inline-block; margin-right: 1rem; }
+:host .latest-reading progress { width: min(100%, 20rem); display: block; margin: 1rem 0; accent-color: var(--color-primary); }

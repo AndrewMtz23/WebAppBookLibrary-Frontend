@@ -151,9 +151,11 @@
     </section>
   }
 
-  <app-discover-app-banner
+  @if (facade.activeReading().error) { <app-error-state title="Tu última lectura" [message]="facade.activeReading().error!" (retryRequested)="facade.load()" /> }
+  @else if (facade.activeReading().loading) { <p role="status">Cargando tu última lectura…</p> }
+  @else { <app-discover-app-banner
     [books]="bannerBooks()"
-    [activeBookId]="facade.activeReading().data?.id ?? null" />
+    [reading]="facade.activeReading().data" /> }
 
   @if (isReader && facade.activity().data; as activity) {
     <aside class="activity">

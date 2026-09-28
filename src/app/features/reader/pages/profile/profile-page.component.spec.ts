@@ -19,7 +19,7 @@ describe('ProfilePageComponent', () => {
       throwError(() => new Error('history unavailable'))
     );
     reader.getFavorites.and.returnValue(of({ items: [], page: 1, pageSize: 1, totalItems: 7, totalPages: 7, hasNextPage: true, hasPreviousPage: false }));
-    TestBed.configureTestingModule({ imports: [ProfilePageComponent, NoopAnimationsModule], providers: [
+    TestBed.configureTestingModule({ imports: [ProfilePageComponent, NoopAnimationsModule], providers: [provideHttpClient(), provideHttpClientTesting(),
       provideRouter([]), ProfileFacade,
       { provide: ReaderService, useValue: reader },
       { provide: AuthService, useValue: { logout: jasmine.createSpy('logout') } }
@@ -41,7 +41,7 @@ describe('ProfilePageComponent', () => {
     reader.getProfile.and.returnValue(of({ id: 'u1', displayName: 'Elena', username: 'elena', email: 'elena@example.com', avatarUrl: 'https://images.example.test/elena.jpg', role: 'user', createdAt: '2025-01-02T00:00:00Z', lastLoginAt: null }));
     reader.getLoans.and.returnValues(of({ items: [], page: 1, pageSize: 1, totalItems: 0, totalPages: 0, hasNextPage: false, hasPreviousPage: false }), of({ items: [], page: 1, pageSize: 1, totalItems: 0, totalPages: 0, hasNextPage: false, hasPreviousPage: false }));
     reader.getFavorites.and.returnValue(of({ items: [], page: 1, pageSize: 1, totalItems: 0, totalPages: 0, hasNextPage: false, hasPreviousPage: false }));
-    TestBed.configureTestingModule({ imports: [ProfilePageComponent, NoopAnimationsModule], providers: [
+    TestBed.configureTestingModule({ imports: [ProfilePageComponent, NoopAnimationsModule], providers: [provideHttpClient(), provideHttpClientTesting(),
       provideRouter([]), ProfileFacade, { provide: ReaderService, useValue: reader }, { provide: AuthService, useValue: { logout: jasmine.createSpy('logout') } }
     ] });
     const fixture = TestBed.createComponent(ProfilePageComponent); fixture.detectChanges();

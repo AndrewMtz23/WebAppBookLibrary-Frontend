@@ -7,15 +7,27 @@ describe('DiscoverAppBannerComponent carousel', () => {
   const books: BookSummary[] = ['a', 'b', 'c'].map(id => ({ id, title: id, authors: ['Author'], isActive: true, mediaType: 'digital', subtitle: null, coverUrl: null, genres: [], availableCopies: null, totalCopies: null, reservationCount: 0, isFavorite: false }));
   beforeEach(() => TestBed.configureTestingModule({ imports: [DiscoverAppBannerComponent], providers: [provideRouter([])] }));
 
+  it('shows persisted progress instead of a percentage inferred from a reservation', () => {
+    const fixture = TestBed.createComponent(DiscoverAppBannerComponent);
+    fixture.componentRef.setInput('books', books);
+    fixture.componentRef.setInput('reading', { bookId: 'reading-book', title: 'Actual reading', coverUrl: null, progressPercent: 37, bookAvailable: true });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('37%');
+    expect(fixture.nativeElement.textContent).toContain('Actual reading');
+    fixture.componentInstance.next(); fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Actual reading');
+    expect(fixture.nativeElement.textContent).not.toContain('64%');
+    fixture.destroy();
+  });
+
   it('shuffles without mutating the input, deduplicates and visits every book once per cycle', () => {
     spyOn(Math, 'random').and.returnValue(0);
     const fixture = TestBed.createComponent(DiscoverAppBannerComponent);
     const component = fixture.componentInstance;
     component.books = [...books, books[0], { ...books[0], id: 'inactive', isActive: false }];
-    component.activeBookId = 'b';
     component.ngOnChanges();
     expect(component.book?.id).toBe('b');
-    expect(component.hasActiveLoan).toBeTrue();
+    expect(component.hasReading).toBeFalse();
     const seen: string[] = [];
     for (let i = 0; i < 3; i++) {
       seen.push(component.book!.id);

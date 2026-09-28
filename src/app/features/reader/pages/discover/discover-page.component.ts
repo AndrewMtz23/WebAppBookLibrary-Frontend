@@ -31,8 +31,7 @@ import { DiscoverAppBannerComponent } from '../../components/discover-app-banner
 export class DiscoverPageComponent {
   readonly facade = inject(DiscoverFacade);
   readonly bannerBooks = computed(() => {
-    const active = this.facade.activeReading().data;
-    return [...(active ? [active] : []), ...this.facade.popularBooks(), ...this.facade.newest().data];
+    return [...this.facade.popularBooks(), ...this.facade.newest().data];
   });
   readonly favorites = inject(FavoritesFacade);
   private readonly auth = inject(AuthService);
