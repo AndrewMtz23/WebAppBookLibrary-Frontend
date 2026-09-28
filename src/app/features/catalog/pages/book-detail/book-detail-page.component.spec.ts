@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
@@ -30,7 +32,7 @@ describe('BookDetailPageComponent', () => {
     catalog.search.and.returnValue(of({ items: [{ ...detail, id: 'book-2', title: 'El llano en llamas' }], page: 1, pageSize: 5, totalItems: 1, totalPages: 1, hasNextPage: false, hasPreviousPage: false }));
     reader = jasmine.createSpyObj<ReaderService>('ReaderService', ['getLoans', 'getDigitalAccess', 'reserve']);
     reader.getLoans.and.returnValue(of({ items: [], page: 1, pageSize: 100, totalItems: 0, totalPages: 0, hasNextPage: false, hasPreviousPage: false }));
-    TestBed.configureTestingModule({ imports: [BookDetailPageComponent, NoopAnimationsModule], providers: [
+    TestBed.configureTestingModule({ imports: [BookDetailPageComponent, NoopAnimationsModule], providers: [provideHttpClient(), provideHttpClientTesting(),
       { provide: ActivatedRoute, useValue: { paramMap: params.asObservable() } },
       { provide: CatalogService, useValue: catalog },
       { provide: ReaderService, useValue: reader },

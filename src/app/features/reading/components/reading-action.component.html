@@ -1,0 +1,8 @@
+<button type="button" data-open-reading (click)="open()" [attr.aria-expanded]="opened()">Mi lectura <span aria-hidden="true">↗</span></button>
+@if (opened()) {
+  <div class="editor-panel">
+    @if (facade.list().loading) { <p role="status">Cargando tu lectura…</p> }
+    @else if (facade.list().error) { <p role="alert">{{ facade.list().error }}</p><button type="button" (click)="reload()">Reintentar</button> }
+    @else { <app-reading-editor [entry]="facade.list().data.items[0] ?? null" [pageCount]="pageCount" [busy]="facade.saving()" [error]="facade.saveError()" [conflict]="facade.conflict()" (save)="facade.save(bookId, $event)" (remove)="facade.remove(bookId, $event)" (reload)="reload()" (cancelled)="close()" /> }
+  </div>
+}

@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../services/auth.service';
 import { SignInRequiredDialogComponent } from '../../shared/ui/sign-in-required-dialog/sign-in-required-dialog.component';
 
-export type ReaderAction = 'reserve' | 'favorite';
+export type ReaderAction = 'reserve' | 'favorite' | 'reading';
 
 @Injectable({ providedIn: 'root' })
 export class ReaderActionAccessService {
