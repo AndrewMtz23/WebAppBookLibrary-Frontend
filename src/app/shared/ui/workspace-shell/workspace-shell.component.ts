@@ -1,4 +1,5 @@
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
+import { NotificationBellComponent } from '../../../features/notifications/notification-bell.component';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { A11yModule } from '@angular/cdk/a11y';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,7 +13,7 @@ import { SiteFooterComponent } from '../site-footer/site-footer.component';
 import { ReaderNavbarComponent } from '../reader-navbar/reader-navbar.component';
 import { AdminFooterComponent } from '../admin-footer/admin-footer.component';
 
-@Component({ selector: 'app-workspace-shell', standalone: true, imports: [ThemeToggleComponent, A11yModule, AdminFooterComponent, ReaderNavbarComponent, AppBrandComponent, AvatarComponent, SiteFooterComponent, MatButtonModule, MatIconModule, MatTooltipModule, RouterLink, RouterLinkActive, RouterOutlet], templateUrl: './workspace-shell.component.html', styleUrls: ['./workspace-shell.component.scss'], changeDetection: ChangeDetectionStrategy.OnPush })
+@Component({ selector: 'app-workspace-shell', standalone: true, imports: [NotificationBellComponent, ThemeToggleComponent, A11yModule, AdminFooterComponent, ReaderNavbarComponent, AppBrandComponent, AvatarComponent, SiteFooterComponent, MatButtonModule, MatIconModule, MatTooltipModule, RouterLink, RouterLinkActive, RouterOutlet], templateUrl: './workspace-shell.component.html', styleUrls: ['./workspace-shell.component.scss'], changeDetection: ChangeDetectionStrategy.OnPush })
 export class WorkspaceShellComponent {
   private readonly sidebarStorageKey = 'booklibrary_sidebar_collapsed';
 
