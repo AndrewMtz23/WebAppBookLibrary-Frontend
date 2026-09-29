@@ -1,0 +1,29 @@
+<form (ngSubmit)="submit()" class="reading-editor" aria-label="Editar progreso de lectura">
+  <div class="editor-heading"><div><p class="eyebrow">Un libro a tu ritmo</p><h2>Tu progreso</h2></div><button type="button" (click)="cancelled.emit()" [disabled]="busy">Cerrar editor</button></div>
+  @if (localError || error) { <p class="feedback" role="alert" tabindex="-1" data-reading-error id="reading-editor-error">{{ localError || error }}</p> }
+  @if (entry?.bookAvailable === false) { <p>Este libro ya no está disponible. Conservamos tu historial; puedes quitar el seguimiento.</p> }
+  <fieldset [disabled]="busy || conflict || entry?.bookAvailable === false">
+    <div class="fields">
+      <label>Estado<select name="status" [(ngModel)]="status"><option value="want_to_read">Quiero leer</option><option value="reading">Leyendo</option><option value="finished">Terminado</option></select></label>
+      <label>Registrar por<select name="mode" [(ngModel)]="mode" (ngModelChange)="changeMode()"><option value="percent">Porcentaje</option>@if (canUsePages) { <option value="page">Página</option> }</select></label>
+    </div>
+    @if (status === 'reading' || (status === 'finished' && mode === 'page' && adopt)) {
+      <label>{{ mode === 'page' ? 'Página actual' : 'Porcentaje leído' }}
+        <input name="progress" type="number" step="1" min="0" [max]="mode === 'page' ? total : 100" required [(ngModel)]="value" [attr.aria-describedby]="(localError || error) ? 'reading-editor-error' : 'reading-progress-help'" />
+      </label>
+      <p id="reading-progress-help" class="hint">{{ mode === 'page' ? 'Total utilizado: ' + total + ' páginas.' : 'De 0 a 100 %. Al llegar a 100, el libro queda terminado.' }}</p>
+    } @else { <p class="hint">{{ status === 'finished' ? 'Se guardará el 100 % y la fecha de finalización.' : 'Se guardará sin avance ni fechas de lectura.' }}</p> }
+    @if (mode === 'page' && entry?.pageCountChanged) {
+      <div class="notice"><p>El catálogo cambió su total a {{ pageCount ?? 'desconocido' }} páginas. Tu lectura conserva {{ entry?.pageCountSnapshot }}.</p>
+      @if ((pageCount ?? 0) > 0) { <label class="check"><input type="checkbox" name="adopt" [(ngModel)]="adopt" />Usar el nuevo total y revisar mi página actual</label> }
+      @else { <p>Puedes conservar tu total o cambiar a porcentaje.</p> }</div>
+    }
+    @if (needsConfirmation) { <label class="check"><input type="checkbox" name="confirmation" [(ngModel)]="confirmReset" />{{ status === 'want_to_read' ? 'Confirmo reiniciar el progreso y borrar las fechas de lectura.' : 'Confirmo reabrir la lectura y borrar su fecha de finalización.' }}</label> }
+    <button class="primary" type="submit">{{ busy ? 'Guardando…' : 'Guardar progreso' }}</button>
+  </fieldset>
+  @if (conflict) { <button type="button" (click)="reload.emit()">Recargar y descartar borrador</button> }
+  @if (entry) {
+    @if (!removing) { <button class="remove" type="button" (click)="requestRemove()" [disabled]="busy || conflict">Quitar seguimiento</button> }
+    @else { <div class="notice"><p>¿Quitar esta lectura y su progreso? Tus favoritos y préstamos se conservan.</p><button type="button" data-confirm-remove (click)="confirmRemove()" [disabled]="busy || conflict">Sí, quitar seguimiento</button> <button type="button" (click)="removing = false">Conservar lectura</button></div> }
+  }
+</form>

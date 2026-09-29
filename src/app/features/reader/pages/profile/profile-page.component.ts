@@ -13,20 +13,23 @@ import { ReaderProfile } from '../../models/reader.models';
 import { ProfileFacade } from '../../data-access/profile.facade';
 import { ChangePasswordComponent } from './change-password.component';
 import { EmailVerificationComponent } from './email-verification.component';
+import { ReadingFacade } from '../../../reading/data-access/reading.facade';
 
 @Component({
   selector: 'app-profile-page', standalone: true,
-  providers: [ProfileFacade],
+  providers: [ProfileFacade, ReadingFacade],
   imports: [CommonModule, FormsModule, RouterLink, MatButtonModule, MatIconModule, PageHeaderComponent, ErrorStateComponent, SkeletonComponent, AvatarComponent, ChangePasswordComponent, EmailVerificationComponent],
   templateUrl: './profile-page.component.html', styleUrl: './profile-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfilePageComponent {
   readonly facade = inject(ProfileFacade);
+  readonly reading = inject(ReadingFacade);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   readonly roleLabels = { user: 'Lector', librarian: 'Bibliotecario', admin: 'Administrador' };
   draft = { displayName: '', email: '', avatarUrl: '' };
   constructor() {
+    this.reading.loadLatest();
     effect(() => { const profile = this.facade.profile().data; if (profile) this.reset(profile); });
   }
   reset(profile: ReaderProfile, form?: NgForm): void {

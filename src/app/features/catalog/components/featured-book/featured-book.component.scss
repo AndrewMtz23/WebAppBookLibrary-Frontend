@@ -351,6 +351,8 @@ h2 {
 
 @media (max-width: 48rem) {
   .featured {
+    // Contain the decorative deck while its desktop transform transitions on resize.
+    overflow: clip;
     min-height: auto;
     grid-template-columns: 1fr;
     gap: 2.5rem;

@@ -1,5 +1,12 @@
 <div class="profile-page">
   <app-page-header [config]="{ eyebrow: 'Tu espacio personal', title: 'Mi cuenta', description: 'Una cuenta que se siente tuya. Mantén tus datos al día.' }" />
+  <section class="latest-reading" aria-labelledby="profile-reading-title">
+    <h2 id="profile-reading-title">Tu última lectura</h2>
+    @if (reading.latest().loading) { <p role="status">Cargando tu lectura…</p> }
+    @else if (reading.latest().error) { <p role="alert">{{ reading.latest().error }}</p><button mat-button (click)="reading.loadLatest()">Reintentar</button> }
+    @else if (reading.latest().data; as entry) { <a [routerLink]="['/app/catalog', entry.bookId]">{{ entry.title }}</a><p>{{ entry.progressPercent }} % leído</p><progress [value]="entry.progressPercent" max="100" aria-label="Progreso de tu última lectura"></progress><a routerLink="/app/reading">Actualizar progreso →</a> }
+    @else { <p>Aún no tienes una lectura en curso. Encuentra tu próxima historia en el catálogo.</p><a routerLink="/app/catalog">Explorar recomendaciones →</a> }
+  </section>
   @if (facade.profile().loading) {
     <app-skeleton [lines]="6" />
   } @else if (facade.profile().error) {

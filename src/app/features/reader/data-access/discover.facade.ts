@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, map, of, switchMap, takeUntil } from 'rxjs';
+import { Observable, takeUntil } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SessionScopeService } from '../../../core/auth/session-scope.service';
 import { BookSummary } from '../../../shared/models/book.model';
@@ -8,6 +8,8 @@ import { DEFAULT_CATALOG_QUERY } from '../../catalog/models/catalog-query';
 import { BookFacet, ReaderDashboard } from '../models/reader.models';
 import { ReaderService } from './reader.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ReadingService } from '../../reading/data-access/reading.service';
+import { ReadingResponse } from '../../reading/models/reading.models';
 
 export interface ResourceState<T> { data: T; loading: boolean; error: string | null; }
 
@@ -17,11 +19,12 @@ export class DiscoverFacade {
   private readonly catalog = inject(CatalogService);
   private readonly reader = inject(ReaderService);
   private readonly auth = inject(AuthService);
+  private readonly reading = inject(ReadingService);
   readonly newest = signal<ResourceState<readonly BookSummary[]>>(state([]));
   readonly popular = signal<ResourceState<readonly BookSummary[]>>(state([]));
   readonly facets = signal<ResourceState<readonly BookFacet[]>>(state([]));
   readonly activity = signal<ResourceState<ReaderDashboard | null>>(state(null));
-  readonly activeReading = signal<ResourceState<BookSummary | null>>(state(null));
+  readonly activeReading = signal<ResourceState<ReadingResponse | null>>(state(null));
   readonly popularBooks = computed(() => this.popular().data.some(book => book.reservationCount > 0) ? this.popular().data : this.newest().data);
 
   readonly allBooks = computed(() => {
@@ -63,15 +66,11 @@ export class DiscoverFacade {
     this.request(this.catalog.getFacets(), this.facets, value => value, 'No pudimos cargar las categorías.');
     if (this.auth.sessionSnapshot?.user.role === 'user') {
       this.request(this.reader.getDashboard(), this.activity, value => value, 'Tu actividad no está disponible por ahora.');
-      const active = this.reader.getLoans({ status: 'active', page: 1, pageSize: 1 }).pipe(
-        switchMap(page => page.items[0] ? this.catalog.getById(page.items[0].bookId) : of(null)),
-        map(book => book as BookSummary | null)
-      );
-      this.request(active, this.activeReading, value => value, 'No pudimos cargar tu lectura actual.');
     } else {
       this.activity.set(state(null, false));
       this.activeReading.set(state(null, false));
     }
+    if (this.auth.sessionSnapshot) this.request(this.reading.latest(), this.activeReading, value => value.entry, 'No pudimos cargar tu última lectura.');
   }
 
   private request<T, R>(source: Observable<T>, target: { set(value: ResourceState<R>): void }, select: (value: T) => R, message: string): void {

@@ -1,0 +1,27 @@
+<div class="reading-page">
+  <header><div><p class="eyebrow">Tu biblioteca personal</p><h1>Mis lecturas<span>.</span></h1><p>Un lugar para los libros que vienen, los que acompañan y los que se quedan.</p></div><a routerLink="/app/catalog">Buscar mi próximo libro →</a></header>
+  <div class="tabs" role="tablist" aria-label="Estado de lectura">
+    @for (tab of statuses; track tab; let i = $index) { <button type="button" role="tab" [id]="'tab-' + tab" aria-controls="reading-panel" [attr.aria-selected]="status === tab" [tabIndex]="status === tab ? 0 : -1" (click)="select(tab)" (keydown)="tabKey($event, i)">{{ labels[tab] }} <span>{{ count(tab) }}</span></button> }
+  </div>
+  <section id="reading-panel" role="tabpanel" [attr.aria-labelledby]="'tab-' + status" [attr.aria-busy]="facade.list().loading">
+    @if (facade.list().loading) { <p class="empty" role="status">Buscando tus lecturas…</p> }
+    @else if (facade.list().error) { <div class="empty" role="alert"><p>{{ facade.list().error }}</p><button type="button" (click)="load()">Reintentar</button></div> }
+    @else {
+      @if (selected(); as entry) { <div class="editor"><h2>{{ entry.title }}</h2><app-reading-editor [entry]="entry" [pageCount]="entry.currentPageCount" [busy]="facade.saving()" [error]="facade.saveError()" [conflict]="facade.conflict()" (save)="facade.save(entry.bookId, $event)" (remove)="facade.remove(entry.bookId, $event)" (reload)="reload()" (cancelled)="close()" /></div> }
+      <div class="reading-grid">
+        @for (entry of facade.list().data.items; track entry.bookId) {
+          <article class="reading-card">
+            <div class="cover" aria-hidden="true">@if (entry.coverUrl) { <img [src]="entry.coverUrl" alt="" loading="lazy" (error)="$any($event.target).style.display = 'none'" /> }<span>{{ entry.title.slice(0, 1) }}</span></div>
+            <div class="card-copy"><p class="eyebrow">{{ labels[entry.status] }}</p><h2>@if (entry.bookAvailable) { <a [routerLink]="['/app/catalog', entry.bookId]">{{ entry.title }}</a> } @else { {{ entry.title }} }</h2>
+              <div class="progress-label"><span>{{ entry.progressMode === 'page' ? 'Página ' + entry.currentPage + ' de ' + entry.pageCountSnapshot : 'Avance guardado' }}</span><strong>{{ entry.progressPercent }} %</strong></div>
+              <progress [value]="entry.progressPercent" max="100" [attr.aria-label]="'Progreso de ' + entry.title"></progress>
+              <p class="date">{{ entry.lastProgressAt ? 'Último avance: ' + (entry.lastProgressAt | date:'dd/MM/yyyy') : 'El comienzo está por venir' }}</p>
+              <button type="button" (click)="edit(entry, $event)" [disabled]="facade.saving()">{{ entry.bookAvailable ? 'Actualizar lectura' : 'Ver seguimiento' }} <span aria-hidden="true">↗</span></button>
+            </div>
+          </article>
+        } @empty { <div class="empty"><p class="eyebrow">Cada lectura empieza con una elección</p><h2>{{ status === 'reading' ? 'Tu próxima historia te espera' : 'Esta lista aún está vacía' }}</h2><p>Abre la ficha de un libro y elige «Mi lectura» para añadirlo.</p><a routerLink="/app/catalog">Explorar catálogo →</a></div> }
+      </div>
+      @if (facade.list().data.totalItems > 12 || page > 1) { <nav class="pagination" aria-label="Páginas de lecturas"><button type="button" [disabled]="page <= 1" (click)="turn(-1)">Anterior</button><span>Página {{ page }}</span><button type="button" [disabled]="page * 12 >= facade.list().data.totalItems" (click)="turn(1)">Siguiente</button></nav> }
+    }
+  </section>
+</div>

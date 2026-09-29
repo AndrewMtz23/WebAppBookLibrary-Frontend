@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { BookSummary } from '../../../../shared/models/book.model';
+import { ReadingResponse } from '../../../reading/models/reading.models';
 
 @Component({
   selector: 'app-discover-app-banner', standalone: true,
@@ -12,7 +13,7 @@ import { BookSummary } from '../../../../shared/models/book.model';
 })
 export class DiscoverAppBannerComponent implements OnChanges, OnInit, OnDestroy {
   @Input() books: readonly BookSummary[] = [];
-  @Input() activeBookId: string | null = null;
+  @Input() reading: ReadingResponse | null = null;
   private readonly cdr = inject(ChangeDetectorRef);
   private timer: ReturnType<typeof setInterval> | null = null;
   private slides: BookSummary[] = [];
@@ -21,9 +22,9 @@ export class DiscoverAppBannerComponent implements OnChanges, OnInit, OnDestroy 
   focused = false;
   paused = false;
   imageFailed = false;
-  get book(): BookSummary | null { return this.slides[this.index] ?? null; }
-  get hasActiveLoan(): boolean { return !!this.book && this.book.id === this.activeBookId; }
-  get hasMultipleBooks(): boolean { return this.slides.length > 1; }
+  get book(): Pick<BookSummary, 'id' | 'title' | 'coverUrl'> | null { return this.reading ? { id: this.reading.bookId, title: this.reading.title, coverUrl: this.reading.coverUrl } : this.slides[this.index] ?? null; }
+  get hasReading(): boolean { return !!this.reading; }
+  get hasMultipleBooks(): boolean { return !this.reading && this.slides.length > 1; }
 
   ngOnChanges(): void {
     this.slides = [...new Map(this.books.filter(book => book.isActive).map(book => [book.id, book])).values()];

@@ -17,13 +17,14 @@ import { DEFAULT_CATALOG_QUERY } from '../../models/catalog-query';
 import { ReaderAnalyticsService } from '../../../../core/analytics/reader-analytics.service';
 import { ReaderService } from '../../../reader/data-access/reader.service';
 import { PublicationDatePipe } from './publication-date.pipe';
+import { ReadingActionComponent } from '../../../reading/components/reading-action.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { SessionScopeService } from '../../../../core/auth/session-scope.service';
 import { takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-book-detail-page', standalone: true,
-  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, ErrorStateComponent, SkeletonComponent, RelatedBooksComponent, PublicationDatePipe],
+  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, ErrorStateComponent, SkeletonComponent, RelatedBooksComponent, PublicationDatePipe, ReadingActionComponent],
   templateUrl: './book-detail-page.component.html', styleUrl: './book-detail-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BookDetailPageComponent {

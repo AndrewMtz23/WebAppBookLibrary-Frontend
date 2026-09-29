@@ -2,6 +2,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { AuthService } from './auth.service';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { SessionScopeService } from '../auth/session-scope.service';
 
 const token = (exp: number) => `x.${btoa(JSON.stringify({ exp }))}.x`;
 
@@ -64,5 +65,33 @@ describe('AuthService', () => {
     expect(JSON.parse(localStorage.getItem('booklibrary_session')!)).toEqual(response);
     expect(localStorage.getItem('user')).toBeNull();
     expect(service.sessionSnapshot).toEqual(response);
+  });
+
+  it('adopts the current shared session and clears it on cross-tab logout without rewriting storage', () => {
+    const service = createService();
+    const scope = TestBed.inject(SessionScopeService);
+    const session = { token: token(Math.floor(Date.now() / 1000) + 3600), user: { id: 'u2', username: 'bea', email: 'bea@example.invalid', role: 'user' as const } };
+    const start = scope.version;
+    localStorage.setItem('booklibrary_session', JSON.stringify(session));
+    const write = spyOn(localStorage, 'setItem').and.callThrough();
+    window.dispatchEvent(new StorageEvent('storage', { key: 'booklibrary_session', storageArea: localStorage, newValue: 'stale queued value' }));
+    expect(service.sessionSnapshot).toEqual(session);
+    expect(scope.version).toBe(start + 1);
+    expect(write).not.toHaveBeenCalled();
+    localStorage.removeItem('booklibrary_session');
+    window.dispatchEvent(new StorageEvent('storage', { key: null, storageArea: localStorage }));
+    expect(service.sessionSnapshot).toBeNull(); expect(scope.version).toBe(start + 2);
+  });
+
+  it('updates the same identity without cancelling work and rejects malformed cross-tab data', () => {
+    const original = { token: token(Math.floor(Date.now() / 1000) + 3600), user: { id: 'u1', username: 'ana', email: 'ana@example.invalid', role: 'user' as const } };
+    localStorage.setItem('booklibrary_session', JSON.stringify(original));
+    const service = createService(); const scope = TestBed.inject(SessionScopeService); const start = scope.version;
+    localStorage.setItem('booklibrary_session', JSON.stringify({ ...original, user: { ...original.user, displayName: 'Ana nueva' } }));
+    window.dispatchEvent(new StorageEvent('storage', { key: 'booklibrary_session', storageArea: localStorage }));
+    expect(service.sessionSnapshot?.user.displayName).toBe('Ana nueva'); expect(scope.version).toBe(start);
+    localStorage.setItem('booklibrary_session', '{bad json');
+    window.dispatchEvent(new StorageEvent('storage', { key: 'booklibrary_session', storageArea: localStorage }));
+    expect(service.sessionSnapshot).toBeNull(); expect(scope.version).toBe(start + 1);
   });
 });

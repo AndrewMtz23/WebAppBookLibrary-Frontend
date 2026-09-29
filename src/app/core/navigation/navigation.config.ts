@@ -6,6 +6,7 @@ export const READER_NAVIGATION_ITEMS: readonly NavigationItem[] = [
   { label: 'Catálogo', icon: 'auto_stories', route: ['/app/catalog'], roles: ['user'] },
   { label: 'Mi biblioteca', icon: 'bookmarks', route: ['/app/my-library'], roles: ['user'] },
   { label: 'Favoritos', icon: 'favorite_border', route: ['/app/favorites'], roles: ['user'] },
+  { label: 'Mis lecturas', icon: 'menu_book', route: ['/app/reading'], roles: ['user', 'librarian', 'admin'] },
   { label: 'Perfil', icon: 'person_outline', route: ['/app/profile'], roles: ['user'] },
 ];
 
@@ -30,7 +31,7 @@ export const navigationForRole = (role: UserRole): readonly NavigationItem[] =>
 export const readerNavigationForRole = (role: UserRole | null): readonly NavigationItem[] =>
   role === 'user'
     ? [...READER_NAVIGATION_ITEMS]
-    : READER_NAVIGATION_ITEMS.filter(item => item.label === 'Descubrir' || item.label === 'Catálogo');
+    : READER_NAVIGATION_ITEMS.filter(item => item.label === 'Descubrir' || item.label === 'Catálogo' || (!!role && item.label === 'Mis lecturas'));
 
 const group = (label: string, icon: string, items: readonly NavigationItem[]): NavigationGroup =>
   ({ label, icon, items });
@@ -43,14 +44,14 @@ export const navigationGroupsForRole = (role: UserRole): readonly NavigationGrou
     return [
       group('Gestión', 'dashboard_customize', select('Dashboard', 'Usuarios')),
       group('Biblioteca', 'local_library', select('Libros', 'Categorías', 'Préstamos')),
-      group('Control', 'admin_panel_settings', select('Logs', 'Seguridad', 'Sitio público'))
+      group('Control', 'admin_panel_settings', select('Logs', 'Seguridad', 'Sitio público', 'Mis lecturas'))
     ];
   }
 
   if (role === 'librarian') {
     return [
       group('Operación', 'space_dashboard', select('Dashboard', 'Préstamos')),
-      group('Biblioteca', 'local_library', select('Libros', 'Sitio público'))
+      group('Biblioteca', 'local_library', select('Libros', 'Sitio público', 'Mis lecturas'))
     ];
   }
 

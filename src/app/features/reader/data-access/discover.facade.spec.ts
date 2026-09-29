@@ -1,3 +1,4 @@
+import { ReadingService } from '../../reading/data-access/reading.service';
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { BookSummary } from '../../../shared/models/book.model';
@@ -15,7 +16,7 @@ describe('DiscoverFacade', () => {
     const reader = jasmine.createSpyObj<ReaderService>('ReaderService', ['getDashboard', 'getLoans']);
     reader.getDashboard.and.returnValue(throwError(() => new Error('activity failed')));
     reader.getLoans.and.returnValue(of({ items: [], page: 1, pageSize: 1, totalItems: 0, totalPages: 0, hasNextPage: false, hasPreviousPage: false }));
-    TestBed.configureTestingModule({ providers: [DiscoverFacade, { provide: CatalogService, useValue: catalog }, { provide: ReaderService, useValue: reader }, { provide: AuthService, useValue: session('user') }] });
+    TestBed.configureTestingModule({ providers: [DiscoverFacade, { provide: ReadingService, useValue: { latest: () => of({ entry: null }) } }, { provide: CatalogService, useValue: catalog }, { provide: ReaderService, useValue: reader }, { provide: AuthService, useValue: session('user') }] });
 
     const facade = TestBed.inject(DiscoverFacade);
     expect(facade.newest().data).toEqual(newest);
@@ -31,7 +32,7 @@ describe('DiscoverFacade', () => {
     catalog.search.and.returnValues(of(page([book('new')])), of(page([book('popular')])));
     catalog.getFacets.and.returnValue(of([]));
     const reader = jasmine.createSpyObj<ReaderService>('ReaderService', ['getDashboard', 'getLoans']);
-    TestBed.configureTestingModule({ providers: [DiscoverFacade, { provide: CatalogService, useValue: catalog }, { provide: ReaderService, useValue: reader }, { provide: AuthService, useValue: session('admin') }] });
+    TestBed.configureTestingModule({ providers: [DiscoverFacade, { provide: ReadingService, useValue: { latest: () => of({ entry: null }) } }, { provide: CatalogService, useValue: catalog }, { provide: ReaderService, useValue: reader }, { provide: AuthService, useValue: session('admin') }] });
 
     const facade = TestBed.inject(DiscoverFacade);
 
