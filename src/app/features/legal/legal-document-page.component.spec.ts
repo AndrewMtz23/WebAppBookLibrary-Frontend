@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
@@ -10,7 +12,7 @@ describe('LegalDocumentPageComponent', () => {
     it(`renders the ${document} document with a single primary heading`, () => {
       TestBed.configureTestingModule({
         imports: [LegalDocumentPageComponent],
-        providers: [
+        providers: [provideHttpClient(), provideHttpClientTesting(),
           provideRouter([]),
           { provide: ActivatedRoute, useValue: { snapshot: { data: { document } } } },
           { provide: AuthService, useValue: { sessionSnapshot: null, session$: new BehaviorSubject<AuthSession | null>(null), logout: jasmine.createSpy('logout') } }
@@ -31,7 +33,7 @@ describe('LegalDocumentPageComponent', () => {
     const session: AuthSession = { token: 'token', user: { id: '1', username: 'Lilith', email: 'lilith@example.com', role: 'admin' } };
     TestBed.configureTestingModule({
       imports: [LegalDocumentPageComponent],
-      providers: [
+      providers: [provideHttpClient(), provideHttpClientTesting(),
         provideRouter([]),
         { provide: ActivatedRoute, useValue: { snapshot: { data: { document: 'privacy' } } } },
         { provide: AuthService, useValue: { sessionSnapshot: session, session$: new BehaviorSubject(session), logout: jasmine.createSpy('logout') } }

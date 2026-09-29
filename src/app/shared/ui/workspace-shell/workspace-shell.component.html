@@ -69,7 +69,7 @@
 
       <div class="sidebar-account">
         <button class="sidebar-logout" type="button" aria-label="Cerrar sesión" matTooltip="Cerrar sesión" [matTooltipDisabled]="!isSidebarCollapsed" matTooltipPosition="right" (click)="requestLogout()"><mat-icon aria-hidden="true">logout</mat-icon><span>Cerrar sesión</span></button>
-        <div class="sidebar-controls"><app-theme-toggle />
+        <div class="sidebar-controls"><app-notification-bell /><app-theme-toggle />
         <button
           mat-icon-button
           class="workspace__collapse"
@@ -94,6 +94,7 @@
     [attr.aria-hidden]="isLogoutDialogOpen || isLoggingOut ? 'true' : null"
     [attr.inert]="isLogoutDialogOpen || isLoggingOut ? '' : null">
 
+    @if (!guest) { <div class="mobile-notifications"><app-notification-bell /></div> }
     <main id="main-content" class="workspace__content" tabindex="-1"><router-outlet /></main>
     @if (variant === 'staff') { <app-admin-footer [username]="username" /> }
   </div>

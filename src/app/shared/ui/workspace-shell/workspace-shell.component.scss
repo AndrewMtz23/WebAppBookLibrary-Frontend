@@ -177,3 +177,5 @@
   .logout-loading__progress span { animation: none; transition: none; }
   .logout-loading__progress span { width: 65%; margin-inline: auto; }
 }
+:host .mobile-notifications { display: none; }
+@media(max-width: 800px) { :host .mobile-notifications { display: flex; justify-content: flex-end; padding: .3rem 1rem; } }

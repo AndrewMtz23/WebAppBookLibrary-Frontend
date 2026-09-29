@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: AndrewMtz23/WebAppBookLibrary-Backend
-          ref: ${{ inputs.backend_ref || 'f098a9774c5347ab7052b79c116960402a0fb28e' }}
+          ref: ${{ inputs.backend_ref || '28151d92b5c15b960add20521981c19596246c9a' }}
           path: backend
       - uses: actions/setup-node@v4
         with:
