@@ -10,6 +10,9 @@ export interface Loan {
 export type LoanStatus = 'active' | 'overdue' | 'returned' | 'cancelled';
 
 export interface LoanSummary {
+  policyVersion?: string | null;
+  renewalCount?: number;
+  checkedOutAt?: string | null;
   id: string;
   bookId: string;
   userId: string;

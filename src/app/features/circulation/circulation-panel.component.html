@@ -1,0 +1,39 @@
+<section class="circulation" aria-label="Reservas, espera y renovaciones">
+  @if (staff) {
+    <form class="filters" (ngSubmit)="filter()">
+      <label>Libro o lector<input name="search" [(ngModel)]="search" maxlength="200" type="search" /></label>
+      <label>Prioridad<select name="status" [(ngModel)]="status"><option value="">Todos los estados</option><option value="ready">Recogidas pendientes</option><option value="pending">Renovaciones pendientes</option></select></label>
+      <button mat-stroked-button type="submit">Filtrar</button>
+    </form>
+  }
+  @if (message()) { <p role="status">{{ message() }}</p> }
+  @if (loading()) { <p role="status">Cargando circulación…</p> }
+  @if (error()) { <p role="alert">No pudimos cargar las reservas. <button mat-button (click)="load()">Reintentar</button></p> }
+  @if (!loading() && !error()) {
+    @if (!staff) {
+      <section><h2>En espera</h2><p>La posición es orientativa; no garantiza una fecha de disponibilidad.</p>
+        @for (w of waiting(); track w.id) {
+          <article><div><h3><a [routerLink]="['/app/catalog', w.bookId]">{{ w.bookTitle }}</a></h3><p>{{ labels[w.status] }} @if (w.queuePosition) { · Posición {{ w.queuePosition }} }</p></div>
+            @if (w.status === 'queued' || w.status === 'offered') { <button mat-stroked-button [disabled]="busy()" (click)="leave(w)">Salir de la espera</button> }</article>
+        } @empty { <p>No tienes solicitudes de espera en esta página.</p> }
+      </section>
+    }
+    <section><h2>{{ staff ? 'Recogidas' : 'Listo para recoger' }}</h2><p>Fechas y horas en {{ zone }}.</p>
+      @for (p of pickups(); track p.id) {
+        <article><div><span class="state">{{ labels[p.status] }}</span><h3><a [routerLink]="['/app/catalog', p.bookId]">{{ p.bookTitle }}</a></h3>
+          @if (staff) { <p>{{ p.userDisplayName }}</p> }<p>{{ p.status === 'ready' ? 'Recoger antes de' : 'Plazo de recogida original:' }} {{ p.pickupExpiresAt | date:'medium' }} · {{ zone }}</p></div>
+          @if (p.status === 'ready') { <div class="actions">@if (staff) { <button mat-flat-button [disabled]="busy()" (click)="collect(p)">Confirmar entrega</button> }<button mat-stroked-button [disabled]="busy()" (click)="cancel(p)">Cancelar recogida</button></div> }</article>
+      } @empty { <p>No hay recogidas en esta página.</p> }
+    </section>
+    <section><h2>Renovaciones</h2>
+      @if (!staff) { @for (loan of loans; track loan.id) { @if (canRenew(loan)) { <article><p>{{ loanTitle(loan) }} · Vence {{ loan.dueAt | date:'mediumDate' }}</p><button mat-stroked-button [disabled]="busy()" (click)="renew(loan)">Solicitar renovación</button></article> } } }
+      @for (r of renewals(); track r.id) {
+        <article><div><span class="state">{{ labels[r.status] }}</span><h3>{{ r.bookTitle }}</h3>@if (staff) { <p>{{ r.userDisplayName }}</p> }
+          <p>Vencimiento original: {{ r.originalDueAt | date:'mediumDate' }} · Solicitado: {{ r.requestedDueAt | date:'mediumDate' }}</p>
+          @if (r.decisionReason) { <p>{{ r.decisionReason }}</p> }</div>
+          @if (staff && r.status === 'pending') { <div class="actions"><button mat-flat-button [disabled]="busy()" (click)="decide(r, true)">Aprobar</button><button mat-stroked-button [disabled]="busy()" (click)="decide(r, false)">Rechazar</button></div> }</article>
+      } @empty { <p>No hay solicitudes de renovación en esta página.</p> }
+    </section>
+    <nav aria-label="Páginas de circulación"><button mat-button [disabled]="page <= 1" (click)="turn(-1)">Anterior</button><span>Página {{ page }}</span><button mat-button [disabled]="page * 20 >= total" (click)="turn(1)">Siguiente</button></nav>
+  }
+</section>

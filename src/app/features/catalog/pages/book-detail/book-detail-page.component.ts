@@ -1,3 +1,4 @@
+import { PickupActionComponent } from '../../../circulation/pickup-action.component';
 import { ReaderActionAccessService } from '../../../../core/auth/reader-action-access.service';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
@@ -24,7 +25,7 @@ import { takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-book-detail-page', standalone: true,
-  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, ErrorStateComponent, SkeletonComponent, RelatedBooksComponent, PublicationDatePipe, ReadingActionComponent],
+  imports: [PickupActionComponent, CommonModule, RouterLink, MatButtonModule, MatIconModule, ErrorStateComponent, SkeletonComponent, RelatedBooksComponent, PublicationDatePipe, ReadingActionComponent],
   templateUrl: './book-detail-page.component.html', styleUrl: './book-detail-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BookDetailPageComponent {
@@ -91,6 +92,10 @@ export class BookDetailPageComponent {
   }
 
   retry(): void { this.retryRequest.next(); }
+  refreshCirculation(): void {
+    const id = this.book()?.id; if (!id) return;
+    this.catalog.getById(id).pipe(takeUntil(this.scope.changed$), takeUntilDestroyed(this.destroyRef)).subscribe({ next: book => { if (this.book()?.id === id) this.book.set(book); }, error: () => this.digitalMessage.set('No pudimos actualizar la disponibilidad. Revisa Mi biblioteca.') });
+  }
   reserve(bookId: string): void { if (!this.actionAccess.ensureReader('reserve', bookId)) return; this.analytics.trackAction('reservation'); this.reservations.reserve(bookId); }
   toggleFavorite(book: BookSummary): void { if (!this.actionAccess.ensureReader('favorite', book.id)) return; this.analytics.trackAction('favorite'); this.favorites.toggle(book); }
   openDigital(bookId: string): void {

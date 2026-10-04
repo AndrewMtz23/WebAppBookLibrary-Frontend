@@ -22,3 +22,5 @@
     <section class="panel"><header><div><p class="eyebrow">Seguridad</p><h2>Alertas operativas</h2></div><button type="button" (click)="dashboard.refreshSecurity()">Actualizar</button></header>@if(dashboard.securityLoading()){<p aria-busy="true">Cargando seguridad…</p>}@if(dashboard.securityError()){<p role="alert">{{dashboard.securityError()}}</p><p>El resumen de seguridad está temporalmente fuera de servicio.</p>}@else if(dashboard.security();as security){<strong class="panel__number">{{security.alerts}}</strong><a routerLink="/admin/security" [queryParams]="{from:dashboard.period().from,to:dashboard.period().to,timezone:dashboard.period().timezone}">Abrir seguridad →</a>}</section>
   </section>
 }
+
+<app-circulation-summary />

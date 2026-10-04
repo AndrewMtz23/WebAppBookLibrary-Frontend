@@ -7,6 +7,7 @@ import { CatalogService } from '../../../catalog/data-access/catalog.service';
 import { ReaderService } from '../../data-access/reader.service';
 import { MyLibraryFacade } from '../../data-access/my-library.facade';
 import { MyLibraryPageComponent } from './my-library-page.component';
+import { CirculationService } from '../../../circulation/circulation.service';
 
 describe('MyLibraryPageComponent', () => {
   let reader: jasmine.SpyObj<ReaderService>;
@@ -18,6 +19,7 @@ describe('MyLibraryPageComponent', () => {
     openSpy = spyOn(window, 'open');
     TestBed.configureTestingModule({ imports: [MyLibraryPageComponent, NoopAnimationsModule], providers: [
       MyLibraryFacade,
+      { provide: CirculationService, useValue: { pickups: () => of({ items: [], totalCount: 0 }), renewals: () => of({ items: [], totalCount: 0 }), waitlist: () => of({ items: [], totalCount: 0 }) } },
       provideRouter([]),
       { provide: ReaderService, useValue: reader },
       { provide: CatalogService, useValue: { getById: () => of({ id: 'book-1', title: 'Libro de prueba', coverUrl: null }) } }

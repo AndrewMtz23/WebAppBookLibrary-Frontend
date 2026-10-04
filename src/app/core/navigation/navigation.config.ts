@@ -12,6 +12,8 @@ export const READER_NAVIGATION_ITEMS: readonly NavigationItem[] = [
 
 const NAVIGATION_ITEMS: readonly NavigationItem[] = [
   ...READER_NAVIGATION_ITEMS,
+  { label: 'Circulación', icon: 'swap_horiz', route: ['/librarian/circulation'], roles: ['librarian'] },
+  { label: 'Circulación', icon: 'swap_horiz', route: ['/admin/circulation'], roles: ['admin'] },
   { label: 'Dashboard', icon: 'space_dashboard', route: ['/librarian/dashboard'], exact: true, roles: ['librarian'] },
   { label: 'Libros', icon: 'library_books', route: ['/librarian/books'], roles: ['librarian'] },
   { label: 'Préstamos', icon: 'assignment_return', route: ['/librarian/loans'], roles: ['librarian'] },
@@ -43,14 +45,14 @@ export const navigationGroupsForRole = (role: UserRole): readonly NavigationGrou
   if (role === 'admin') {
     return [
       group('Gestión', 'dashboard_customize', select('Dashboard', 'Usuarios')),
-      group('Biblioteca', 'local_library', select('Libros', 'Categorías', 'Préstamos')),
+      group('Biblioteca', 'local_library', select('Libros', 'Categorías', 'Préstamos', 'Circulación')),
       group('Control', 'admin_panel_settings', select('Logs', 'Seguridad', 'Sitio público', 'Mis lecturas'))
     ];
   }
 
   if (role === 'librarian') {
     return [
-      group('Operación', 'space_dashboard', select('Dashboard', 'Préstamos')),
+      group('Operación', 'space_dashboard', select('Dashboard', 'Préstamos', 'Circulación')),
       group('Biblioteca', 'local_library', select('Libros', 'Sitio público', 'Mis lecturas'))
     ];
   }

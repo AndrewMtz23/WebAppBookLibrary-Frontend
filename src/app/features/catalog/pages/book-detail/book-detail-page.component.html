@@ -32,7 +32,9 @@
         @if (showReaderActions) {
         <app-reading-action [bookId]="item.id" [pageCount]="item.pageCount" />
         <div class="actions">
-          @if (item.mediaType === 'digital' && activeDigital()) {
+          @if (item.mediaType === 'physical' && !activePhysical()) {
+            <app-pickup-action [bookId]="item.id" [available]="!!item.availableCopies" (legacy)="reserve(item.id)" (changed)="refreshCirculation()" />
+          } @else if (item.mediaType === 'digital' && activeDigital()) {
             <button mat-flat-button type="button" (click)="openDigital(item.id)">Abrir recurso</button>
             <a mat-button routerLink="/app/my-library">Mi biblioteca</a>
           } @else if (activePhysical() || (item.mediaType === 'physical' && reservations.successfulBookId() === item.id)) {

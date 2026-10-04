@@ -1,5 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
@@ -54,7 +54,9 @@ describe('BookDetailPageComponent', () => {
     const fixture = TestBed.createComponent(BookDetailPageComponent);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelectorAll('h1').length).toBe(1);
-    expect(fixture.nativeElement.textContent).toContain('Reservar ejemplar');
+    TestBed.inject(HttpTestingController).expectOne('/api/circulation/policy').flush({ mode: 'active', pickupHours: 48, loanDays: 14, renewalDays: 7, maxRenewals: 1 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Reservar para recoger');
     expect(fixture.nativeElement.textContent).not.toContain('ISBN');
     expect(fixture.nativeElement.textContent).toContain('El llano en llamas');
   });
