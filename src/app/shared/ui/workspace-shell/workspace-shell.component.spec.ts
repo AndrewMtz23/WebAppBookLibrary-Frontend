@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -25,7 +27,7 @@ describe('WorkspaceShellComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [WorkspaceShellComponent, RouterTestingModule, NoopAnimationsModule],
-      providers: [{ provide: AuthService, useValue: { sessionSnapshot: null, session$: new BehaviorSubject(null), logout: jasmine.createSpy('logout') } }]
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: AuthService, useValue: { sessionSnapshot: null, session$: new BehaviorSubject(null), logout: jasmine.createSpy('logout') } }]
     }).compileComponents();
 
     fixture = TestBed.createComponent(WorkspaceShellComponent);

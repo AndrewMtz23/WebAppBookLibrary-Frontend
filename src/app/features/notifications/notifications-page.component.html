@@ -1,0 +1,55 @@
+<section class="notifications-page" aria-labelledby="notifications-title">
+  <header>
+    <div><p class="eyebrow">Tu biblioteca, al día</p><h1 id="notifications-title">Notificaciones<span>.</span></h1><p>Reservas, devoluciones y fechas que conviene tener presentes.</p></div>
+    <div class="unread-summary"><strong>{{ state.count() === null ? '—' : state.count() }}</strong><span>sin leer</span></div>
+  </header>
+  <div class="notifications-layout">
+    <section class="activity" aria-label="Actividad de tu cuenta">
+      <div class="toolbar">
+        <div class="filters" role="group" aria-label="Filtrar notificaciones">
+          <button type="button" [attr.aria-pressed]="state.filter() === 'all'" (click)="state.setFilter('all')">Todas</button>
+          <button type="button" [attr.aria-pressed]="state.filter() === 'unread'" (click)="state.setFilter('unread')">Sin leer</button>
+          <button type="button" [attr.aria-pressed]="state.filter() === 'read'" (click)="state.setFilter('read')">Leídas</button>
+        </div>
+        <button type="button" (click)="load()" [disabled]="state.loading() || state.saving()" aria-label="Actualizar notificaciones"><mat-icon aria-hidden="true">refresh</mat-icon></button>
+      </div>
+      <div class="read-all"><span>Hora local · {{ timeZone }}</span><button type="button" (click)="state.readAll()" [disabled]="state.saving() || state.loading() || !state.count()">Marcar todas como leídas</button></div>
+      <p class="feedback" role="status">{{ state.feedback() }}</p>
+      @if (state.error()) { <div class="message" role="alert"><p>{{ state.error() }}</p><button type="button" (click)="state.retry()">Reintentar</button></div> }
+      @if (state.loading()) { <p role="status">Cargando notificaciones…</p> }
+      <ol class="notice-list" [attr.aria-busy]="state.loading()">
+        @for (notice of state.items(); track notice.id) {
+          <li class="notice" [class.unread]="!notice.readAt">
+            <span class="notice-icon" aria-hidden="true"><mat-icon>{{ notice.type.startsWith('due_') ? 'schedule' : notice.type === 'returned' ? 'assignment_turned_in' : notice.type === 'cancelled' ? 'event_busy' : 'bookmark_added' }}</mat-icon></span>
+            <div class="notice-content">
+              <div class="notice-meta"><time [attr.datetime]="notice.createdAt">{{ notice.createdAt | date:'dd/MM/yyyy, HH:mm' }}</time><span>{{ notice.readAt ? 'Leída' : 'Sin leer' }}</span></div>
+              <h2>{{ notice.title }}</h2><p>{{ notice.body }}</p>
+              @if (notice.dueAt && notice.type.startsWith('due_')) { <p class="due">Devolución: {{ notice.dueAt | date:'dd/MM/yyyy, HH:mm' }}</p> }
+              <div class="notice-actions">
+                @if (target(notice); as route) { <a [routerLink]="route">Ver libro <span aria-hidden="true">↗</span></a> }
+                @if (!notice.readAt) { <button type="button" [disabled]="state.saving()" (click)="state.read(notice.id)" [attr.aria-label]="'Marcar como leída: ' + notice.title">Marcar como leída</button> }
+              </div>
+            </div>
+          </li>
+        }
+      </ol>
+      @if (!state.loading() && !state.error() && !state.items().length) {
+        <div class="empty"><mat-icon aria-hidden="true">notifications_none</mat-icon><h2>{{ state.filter() === 'unread' ? 'Estás al día' : 'Aquí llegará tu actividad' }}</h2><p>{{ state.filter() === 'unread' ? 'No tienes notificaciones pendientes de leer.' : 'Tus próximos avisos aparecerán en este espacio.' }}</p><a routerLink="/app/catalog">Explorar el catálogo</a></div>
+      }
+      @if (state.nextCursor()) { <button class="load-more" type="button" [disabled]="state.loading() || state.saving()" (click)="load(true)">Cargar más avisos</button> }
+    </section>
+    <aside class="preferences" aria-labelledby="preferences-title">
+      <p class="eyebrow">A tu manera</p><h2 id="preferences-title">Tus avisos</h2><p>Elige cómo mantenerte al tanto de tus préstamos.</p>
+      @if (state.preferences(); as prefs) {
+        <form (submit)="$event.preventDefault(); state.savePreferences(reminders.checked, email.checked)">
+          <label><input #reminders type="checkbox" [checked]="prefs.reminders" [disabled]="state.saving()" /><span><strong>Recordatorios</strong><small>Avisos antes del vencimiento y cuando el préstamo venza.</small></span></label>
+          <label><input #email type="checkbox" [checked]="prefs.email && prefs.emailVerified" [disabled]="state.saving() || !prefs.emailVerified" /><span><strong>También por correo</strong><small>Confirmaciones y recordatorios a tu dirección verificada.</small></span></label>
+          @if (!prefs.emailVerified) { <p class="verify">Para activar el correo, <a routerLink="/app/profile">verifica tu dirección en tu perfil</a>.</p> }
+          <button class="save-preferences" type="submit" [disabled]="state.saving()">{{ state.saving() ? 'Guardando…' : 'Guardar preferencias' }}</button>
+        </form>
+      } @else if (!state.preferencesError()) { <p role="status">Cargando preferencias…</p> }
+      @if (state.preferencesError()) { <p role="alert">{{ state.preferencesError() }}</p><button type="button" (click)="state.loadPreferences()">Consultar preferencias</button> }
+      <p class="security-note"><mat-icon aria-hidden="true">lock_outline</mat-icon>Los correos de seguridad y recuperación de cuenta siguen activos.</p>
+    </aside>
+  </div>
+</section>

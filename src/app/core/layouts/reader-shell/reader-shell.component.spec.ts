@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BehaviorSubject } from 'rxjs';
@@ -9,7 +11,7 @@ describe('ReaderShellComponent', () => {
     const session = { token: 'token', user: { id: '1', username: 'Elena', email: 'e@x.com', role } };
     await TestBed.configureTestingModule({
       imports: [ReaderShellComponent, RouterTestingModule],
-      providers: [{ provide: AuthService, useValue: {
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: AuthService, useValue: {
         sessionSnapshot: session,
         session$: new BehaviorSubject(session),
         logout: jasmine.createSpy('logout')

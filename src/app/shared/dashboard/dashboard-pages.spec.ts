@@ -11,6 +11,7 @@ describe('dashboard page navigation', () => {
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/librarian/dashboard?from=2026-09-01&to=2026-09-10&timezone=America%2FMexico_City');
     const request = TestBed.inject(HttpTestingController).expectOne(item => item.url === '/api/dashboard/librarian');
+    TestBed.inject(HttpTestingController).expectOne('/api/circulation/summary').flush({ ready: 2, queued: 3, loaned: 4, pendingRenewals: 1 });
     expect(request.request.params.get('from')).toBe('2026-09-01');
     expect(request.request.params.get('timezone')).toBe('America/Mexico_City');
     request.flush({ generatedAt:'2026-09-11T00:00:00Z',from:'2026-09-01T06:00:00Z',to:'2026-09-11T06:00:00Z',totalReservations:2,activeReservations:3,overdueReservations:1,activeBooks:4,availablePhysicalCopies:2,byMedia:[],timezone:'America/Mexico_City',previousFrom:'2026-08-22T06:00:00Z',previousTo:'2026-09-01T06:00:00Z',returnedPhysical:{current:1,previous:0,percentageChange:null},digitalReservations:{current:1,previous:1,percentageChange:0},lowInventoryTitles:1,outOfStockTitles:1,topReservedTitles:[],titlesWithoutReservations:[{id:'book-quiet',label:'Quiet',count:0}] });

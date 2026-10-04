@@ -1,3 +1,4 @@
+import { CirculationSummaryComponent } from '../../../circulation/circulation-summary.component';
 import { StaffPageHeaderComponent } from '../../../../shared/ui/staff-page-header/staff-page-header.component';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
@@ -8,7 +9,7 @@ import { MetricCardComponent } from '../../../../shared/dashboard/metric-card.co
 import { LibrarianDashboardFacade } from '../data-access/librarian-dashboard.facade';
 import { LibrarianDashboardResponse } from '../data-access/librarian-dashboard.models';
 
-@Component({ selector:'app-librarian-dashboard-page', standalone:true, imports: [StaffPageHeaderComponent, DatePipe,RouterLink,DashboardPeriodControlsComponent,DashboardRankComponent,MetricCardComponent], providers:[LibrarianDashboardFacade], templateUrl:'./librarian-dashboard-page.component.html', styleUrl:'../../../../shared/dashboard/dashboard-page.scss', changeDetection:ChangeDetectionStrategy.OnPush })
+@Component({ selector:'app-librarian-dashboard-page', standalone:true, imports: [CirculationSummaryComponent, StaffPageHeaderComponent, DatePipe,RouterLink,DashboardPeriodControlsComponent,DashboardRankComponent,MetricCardComponent], providers:[LibrarianDashboardFacade], templateUrl:'./librarian-dashboard-page.component.html', styleUrl:'../../../../shared/dashboard/dashboard-page.scss', changeDetection:ChangeDetectionStrategy.OnPush })
 export class LibrarianDashboardPageComponent {
   readonly dashboard=inject(LibrarianDashboardFacade);
   periodParams(data:LibrarianDashboardResponse, extra:Record<string,string|boolean>){return{...extra,from:data.from,to:data.to};}

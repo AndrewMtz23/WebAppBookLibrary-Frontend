@@ -1,3 +1,4 @@
+import { CirculationGuideComponent } from '../circulation/circulation-guide.component';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -15,7 +16,7 @@ type InformationPage = keyof typeof PAGES;
 
 @Component({
   selector: 'app-information-page', standalone: true,
-  imports: [RouterLink, RouterLinkActive, MatIconModule, ReaderNavbarComponent, SiteFooterComponent],
+  imports: [CirculationGuideComponent, RouterLink, RouterLinkActive, MatIconModule, ReaderNavbarComponent, SiteFooterComponent],
   templateUrl: './information-page.component.html',
   styleUrl: './information-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -31,7 +32,7 @@ export class InformationPageComponent {
     { question: '¿Cómo reservo un libro?', answer: 'Abre su ficha, revisa el formato y la disponibilidad, e inicia sesión con tu cuenta de lector. Pulsa Reservar si es físico o Reservar acceso digital si es digital. Después encontrarás la reserva en Mi biblioteca. Si ya tienes una reserva activa de ese libro, consulta la existente.' },
     { question: '¿Cómo guardo un libro en favoritos?', answer: 'Pulsa el corazón o el botón Guardar. El aviso Libro guardado confirma que se añadió a tus favoritos. Puedes consultarlos en Favoritos y pulsar de nuevo el corazón para quitar uno. Guardar un libro no reserva un ejemplar.' },
     { question: '¿Dónde veo mis préstamos y sus fechas?', answer: 'Inicia sesión y entra en Mi biblioteca. Ahí puedes consultar tus reservas, su estado y el vencimiento de los préstamos físicos, además de acceder a tus libros digitales.' },
-    { question: '¿Qué hago si no hay ejemplares disponibles?', answer: 'Puedes guardar el libro en favoritos y volver a consultar su ficha más adelante. Consulta al personal sobre su disponibilidad; guardarlo no te coloca en una lista de espera.' },
+    { question: '¿Qué hago si no hay ejemplares disponibles?', answer: 'Consulta las acciones de la ficha: si la lista de espera está habilitada, puedes solicitar un lugar. Guardar en Favoritos no te incorpora a la espera. La posición no garantiza una fecha de disponibilidad.' },
     { question: '¿Por qué no abre un libro digital?', answer: 'Comprueba que tu reserva siga activa y vuelve a abrir el recurso desde Mi biblioteca. El enlace se abre en otra pestaña y puede depender de un sitio externo. Si falla, anota el título, la dirección y el mensaje de error para reportarlo al personal.' },
     { question: '¿Cómo devuelvo o cancelo una reserva?', answer: 'Abre Mi biblioteca y revisa las acciones de la reserva. Para un ejemplar físico, coordina también la entrega con el personal: registrar una devolución en pantalla no sustituye entregar el libro. Consulta la Guía de préstamos para conocer las diferencias entre formatos.' }
   ];

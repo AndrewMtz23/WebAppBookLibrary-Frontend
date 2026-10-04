@@ -11,7 +11,7 @@ describe('role navigation configuration', () => {
   it('shows operational destinations to librarians', () => {
     const labels = navigationForRole('librarian').map(item => item.label);
 
-    expect(labels).toEqual(['Mis lecturas', 'Dashboard', 'Libros', 'Préstamos', 'Sitio público']);
+    expect(labels).toEqual(['Mis lecturas', 'Circulación', 'Dashboard', 'Libros', 'Préstamos', 'Sitio público']);
     expect(labels).not.toContain('Usuarios');
     expect(labels).not.toContain('Seguridad');
   });
@@ -19,7 +19,7 @@ describe('role navigation configuration', () => {
   it('shows administrative destinations to administrators', () => {
     const labels = navigationForRole('admin').map(item => item.label);
 
-    expect(labels).toEqual(['Mis lecturas', 'Dashboard', 'Usuarios', 'Libros', 'Categorías', 'Préstamos', 'Logs', 'Seguridad', 'Sitio público']);
+    expect(labels).toEqual(['Mis lecturas', 'Circulación', 'Dashboard', 'Usuarios', 'Libros', 'Categorías', 'Préstamos', 'Logs', 'Seguridad', 'Sitio público']);
   });
 
   it('organizes staff navigation into role-specific tree areas', () => {

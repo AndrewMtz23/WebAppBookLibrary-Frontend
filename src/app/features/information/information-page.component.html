@@ -18,6 +18,7 @@
       }
     </nav>
     <div class="information-body">
+      @if (page === 'help' || page === 'loan-guide') { <app-circulation-guide /> }
       @switch (page) {
         @case ('about') {
           <section class="prose"><p class="eyebrow">01 / La idea</p><h2>Menos búsquedas pendientes. Más libros por descubrir.</h2><p>BookLibrary es un espacio para consultar el catálogo de una biblioteca y organizar tu actividad como lector. Aquí conviven las historias que quieres leer, los ejemplares que reservas y los recursos digitales a los que puedes acceder.</p><p>Puedes empezar a explorar sin una cuenta. Cuando encuentres tu próxima lectura, inicia sesión para guardarla o reservarla.</p></section>
@@ -47,7 +48,7 @@
         }
         @case ('loan-guide') {
           <section><p class="eyebrow">01 / Elige el formato</p><h2>La misma curiosidad. Dos formas de leer.</h2><div class="feature-grid">
-            <article class="info-card"><mat-icon aria-hidden="true">menu_book</mat-icon><h3>Libros físicos</h3><p class="card-highlight">14 días desde la reserva</p><p>La reserva depende de los ejemplares disponibles. Revisa el vencimiento en Mi biblioteca y coordina la recogida y entrega con el personal.</p></article>
+            <article class="info-card"><mat-icon aria-hidden="true">menu_book</mat-icon><h3>Libros físicos</h3><p class="card-highlight">Consulta el plazo de tu reserva</p><p>La reserva depende de los ejemplares disponibles. Revisa el vencimiento en Mi biblioteca y coordina la recogida y entrega con el personal.</p></article>
             <article class="info-card"><mat-icon aria-hidden="true">devices</mat-icon><h3>Libros digitales</h3><p class="card-highlight">Acceso con reserva activa</p><p>No se asigna una fecha de vencimiento al reservar. El recurso se abre en una pestaña externa y su disponibilidad depende también del sitio que lo ofrece.</p></article>
           </div></section>
           <section><p class="eyebrow">02 / Paso a paso</p><h2>Tu próxima lectura, en tres pasos.</h2><ol class="steps">

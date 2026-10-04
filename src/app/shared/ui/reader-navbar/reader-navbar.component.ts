@@ -8,10 +8,11 @@ import { NavigationItem } from '../../../core/navigation/navigation.model';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 import { AccountMenuComponent } from '../account-menu/account-menu.component';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
+import { NotificationBellComponent } from '../../../features/notifications/notification-bell.component';
 
 @Component({
   selector: 'app-reader-navbar', standalone: true,
-  imports: [RouterLink, RouterLinkActive, MatIconModule, AppBrandComponent, AccountMenuComponent, ThemeToggleComponent],
+  imports: [NotificationBellComponent, RouterLink, RouterLinkActive, MatIconModule, AppBrandComponent, AccountMenuComponent, ThemeToggleComponent],
   templateUrl: './reader-navbar.component.html',
   styles: [`:host { display: contents; }
     @media (max-width: 800px) {

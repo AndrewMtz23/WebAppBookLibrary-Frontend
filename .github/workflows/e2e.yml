@@ -18,6 +18,10 @@ jobs:
   browser:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        circulation_mode: [legacy, active]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,7 +29,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: AndrewMtz23/WebAppBookLibrary-Backend
-          ref: ${{ inputs.backend_ref || 'f098a9774c5347ab7052b79c116960402a0fb28e' }}
+          ref: ${{ inputs.backend_ref || 'cf76d7d12001bcc58bdb6c65a331e746c6dd95fa' }}
           path: backend
       - uses: actions/setup-node@v4
         with:
@@ -60,6 +64,8 @@ jobs:
           done
           test "$ready" = true
       - name: Start QA application
+        env:
+          Circulation__Mode: ${{ matrix.circulation_mode }}
         run: |
           dotnet run --project backend/tools/BookLibrary.QaHost/BookLibrary.QaHost.csproj -c Release --no-restore --no-launch-profile > backend-qa.log 2>&1 &
           cd frontend
@@ -74,12 +80,18 @@ jobs:
         working-directory: frontend
         env:
           E2E_CHROME_CHANNEL: chromium
-        run: npx playwright test
+          CIRCULATION_MODE: ${{ matrix.circulation_mode }}
+        run: |
+          if [ "$CIRCULATION_MODE" = active ]; then
+            npx playwright test e2e/circulation.spec.ts
+          else
+            npx playwright test
+          fi
       - name: Browser evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: integrated-browser-qa
+          name: integrated-browser-qa-${{ matrix.circulation_mode }}
           path: |
             frontend/playwright-report/
             frontend/test-results/

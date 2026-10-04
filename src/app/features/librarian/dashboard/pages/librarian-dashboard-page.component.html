@@ -15,3 +15,5 @@
   <section class="rank-grid"><app-dashboard-rank eyebrow="Demanda" title="Más reservados" [items]="top(data)" /><app-dashboard-rank eyebrow="Oportunidad" title="Sin reservas en el periodo" emptyText="Todos los títulos activos tuvieron actividad." [items]="quiet(data)" /></section>
   <section class="inventory-note"><div><p class="eyebrow">Stock actual</p><h2>{{data.availablePhysicalCopies}} copias físicas disponibles</h2><p>{{data.activeBooks}} títulos activos. Esta cifra es estado actual y no se compara con un periodo histórico ficticio.</p></div><a routerLink="/librarian/loans" [queryParams]="{status:'overdue',mediaType:'physical'}">Abrir vencidos →</a></section>
 }
+
+<app-circulation-summary />

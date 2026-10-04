@@ -1,3 +1,4 @@
+import { CirculationPanelComponent } from '../../../circulation/circulation-panel.component';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,7 +14,7 @@ import { LoanStatus } from '../../../../shared/models/loan.model';
 @Component({
   selector: 'app-my-library-page', standalone: true,
   providers: [MyLibraryFacade],
-  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, PageHeaderComponent, ErrorStateComponent, SkeletonComponent],
+  imports: [CirculationPanelComponent, CommonModule, RouterLink, MatButtonModule, MatIconModule, PageHeaderComponent, ErrorStateComponent, SkeletonComponent],
   templateUrl: './my-library-page.component.html', styleUrl: './my-library-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MyLibraryPageComponent {

@@ -1,13 +1,17 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AuthService } from '../../services/auth.service';
 import { StaffShellComponent } from './staff-shell.component';
+import { of } from 'rxjs';
 
 describe('StaffShellComponent', () => {
   const create = async (role: 'admin' | 'librarian') => {
     await TestBed.configureTestingModule({
       imports: [StaffShellComponent, RouterTestingModule],
-      providers: [{ provide: AuthService, useValue: {
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: AuthService, useValue: {
+        session$: of({ token: 'token', user: { id: '1', username: 'Marina', email: 'm@x.com', role } }),
         sessionSnapshot: { token: 'token', user: { id: '1', username: 'Marina', email: 'm@x.com', role } },
         logout: jasmine.createSpy('logout')
       }}]
