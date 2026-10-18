@@ -6,10 +6,11 @@
     "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
+    "test": "node scripts/run-browser-tests.mjs",
     "test:e2e": "playwright test",
     "test:e2e:report": "playwright show-report",
-    "test:reduced-motion": "ng test --watch=false --browsers=ChromeHeadlessReducedMotion --include=src/app/reduced-motion.browser-check.ts --reporters=dots"
+    "test:reduced-motion": "node scripts/run-browser-tests.mjs --reduced-motion",
+    "test:runner": "node --test scripts/browser-test-results.test.mjs scripts/browser-test-coverage.test.mjs"
   },
   "prettier": {
     "overrides": [
@@ -23,40 +24,33 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^20.3.33",
+    "@angular/animations": "20.3.34",
     "@angular/cdk": "^20.2.14",
-    "@angular/common": "^20.3.33",
-    "@angular/compiler": "^20.3.33",
-    "@angular/core": "^20.3.33",
-    "@angular/forms": "^20.3.33",
+    "@angular/common": "20.3.34",
+    "@angular/compiler": "20.3.34",
+    "@angular/core": "20.3.34",
+    "@angular/forms": "20.3.34",
     "@angular/material": "^20.2.14",
-    "@angular/platform-browser": "^20.3.33",
-    "@angular/platform-browser-dynamic": "^20.3.33",
-    "@angular/router": "^20.3.33",
+    "@angular/platform-browser": "20.3.34",
+    "@angular/platform-browser-dynamic": "20.3.34",
+    "@angular/router": "20.3.34",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.1"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^20.3.37",
-    "@angular/cli": "^20.3.37",
-    "@angular/compiler-cli": "^20.3.33",
+    "@angular/cli": "^20.3.40",
+    "@angular/compiler-cli": "20.3.34",
     "@playwright/test": "^1.63.0",
     "@types/jasmine": "~5.1.0",
     "axe-core": "^4.13.0",
     "jasmine-core": "~5.7.0",
-    "karma": "~6.4.0",
-    "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.0",
-    "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "@angular/build": "^20.3.40",
+    "v8-to-istanbul": "^9.3.0",
+    "istanbul-lib-coverage": "^3.2.2",
+    "istanbul-lib-report": "^3.0.1",
+    "istanbul-reports": "^3.2.0"
   },
-  "overrides": {
-    "piscina": "^5.3.2",
-    "webpack-dev-middleware": "^7.4.6",
-    "sockjs": {
-      "uuid": "^11.1.1"
-    }
-  }
+  "overrides": {}
 }

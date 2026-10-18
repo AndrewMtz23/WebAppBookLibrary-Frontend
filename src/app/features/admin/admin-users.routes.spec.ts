@@ -6,7 +6,8 @@ describe('admin users route', () => {
 
     expect(users?.component).toBeUndefined();
     expect(users?.loadComponent).toBeDefined();
-    const component = await users!.loadComponent!() as unknown as { name: string };
-    expect(component.name).toBe('UsersPageComponent');
+    const component = await users!.loadComponent!();
+    const { UsersPageComponent } = await import('./users/pages/users-page.component');
+    expect(component).toBe(UsersPageComponent);
   });
 });

@@ -12,7 +12,7 @@ Angular 20 single-page application for the BookLibrary API. It demonstrates auth
 - Centralized API error normalization
 - Security dashboard based on real HTTP probes—no random scores or simulated findings
 - Unit tests for authentication, interception, API services, token parsing, errors, and security probes
-- Production dependency audit currently reports zero known vulnerabilities
+- Full dependency audit, including development tools, reports zero known vulnerabilities
 
 ## Run locally
 
@@ -28,12 +28,13 @@ Open `http://localhost:4200`. Requests to `/api` are forwarded by `proxy.conf.js
 ## Commands
 
 ```bash
-npm test -- --watch=false --browsers=ChromeHeadless
+npm test -- --code-coverage
+npm run test:reduced-motion
 npm run build -- --configuration production
-npm audit --omit=dev
+npm audit
 ```
 
-GitHub Actions runs install, headless tests, production build, and the production dependency audit on pushes and pull requests.
+GitHub Actions runs install, headless Jasmine/Playwright tests, reduced-motion checks, production build, and the full dependency audit on pushes and pull requests. See [testing](docs/testing.md) for the esbuild/Vite toolchain and browser setup.
 
 ## Product behavior
 
