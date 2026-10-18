@@ -10,12 +10,16 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist/digital-library-client",
+            "outputPath": {
+              "base": "dist/digital-library-client",
+              "browser": ""
+            },
             "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": ["zone.js"],
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
@@ -51,7 +55,8 @@
                 "inlineCritical": true
               },
               "fonts": true
-            }
+            },
+            "browser": "src/main.ts"
           },
           "configurations": {
             "production": {
@@ -67,8 +72,6 @@
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
               "budgets": [
                 {
                   "type": "initial",
@@ -83,9 +86,7 @@
               ]
             },
             "development": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true,
@@ -95,7 +96,7 @@
           "defaultConfiguration": "development"
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular/build:dev-server",
           "options": {
             "buildTarget": "digital-library-client:build",
             "proxyConfig": "proxy.conf.json",
@@ -112,16 +113,46 @@
           },
           "defaultConfiguration": "development"
         },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+        "browser-tests": {
+          "builder": "@angular/build:application",
           "options": {
-            "polyfills": ["zone.js", "zone.js/testing"],
+            "browser": ".angular/browser-tests/entry.ts",
+            "index": {
+              "input": "scripts/browser-tests.html",
+              "output": "index.html"
+            },
+            "outputPath": {
+              "base": "dist/browser-tests",
+              "browser": ""
+            },
             "tsConfig": "tsconfig.spec.json",
-            "karmaConfig": "karma.conf.js",
-            "assets": ["src/favicon.ico", "src/assets"],
-            "styles": ["src/styles.scss"],
-            "scripts": [],
-            "sourceMap": true
+            "aot": false,
+            "polyfills": [],
+            "styles": [
+              "src/styles.scss"
+            ],
+            "assets": [
+              "src/favicon.ico",
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "src/assets/",
+                "output": "/assets/"
+              },
+              {
+                "glob": "{LibraryLogo,hatman,alice,rabbit}.png",
+                "input": "public",
+                "output": "/"
+              },
+              {
+                "glob": "{jasmine,jasmine-html,boot0}.js",
+                "input": "node_modules/jasmine-core/lib/jasmine-core",
+                "output": "/jasmine/"
+              }
+            ],
+            "optimization": false,
+            "sourceMap": true,
+            "extractLicenses": false
           }
         }
       }
