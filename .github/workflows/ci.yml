@@ -11,6 +11,8 @@ jobs:
   test-build-audit:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      E2E_CHROME_CHANNEL: chromium
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,14 +30,18 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Test runner failure handling
+        run: npm run test:runner
       - name: Test
-        run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
+        run: npm test -- --code-coverage
       - name: Reduced motion in Chrome
         run: npm run test:reduced-motion
       - name: Build
         run: npm run build -- --configuration production
-      - name: Audit production dependencies
-        run: npm audit --omit=dev
+      - name: Audit all dependencies
+        run: npm audit
       - name: Coverage evidence
         if: always()
         uses: actions/upload-artifact@v4

@@ -11,7 +11,7 @@ Dashboards incluyen contadores actuales separados de espera, recogidas, préstam
 ## Pruebas
 
 ```powershell
-npm test -- --watch=false --browsers=ChromeHeadless --reporters=dots
+npm test -- --code-coverage
 npm run test:reduced-motion
 npm run build -- --configuration production
 npm run test:e2e -- e2e/circulation.spec.ts
@@ -21,6 +21,6 @@ Navegador usa el QaHost aislado en 7184, Angular en 4284 y `proxy.e2e.json`. La 
 
 ## Dependencias y límites de cierre
 
-Actualización de parches: Angular 20.3.33, CLI/build 20.3.37. Overrides acotados para `piscina >=5.3.2`, `webpack-dev-middleware >=7.4.6` y `uuid >=11.1.1` bajo `sockjs`. Verificados con instalación normal, suites y build; no se cambia de versión mayor de Angular.
+Actualización del 18/10/2026: Angular 20.3.34 y CLI/build 20.3.40. Se sustituyeron Webpack/Karma por esbuild/Vite y Jasmine/Playwright; se retiraron los overrides antiguos y la dependencia `braces`. Auditoría completa npm: cero vulnerabilidades conocidas. [Comandos y arquitectura de pruebas](./testing.md).
 
-Auditoría del 03/10/2026: dependencias de producción sin avisos. La auditoría completa conserva dos avisos sin versión corregida publicada (`braces <=3.0.3`, `http-cache-semantics <=4.2.0`), propagados a 21 dependencias de desarrollo. No usar `npm audit fix --force` para degradar Angular/Karma. Repetir auditoría e instalar los parches cuando se publiquen; el criterio de cero vulnerabilidades totales permanece pendiente.
+El pendiente de auditoría registrado el 03/10 queda sustituido por esta migración; no se aplicaron excepciones ni `npm audit fix --force`. La activación de circulación sobre datos reales conserva sus requisitos de respaldo, conciliación y autorización de despliegue.
