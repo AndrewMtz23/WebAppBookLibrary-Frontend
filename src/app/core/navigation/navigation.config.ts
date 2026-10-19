@@ -7,6 +7,7 @@ export const READER_NAVIGATION_ITEMS: readonly NavigationItem[] = [
   { label: 'Mi biblioteca', icon: 'bookmarks', route: ['/app/my-library'], roles: ['user'] },
   { label: 'Favoritos', icon: 'favorite_border', route: ['/app/favorites'], roles: ['user'] },
   { label: 'Mis lecturas', icon: 'menu_book', route: ['/app/reading'], roles: ['user', 'librarian', 'admin'] },
+  { label: 'Soporte', icon: 'support_agent', route: ['/app/support'], roles: ['user'] },
   { label: 'Perfil', icon: 'person_outline', route: ['/app/profile'], roles: ['user'] },
 ];
 
@@ -14,6 +15,8 @@ const NAVIGATION_ITEMS: readonly NavigationItem[] = [
   ...READER_NAVIGATION_ITEMS,
   { label: 'Circulación', icon: 'swap_horiz', route: ['/librarian/circulation'], roles: ['librarian'] },
   { label: 'Circulación', icon: 'swap_horiz', route: ['/admin/circulation'], roles: ['admin'] },
+  { label: 'Soporte', icon: 'support_agent', route: ['/librarian/support'], roles: ['librarian'] },
+  { label: 'Soporte', icon: 'support_agent', route: ['/admin/support'], roles: ['admin'] },
   { label: 'Dashboard', icon: 'space_dashboard', route: ['/librarian/dashboard'], exact: true, roles: ['librarian'] },
   { label: 'Libros', icon: 'library_books', route: ['/librarian/books'], roles: ['librarian'] },
   { label: 'Préstamos', icon: 'assignment_return', route: ['/librarian/loans'], roles: ['librarian'] },
@@ -45,14 +48,14 @@ export const navigationGroupsForRole = (role: UserRole): readonly NavigationGrou
   if (role === 'admin') {
     return [
       group('Gestión', 'dashboard_customize', select('Dashboard', 'Usuarios')),
-      group('Biblioteca', 'local_library', select('Libros', 'Categorías', 'Préstamos', 'Circulación')),
+      group('Biblioteca', 'local_library', select('Libros', 'Categorías', 'Préstamos', 'Circulación', 'Soporte')),
       group('Control', 'admin_panel_settings', select('Logs', 'Seguridad', 'Sitio público', 'Mis lecturas'))
     ];
   }
 
   if (role === 'librarian') {
     return [
-      group('Operación', 'space_dashboard', select('Dashboard', 'Préstamos', 'Circulación')),
+      group('Operación', 'space_dashboard', select('Dashboard', 'Préstamos', 'Circulación', 'Soporte')),
       group('Biblioteca', 'local_library', select('Libros', 'Sitio público', 'Mis lecturas'))
     ];
   }

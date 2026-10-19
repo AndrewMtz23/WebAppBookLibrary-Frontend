@@ -1,6 +1,6 @@
 <section class="notifications-page" aria-labelledby="notifications-title">
   <header>
-    <div><p class="eyebrow">Tu biblioteca, al día</p><h1 id="notifications-title">Notificaciones<span>.</span></h1><p>Reservas, devoluciones y fechas que conviene tener presentes.</p></div>
+    <div><p class="eyebrow">Tu biblioteca, al día</p><h1 id="notifications-title">Notificaciones<span>.</span></h1><p>Reservas, devoluciones, fechas y actualizaciones de tus solicitudes de soporte.</p></div>
     <div class="unread-summary"><strong>{{ state.count() === null ? '—' : state.count() }}</strong><span>sin leer</span></div>
   </header>
   <div class="notifications-layout">
@@ -26,7 +26,7 @@
               <h2>{{ notice.title }}</h2><p>{{ notice.body }}</p>
               @if (notice.dueAt && notice.type.startsWith('due_')) { <p class="due">Devolución: {{ notice.dueAt | date:'dd/MM/yyyy, HH:mm' }}</p> }
               <div class="notice-actions">
-                @if (target(notice); as route) { <a [routerLink]="route">Ver libro <span aria-hidden="true">↗</span></a> }
+                @if (target(notice); as route) { <a [routerLink]="route">{{ notice.targetType === 'support_ticket' ? 'Ver solicitud' : 'Ver libro' }} <span aria-hidden="true">↗</span></a> }
                 @if (!notice.readAt) { <button type="button" [disabled]="state.saving()" (click)="state.read(notice.id)" [attr.aria-label]="'Marcar como leída: ' + notice.title">Marcar como leída</button> }
               </div>
             </div>

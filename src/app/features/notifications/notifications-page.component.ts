@@ -16,5 +16,5 @@ export class NotificationsPageComponent {
     inject(SessionScopeService).changed$.pipe(takeUntilDestroyed()).subscribe(() => { this.state.load(); this.state.loadPreferences(); });
   }
   load(more = false): void { this.state.load(more); }
-  target(notice: Notice): string[] | null { return notice.targetType === 'book' && /^[a-f0-9]{24}$/i.test(notice.targetId) ? ['/app/catalog', notice.targetId] : null; }
+  target(notice: Notice): string[] | null { if (!/^[a-f0-9]{24}$/i.test(notice.targetId)) return null; return notice.targetType === 'book' ? ['/app/catalog', notice.targetId] : notice.targetType === 'support_ticket' ? ['/app/support', notice.targetId] : null; }
 }
