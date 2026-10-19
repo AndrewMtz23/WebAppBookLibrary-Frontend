@@ -1,0 +1,23 @@
+<main class="support-page">
+  <header class="page-heading"><div><p class="eyebrow">{{ staff ? 'Atención de biblioteca' : 'Estamos para ayudarte' }}</p><h1>{{ staff ? 'Centro de soporte' : 'Tus solicitudes' }}</h1><p>{{ staff ? 'Responde, da seguimiento y mantén cada conversación en su lugar.' : 'Un espacio privado para resolver dudas sobre tu cuenta y tus lecturas.' }}</p></div><a [routerLink]="staff ? '/app/support' : '/contact'">{{ staff ? 'Mis solicitudes personales' : 'Ayuda y contacto' }} →</a></header>
+  @if (sessionChanged()) { <p role="status">La sesión cambió. Vuelve a abrir Soporte para consultar tu cuenta actual.</p> }
+  <p id="support-page-error" class="error" role="alert" tabindex="-1">{{ error() }}</p><p class="feedback" role="status" tabindex="-1">{{ feedback() }}</p>
+  <div class="support-layout" [class.staff-layout]="staff">
+    @if (!staff && !sessionChanged()) {
+      <section class="panel composer"><p class="eyebrow">Nueva conversación</p><h2>Cuéntanos qué pasó.</h2><p class="muted">No compartas contraseñas ni códigos de acceso. El personal autorizado podrá consultar esta solicitud.</p>
+        <form (ngSubmit)="create()" #ticketForm="ngForm"><fieldset [disabled]="saving()"><label for="support-category">Tema</label><select id="support-category" name="category" [(ngModel)]="category">@for (key of categoryKeys; track key) { <option [value]="key">{{ categories[key] }}</option> }</select>
+        <label for="support-subject">Asunto</label><input id="support-subject" aria-describedby="support-page-error" name="subject" [(ngModel)]="subject" required maxlength="160" placeholder="Una frase que resuma tu duda" />
+        <label for="support-description">Descripción</label><textarea id="support-description" name="description" [(ngModel)]="description" required maxlength="4000" rows="7" aria-describedby="support-description-help support-page-error"></textarea><small id="support-description-help">Explica qué intentabas hacer y qué ocurrió. {{ description.length }}/4000</small>
+        <button class="primary" type="submit" [disabled]="ticketForm.invalid || saving()">{{ saving() ? 'Enviando…' : 'Crear solicitud' }}</button></fieldset></form>
+      </section>
+    }
+    <section class="ticket-list"><div class="section-heading"><h2>{{ staff ? 'Cola de atención' : 'Seguimiento' }}</h2><span class="count">{{ total }} solicitudes</span></div>
+      <form class="filters" (ngSubmit)="load()"><label>Estado<select name="status" [(ngModel)]="status"><option value="">Todos</option>@for (key of statusKeys; track key) { <option [value]="key">{{ statuses[key] }}</option> }</select></label><label>Tema<select name="categoryFilter" [(ngModel)]="categoryFilter"><option value="">Todos</option>@for (key of categoryKeys; track key) { <option [value]="key">{{ categories[key] }}</option> }</select></label><button [disabled]="loading() || sessionChanged()">Filtrar</button></form>
+      @if (loading()) { <p role="status">Cargando solicitudes…</p> }
+      @else if (!items().length && !error()) { <div class="empty"><span aria-hidden="true">✉</span><h3>{{ status || categoryFilter ? 'Sin coincidencias' : 'Todo empieza con una pregunta.' }}</h3><p>{{ status || categoryFilter ? 'Prueba con otros filtros.' : 'Las solicitudes aparecerán aquí para que puedas seguir su atención.' }}</p></div> }
+      @for (item of items(); track item.id) { <article class="ticket-row"><div><p class="eyebrow">{{ categories[item.category] }} · {{ item.createdAt | date:'mediumDate' }}</p><h3>@if (staff) { <button class="ticket-link" (click)="selected.set(item.id)">{{ item.subject }}</button> } @else { <a [routerLink]="['/app/support', item.id]">{{ item.subject }}</a> }</h3></div><span class="status"><span aria-hidden="true">{{ item.status === 'closed' || item.status === 'resolved' ? '✓' : '◷' }}</span> {{ statuses[item.status] }}</span></article> }
+      @if (totalPages > 1) { <nav class="pagination" aria-label="Páginas de solicitudes"><button [disabled]="page <= 1 || loading()" (click)="load(page - 1)">Anterior</button><span>{{ page }} / {{ totalPages }}</span><button [disabled]="page >= totalPages || loading()" (click)="load(page + 1)">Siguiente</button></nav> }
+    </section>
+  </div>
+  @if (staff && selected()) { <section class="staff-detail" aria-label="Solicitud seleccionada"><button (click)="selected.set(''); load(page)">Cerrar detalle</button><app-support-detail [ticketId]="selected()" [staff]="true" /></section> }
+</main>

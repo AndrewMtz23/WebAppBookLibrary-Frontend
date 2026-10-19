@@ -1,3 +1,4 @@
+import { BookReviewsComponent } from '../../../reviews/book-reviews.component';
 import { PickupActionComponent } from '../../../circulation/pickup-action.component';
 import { ReaderActionAccessService } from '../../../../core/auth/reader-action-access.service';
 import { CommonModule } from '@angular/common';
@@ -25,7 +26,7 @@ import { takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-book-detail-page', standalone: true,
-  imports: [PickupActionComponent, CommonModule, RouterLink, MatButtonModule, MatIconModule, ErrorStateComponent, SkeletonComponent, RelatedBooksComponent, PublicationDatePipe, ReadingActionComponent],
+  imports: [BookReviewsComponent, PickupActionComponent, CommonModule, RouterLink, MatButtonModule, MatIconModule, ErrorStateComponent, SkeletonComponent, RelatedBooksComponent, PublicationDatePipe, ReadingActionComponent],
   templateUrl: './book-detail-page.component.html', styleUrl: './book-detail-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BookDetailPageComponent {

@@ -4,14 +4,14 @@ describe('role navigation configuration', () => {
   it('shows reader destinations without staff tools', () => {
     const labels = navigationForRole('user').map(item => item.label);
 
-    expect(labels).toEqual(['Descubrir', 'Catálogo', 'Mi biblioteca', 'Favoritos', 'Mis lecturas', 'Perfil']);
+    expect(labels).toEqual(['Descubrir', 'Catálogo', 'Mi biblioteca', 'Favoritos', 'Mis lecturas', 'Soporte', 'Perfil']);
     expect(labels).not.toContain('Usuarios');
   });
 
   it('shows operational destinations to librarians', () => {
     const labels = navigationForRole('librarian').map(item => item.label);
 
-    expect(labels).toEqual(['Mis lecturas', 'Circulación', 'Dashboard', 'Libros', 'Préstamos', 'Sitio público']);
+    expect(labels).toEqual(['Mis lecturas', 'Circulación', 'Soporte', 'Dashboard', 'Libros', 'Préstamos', 'Sitio público']);
     expect(labels).not.toContain('Usuarios');
     expect(labels).not.toContain('Seguridad');
   });
@@ -19,13 +19,14 @@ describe('role navigation configuration', () => {
   it('shows administrative destinations to administrators', () => {
     const labels = navigationForRole('admin').map(item => item.label);
 
-    expect(labels).toEqual(['Mis lecturas', 'Circulación', 'Dashboard', 'Usuarios', 'Libros', 'Categorías', 'Préstamos', 'Logs', 'Seguridad', 'Sitio público']);
+    expect(labels).toEqual(['Mis lecturas', 'Circulación', 'Reseñas', 'Soporte', 'Dashboard', 'Usuarios', 'Libros', 'Categorías', 'Préstamos', 'Logs', 'Seguridad', 'Sitio público']);
   });
 
   it('organizes staff navigation into role-specific tree areas', () => {
     const adminGroups = navigationGroupsForRole('admin');
     const librarianGroups = navigationGroupsForRole('librarian');
 
+    expect(adminGroups.flatMap(group => group.items).map(item => item.label)).toContain('Reseñas');
     expect(adminGroups.map(group => group.label)).toEqual(['Gestión', 'Biblioteca', 'Control']);
     expect(adminGroups.find(group => group.label === 'Control')?.items.map(item => item.label))
       .toEqual(['Mis lecturas', 'Logs', 'Seguridad', 'Sitio público']);

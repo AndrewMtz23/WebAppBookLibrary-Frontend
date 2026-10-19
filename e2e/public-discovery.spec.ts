@@ -153,7 +153,7 @@ test('revalida la ultima copia al regresar del login y separa favoritos entre cu
   await page.getByRole('button', { name: 'Sí, cerrar sesión' }).click();
   await expect(page.getByRole('link', { name: 'Registrarse', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Guardar', exact: true })).toBeVisible();
-  await page.getByRole('link', { name: 'Iniciar sesión', exact: true }).click();
+  await page.getByRole('banner').getByRole('link', { name: 'Iniciar sesión', exact: true }).click();
   await signIn(page, accounts[1].username);
   await expect(page.getByRole('button', { name: 'Guardar', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Guardado', exact: true })).toHaveCount(0);

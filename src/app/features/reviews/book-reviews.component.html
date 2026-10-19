@@ -1,0 +1,23 @@
+<section class="reviews" aria-labelledby="reviews-heading">
+ <header class="review-heading"><div><p class="eyebrow">Voces de la biblioteca</p><h2 id="reviews-heading">Calificaciones y reseñas</h2></div>
+ @if(summary();as s){<div class="rating-summary">@if(s.averageRating!==null){<strong>{{s.averageRating | number:'1.1-1'}}</strong><span> de 5 · {{s.total}} calificaciones</span>}@else{<span>Sin calificaciones</span>}</div>}</header>
+ <p class="notice" role="alert" tabindex="-1">{{error()}}</p><p class="notice" role="status" tabindex="-1">{{feedback()}}</p>
+ @if(sessionChanged()){<p>La sesión cambió. Abre nuevamente la ficha para continuar.</p>}@else{
+ @if(conflict()){<button type="button" (click)="load(page,true)">Actualizar y conservar borrador</button>}
+ <div class="reviews-layout"><div>
+ @if(loading()){<p role="status">Cargando reseñas…</p>}@else if(summary();as s){
+ @for(r of s.items;track r.id){<article class="review"><header><strong>{{r.displayName}}</strong><span aria-label="Calificación">{{r.rating}} de 5 <span aria-hidden="true">★</span></span></header><p class="review-text">{{r.text}}</p><time>{{r.updatedAt | date:'mediumDate'}}</time>
+ @if(reader && ownReady() && mine()?.id!==r.id){<button type="button" class="quiet" [disabled]="saving()" (click)="reportId=r.id;reportReason=''">Reportar reseña de {{r.displayName}}</button>}
+ @if(reportId===r.id){<form (ngSubmit)="report()"><label [for]="'reason-'+r.id">Motivo del reporte privado</label><textarea [id]="'reason-'+r.id" name="reportReason" [(ngModel)]="reportReason" maxlength="1000" required rows="3"></textarea><div class="actions"><button type="submit" [disabled]="saving()||!reportReason.trim()||conflict()">Enviar reporte</button><button type="button" [disabled]="saving()" (click)="reportId=''">Cancelar</button></div></form>}
+ </article>}@empty{<div class="empty"><h3>La conversación empieza contigo</h3><p>Comparte qué te dejó esta lectura.</p></div>}
+ @if(pages>1){<nav class="pagination" aria-label="Páginas de reseñas"><button [disabled]="page<=1||saving()" (click)="load(page-1,true)">Anterior</button><span>{{page}} / {{pages}}</span><button [disabled]="page>=pages||saving()" (click)="load(page+1,true)">Siguiente</button></nav>}
+ }@else{<button (click)="load()">Reintentar reseñas</button>}
+ </div><aside class="composer"><h3>Tu opinión cuenta</h3>
+ @if(!signedIn){<p>Inicia sesión para calificar o reportar contenido.</p><a routerLink="/auth/login">Iniciar sesión</a>}@else{
+ @if(ownLoading()){<p role="status">Cargando tu reseña…</p>}
+ @if(mine();as own){<p class="state">{{states[own.visibility]}}</p>@if(own.moderationReason){<p class="review-text"><strong>Explicación privada:</strong> {{own.moderationReason}}</p><a routerLink="/app/support">Contactar soporte</a>}}
+ @if(reader && ownReady()){<form (ngSubmit)="save()"><fieldset [disabled]="saving()||conflict()"><legend>Tu calificación</legend><div class="stars">@for(star of stars;track star){<label><input type="radio" name="rating" [value]="star" [(ngModel)]="rating" [attr.aria-label]="star+' de 5 estrellas'" /><span aria-hidden="true">{{star}} ★</span></label>}</div><label for="review-text">Tu reseña <span class="muted">(opcional)</span></label><textarea id="review-text" name="text" [(ngModel)]="text" maxlength="2000" rows="5" aria-describedby="review-help"></textarea><small id="review-help">{{text.length}} / 2000 · Texto público junto a tu nombre visible actual.</small><button class="primary" type="submit" [disabled]="rating<1||text.length>2000">{{saving()?'Guardando…':'Guardar reseña'}}</button></fieldset></form>}
+ <p class="muted">Para publicar necesitas una cuenta de lector con correo verificado. <a routerLink="/app/profile">Revisar nombre y verificación</a>.</p>
+ @if(mine();as own){@if(own.visibility!=='removed'){<details><summary>Retirar mi reseña</summary><p>Se borrarán el texto y la calificación. Una decisión de moderación vigente se conserva hasta su revisión.</p><button type="button" [disabled]="saving()||conflict()" (click)="remove()">Confirmar retirada</button></details>}}
+ }</aside></div>}
+</section>
