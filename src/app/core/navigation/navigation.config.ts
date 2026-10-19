@@ -16,6 +16,7 @@ const NAVIGATION_ITEMS: readonly NavigationItem[] = [
   { label: 'Circulación', icon: 'swap_horiz', route: ['/librarian/circulation'], roles: ['librarian'] },
   { label: 'Circulación', icon: 'swap_horiz', route: ['/admin/circulation'], roles: ['admin'] },
   { label: 'Soporte', icon: 'support_agent', route: ['/librarian/support'], roles: ['librarian'] },
+  { label: 'Reseñas', icon: 'rate_review', route: ['/admin/reviews'], roles: ['admin'] },
   { label: 'Soporte', icon: 'support_agent', route: ['/admin/support'], roles: ['admin'] },
   { label: 'Dashboard', icon: 'space_dashboard', route: ['/librarian/dashboard'], exact: true, roles: ['librarian'] },
   { label: 'Libros', icon: 'library_books', route: ['/librarian/books'], roles: ['librarian'] },
@@ -48,7 +49,7 @@ export const navigationGroupsForRole = (role: UserRole): readonly NavigationGrou
   if (role === 'admin') {
     return [
       group('Gestión', 'dashboard_customize', select('Dashboard', 'Usuarios')),
-      group('Biblioteca', 'local_library', select('Libros', 'Categorías', 'Préstamos', 'Circulación', 'Soporte')),
+      group('Biblioteca', 'local_library', select('Libros', 'Categorías', 'Préstamos', 'Circulación', 'Soporte', 'Reseñas')),
       group('Control', 'admin_panel_settings', select('Logs', 'Seguridad', 'Sitio público', 'Mis lecturas'))
     ];
   }

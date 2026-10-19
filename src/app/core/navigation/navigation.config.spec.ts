@@ -19,13 +19,14 @@ describe('role navigation configuration', () => {
   it('shows administrative destinations to administrators', () => {
     const labels = navigationForRole('admin').map(item => item.label);
 
-    expect(labels).toEqual(['Mis lecturas', 'Circulación', 'Soporte', 'Dashboard', 'Usuarios', 'Libros', 'Categorías', 'Préstamos', 'Logs', 'Seguridad', 'Sitio público']);
+    expect(labels).toEqual(['Mis lecturas', 'Circulación', 'Reseñas', 'Soporte', 'Dashboard', 'Usuarios', 'Libros', 'Categorías', 'Préstamos', 'Logs', 'Seguridad', 'Sitio público']);
   });
 
   it('organizes staff navigation into role-specific tree areas', () => {
     const adminGroups = navigationGroupsForRole('admin');
     const librarianGroups = navigationGroupsForRole('librarian');
 
+    expect(adminGroups.flatMap(group => group.items).map(item => item.label)).toContain('Reseñas');
     expect(adminGroups.map(group => group.label)).toEqual(['Gestión', 'Biblioteca', 'Control']);
     expect(adminGroups.find(group => group.label === 'Control')?.items.map(item => item.label))
       .toEqual(['Mis lecturas', 'Logs', 'Seguridad', 'Sitio público']);

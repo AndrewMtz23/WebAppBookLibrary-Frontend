@@ -7,6 +7,7 @@ import { CatalogFacade } from '../catalog/data-access/catalog.facade';
 export const READER_ROUTES: Routes = [{
   path: '', component: ReaderShellComponent,
   children: [
+    { path: 'reviews/:id', canActivate: [AuthGuard], loadComponent: () => import('../reviews/my-review-page.component').then(m => m.MyReviewPageComponent) },
     { path: 'support', canActivate: [AuthGuard, RoleGuard], data: { roles: ['user', 'librarian', 'admin'] }, loadComponent: () => import('../support/support-page.component').then(m => m.SupportPageComponent) },
     { path: 'support/:id', canActivate: [AuthGuard, RoleGuard], data: { roles: ['user', 'librarian', 'admin'] }, loadComponent: () => import('../support/support-detail.component').then(m => m.SupportDetailComponent) },
     { path: 'notifications', canActivate: [AuthGuard, RoleGuard], data: { roles: ['user', 'librarian', 'admin'] }, loadComponent: () => import('../notifications/notifications-page.component').then(m => m.NotificationsPageComponent) },
