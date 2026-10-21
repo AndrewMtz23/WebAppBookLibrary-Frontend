@@ -6,3 +6,10 @@
 @use 'styles/reader-navbar';
 @use 'styles/staff-navigation';
 @use 'styles/staff-workspace';
+
+@media print {
+  body.printing-copy-label * { visibility: hidden !important; }
+  body.printing-copy-label app-copy-label .label,
+  body.printing-copy-label app-copy-label .label * { visibility: visible !important; }
+  body.printing-copy-label app-copy-label .label { position: fixed; inset: 0 auto auto 0; border: 0; }
+}

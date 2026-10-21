@@ -9,7 +9,7 @@ export function parseLoanQuery(params: ParamMap): StaffLoanQuery {
   const q = { ...DEFAULT_STAFF_LOAN_QUERY };
   for (const key of ['query','userId','bookId'] as const) q[key] = (params.get(key) ?? '').trim().slice(0,200);
   for (const key of ['from','to','dueFrom','dueTo'] as const) { const value = params.get(key); q[key] = value && !isNaN(Date.parse(value)) ? new Date(value).toISOString() : ''; }
-  const allowed = { status: ['active','outstanding','overdue','returned','cancelled'], mediaType: ['physical','digital'], dateField: ['reservedAt','returnedAt','cancelledAt'], sort: ['reservedAt','dueAt'], direction: ['asc','desc'] };
+  const allowed = { status: ['active','outstanding','overdue','returned','cancelled','lost'], mediaType: ['physical','digital'], dateField: ['reservedAt','returnedAt','cancelledAt'], sort: ['reservedAt','dueAt'], direction: ['asc','desc'] };
   for (const key of Object.keys(allowed) as (keyof typeof allowed)[]) { const value = params.get(key); if (value && allowed[key].includes(value)) q[key] = value; }
   for (const key of ['page','pageSize'] as const) { const n = Number(params.get(key)); if (Number.isSafeInteger(n) && n > 0) q[key] = key === 'pageSize' ? Math.min(n,100) : n; }
   return q;

@@ -1,7 +1,7 @@
 import { Component, DestroyRef, EventEmitter, Input, OnInit, Output, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -15,6 +15,7 @@ import { LoanSummary } from '../../shared/models/loan.model';
   templateUrl: './circulation-panel.component.html', styleUrl: './circulation-panel.component.scss' })
 export class CirculationPanelComponent implements OnInit {
   @Input() staff = false; @Input() loans: readonly LoanSummary[] = []; @Output() changed = new EventEmitter<void>();
+  private readonly router = inject(Router);
   readonly api = inject(CirculationService); private readonly dialogs = inject(MatDialog); private readonly scope = inject(SessionScopeService); private readonly destroy = inject(DestroyRef);
   readonly pickups = signal<Pickup[]>([]); readonly renewals = signal<Renewal[]>([]); readonly waiting = signal<WaitEntry[]>([]);
   readonly loading = signal(false); readonly error = signal(false); readonly busy = signal(false); readonly message = signal('');
@@ -31,7 +32,7 @@ export class CirculationPanelComponent implements OnInit {
   }
   filter() { this.page = 1; this.load(); }
   turn(delta: number) { this.page += delta; this.load(); }
-  collect(p: Pickup) { this.confirm('Confirmar entrega', `Confirma que entregaste «${p.bookTitle}» al lector. El plazo empieza ahora.`, () => this.api.collect(p)); }
+  collect(p: Pickup) { if (p.copyId) { void this.router.navigate(['/librarian/copies', p.copyId]); return; } this.confirm('Confirmar entrega', `Confirma que entregaste «${p.bookTitle}» al lector. El plazo empieza ahora.`, () => this.api.collect(p)); }
   cancel(p: Pickup) { this.confirm('Cancelar recogida', 'El ejemplar quedará disponible para la siguiente persona en espera.', () => this.api.cancel(p)); }
   leave(w: WaitEntry) { this.confirm('Salir de la espera', 'Perderás tu posición y cualquier oferta pendiente de esta solicitud.', () => this.api.leave(w.id)); }
   renew(loan: LoanSummary) { this.confirm('Solicitar renovación', 'El personal revisará tu solicitud. Conserva la fecha actual hasta recibir la aprobación.', () => this.api.request(loan.id)); }

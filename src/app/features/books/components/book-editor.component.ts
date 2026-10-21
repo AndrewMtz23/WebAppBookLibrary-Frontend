@@ -53,6 +53,8 @@ export class BookEditorComponent implements OnChanges, AfterViewInit {
       description: book?.description ?? '', publisher: book?.publisher ?? '', publishedDate: book?.publishedDate?.slice(0, 10) ?? '', language: book?.language ?? 'es',
       pageCount: book?.pageCount ?? null, categoryIds: [...(book?.categoryIds ?? book?.categories?.map(c => c.id) ?? [])], tags: book?.tags.join(', ') ?? '', coverUrl: book?.coverUrl ?? '',
       mediaType: book?.mediaType ?? 'physical', digitalResourceUrl: this.record?.digitalResourceUrl ?? '', totalCopies: book?.totalCopies ?? 0 });
+    if (book?.inventoryMode === 'unit') { this.form.controls.totalCopies.disable(); this.form.controls.mediaType.disable(); }
+    else { this.form.controls.totalCopies.enable(); this.form.controls.mediaType.enable(); }
     this.submitted = false; this.mediaValidators();
   }
   private mediaValidators() {

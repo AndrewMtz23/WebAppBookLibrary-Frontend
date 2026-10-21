@@ -14,6 +14,7 @@ export type MediaType = 'physical' | 'digital';
 import { CategoryRef } from '../../features/categories/categories.api';
 
 export interface BookSummary {
+  inventoryMode?: "aggregate" | "unit";
   categoryIds?: readonly string[];
   categories?: readonly CategoryRef[];
   id: string;

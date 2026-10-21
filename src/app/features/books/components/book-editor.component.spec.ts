@@ -4,6 +4,13 @@ import { TestBed } from '@angular/core/testing';
 import { BookEditorComponent } from './book-editor.component';
 
 describe('BookEditorComponent', () => {
+  it('locks aggregate controls after unit inventory activation', () => {
+    const fixture = TestBed.createComponent(BookEditorComponent);
+    fixture.componentRef.setInput('record', { book: { title: 'Unit book', authors: ['Autora'], description: 'Descripción completa de más de veinte caracteres.', language: 'es', categoryIds: ['category-history'], genres: [], tags: [], mediaType: 'physical', totalCopies: 4, inventoryMode: 'unit' }, digitalResourceUrl: null });
+    fixture.detectChanges();
+    expect(fixture.componentInstance.form.controls.totalCopies.disabled).toBeTrue();
+    expect(fixture.componentInstance.form.controls.mediaType.disabled).toBeTrue();
+  });
   beforeEach(() => TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] }));
   it('requires explicit classification for an unmigrated book and omits legacy writes', () => {
     const component = TestBed.createComponent(BookEditorComponent).componentInstance;

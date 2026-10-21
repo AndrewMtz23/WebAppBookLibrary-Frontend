@@ -1,8 +1,10 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { StaffBookListComponent } from './staff-book-list.component';
 import { BookSummary } from '../../../shared/models/book.model';
 
 describe('StaffBookListComponent permissions and filters', () => {
+  beforeEach(() => TestBed.configureTestingModule({ providers: [provideRouter([])] }));
   const book: BookSummary = { id: 'one', title: 'Libro', authors: ['Autora'], subtitle: null, coverUrl: null, mediaType: 'physical', genres: ['Historia'], totalCopies: 2, availableCopies: 1, reservationCount: 0, isFavorite: false, isActive: false };
   it('only emits exceptional deletion when explicitly enabled and inactive', () => {
     const fixture = TestBed.createComponent(StaffBookListComponent);

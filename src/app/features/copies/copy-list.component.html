@@ -1,0 +1,17 @@
+<app-staff-page-header icon="inventory_2" title="Ejemplares" description="Cada unidad, su ubicación y su estado. Busca una etiqueta o elige un título." />
+@if (error()) { <p class="notice error" role="alert">{{ error() }}</p> }
+<section class="panel"><h2>Abrir una etiqueta</h2><form class="toolbar" (ngSubmit)="openCode()"><label for="copy-lookup">Código o enlace QR</label><input id="copy-lookup" name="code" [(ngModel)]="code" maxlength="300" /><button type="submit" [disabled]="!code.trim() || stopped()">Abrir ejemplar</button></form><app-copy-scanner (decoded)="code = $event; openCode()" /></section>
+<section class="panel"><h2>Inventario por título</h2><form class="toolbar" (ngSubmit)="findBooks()"><label for="copy-book">Título o autor</label><input id="copy-book" name="search" [(ngModel)]="search" maxlength="200" /><button type="submit" [disabled]="stopped()">Buscar libros físicos</button></form>
+@for (match of matches(); track match.id) { <p><button type="button" (click)="select(match.id)">{{ match.title }} · {{ match.authors.join(', ') }}</button></p> }
+@if (book(); as b) {
+  <h3>{{ b.title }}</h3><p>{{ b.availableCopies ?? 0 }} disponibles de {{ b.totalCopies ?? 0 }} unidades.</p>
+  @if (b.inventoryMode !== 'unit') { <p class="notice">Este título aún usa cantidades generales. El administrador debe conciliar sus existencias antes de registrar ejemplares individuales.</p> }
+  @else {
+    <dl class="copy-counts">@for (entry of states | keyvalue; track entry.key) { <div><dt>{{ entry.value }}</dt><dd>{{ result()?.stateCounts?.[entry.key] ?? 0 }}</dd></div> }</dl>
+    <label for="copy-filter">Estado</label><select id="copy-filter" [(ngModel)]="status" (ngModelChange)="page = 1; load()"><option value="">Todos</option>@for (entry of states | keyvalue; track entry.key) { <option [value]="entry.key">{{ entry.value }}</option> }</select>
+    <div class="copy-list">@for (c of result()?.items; track c.id) { <a [routerLink]="['/librarian/copies', c.id]"><strong>{{ c.inventoryCode }}</strong><span class="state">{{ states[c.status] }}</span><p>{{ c.location || 'Sin ubicación' }}</p>@if (c.inspectionPending) { <small>Pendiente de inspección</small> }</a> } @empty { <p>No hay ejemplares para este filtro.</p> }</div>
+    <nav aria-label="Páginas de ejemplares"><button [disabled]="page <= 1" (click)="load(-1)">Anterior</button><span>Página {{ page }}</span><button [disabled]="page * 20 >= (result()?.totalCount ?? 0)" (click)="load(1)">Siguiente</button></nav>
+    <details class="panel"><summary>Registrar un ejemplar</summary><form (ngSubmit)="create()"><fieldset [disabled]="saving() || stopped()"><label for="new-copy-code">Código de inventario</label><input id="new-copy-code" name="inventoryCode" [(ngModel)]="inventoryCode" required minlength="3" maxlength="64" pattern="[a-zA-Z0-9-]{3,64}" /><label for="new-copy-condition">Condición observada</label><select id="new-copy-condition" name="condition" [(ngModel)]="condition"><option value="good">Buen estado</option><option value="worn">Desgastado</option><option value="damaged">Dañado</option></select><label for="new-copy-location">Ubicación</label><input id="new-copy-location" name="location" [(ngModel)]="location" maxlength="200" /><label for="new-copy-notes">Notas internas</label><textarea id="new-copy-notes" name="notes" [(ngModel)]="notes" maxlength="1000"></textarea><button class="primary" type="submit">Registrar ejemplar</button></fieldset></form></details>
+  }
+}
+</section>

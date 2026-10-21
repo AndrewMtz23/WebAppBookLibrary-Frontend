@@ -27,7 +27,7 @@
       <label>Formato *<select formControlName="mediaType"><option value="physical">Físico</option><option value="digital">Digital</option></select></label>
       @if (form.controls.mediaType.value === 'physical') {
         <label>Ejemplares totales *<input type="number" min="0" step="1" formControlName="totalCopies" [attr.aria-invalid]="invalid('totalCopies')">@if (invalid('totalCopies')) { <small class="error">Usa un entero igual o mayor que cero.</small> }</label>
-        <p class="wide">Los ejemplares disponibles se calculan a partir de los préstamos activos. No se pueden editar directamente.</p>
+        <p class="wide">Los conteos se calculan a partir del inventario. En títulos con ejemplares individuales, las cantidades se gestionan desde Ejemplares.</p>
       } @else {
         <label>URL del recurso digital (HTTPS) *<input type="url" formControlName="digitalResourceUrl" [attr.aria-invalid]="invalid('digitalResourceUrl')">@if (invalid('digitalResourceUrl')) { <small class="error">El recurso digital requiere una dirección HTTPS válida.</small> }</label>
       }

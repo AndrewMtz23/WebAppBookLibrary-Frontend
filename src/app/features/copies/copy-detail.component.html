@@ -1,0 +1,40 @@
+<app-staff-page-header icon="inventory_2" title="Ficha del ejemplar" description="Inspección, ubicación e historial de una unidad física." />
+<p><a routerLink="/librarian/copies" [queryParams]="{bookId: copy()?.bookId}">Volver a ejemplares</a></p>
+@if (error()) { <p class="notice error" role="alert">{{ error() }}</p> }
+@if (feedback()) { <p class="notice" role="status">{{ feedback() }}</p> }
+@if (conflict()) { <button type="button" (click)="load()">Recargar ficha</button> }
+@if (loading()) { <p role="status">Cargando ejemplar…</p> }
+@if (copy(); as c) {
+  <section class="copy-hero">
+    @if (book()?.coverUrl; as cover) { <img [src]="cover" alt="" width="84" height="120" /> }
+    <div><p class="eyebrow">{{ book()?.title || 'Ejemplar físico' }}</p><h2>{{ c.inventoryCode }}</h2><span class="state" [attr.data-state]="c.status">{{ states[c.status] }}</span><p>{{ c.inspectionPending ? 'Pendiente de inspección' : c.condition ? conditions[c.condition] : 'Condición sin registrar' }} · {{ c.location || 'Ubicación sin registrar' }}</p></div>
+  </section>
+  <div class="copy-grid">
+    <section class="panel"><h2>Inspección y ubicación</h2>
+      <form (ngSubmit)="metadata()">
+        <fieldset [disabled]="saving() || conflict() || sessionChanged()">
+          <label for="copy-location">Ubicación</label><input id="copy-location" name="location" [(ngModel)]="location" maxlength="200" />
+          <label for="copy-notes">Notas internas</label><textarea id="copy-notes" name="notes" [(ngModel)]="notes" maxlength="1000" rows="4"></textarea>
+          <button type="submit">Guardar ubicación y notas</button>
+          @if (c.status !== 'retired' && c.status !== 'lost') {
+            <label for="copy-condition">Condición observada</label><select id="copy-condition" name="condition" [(ngModel)]="condition"><option value="">Selecciona tras inspeccionar</option><option value="good">Buen estado</option><option value="worn">Desgastado</option><option value="damaged">Dañado</option></select>
+            @if (c.status !== 'loaned') { <p class="hint">Un ejemplar dañado pasa a mantenimiento. Si estaba retenido, se cancela su recogida y se avisa al lector.</p><button type="button" class="primary" [disabled]="!condition" (click)="inspect()">Confirmar inspección</button> }
+          }
+          @if (c.status === 'loaned' || c.status === 'held') {
+            <label for="copy-confirm-code">Código del ejemplar que tienes delante</label><input id="copy-confirm-code" name="enteredCode" [(ngModel)]="enteredCode" autocomplete="off" />
+            @if (c.status === 'loaned') { <p class="hint">Confirma la devolución después de inspeccionar. Los daños bloquean su disponibilidad.</p><button type="button" class="primary" [disabled]="!condition || enteredCode.trim().toUpperCase() !== c.inventoryCode" (click)="returnCopy()">Confirmar devolución</button> }
+            @else { <p class="hint">Recogida para {{ c.readerDisplayName || "lector sin nombre visible" }}. La entrega inicia el plazo del préstamo.</p><button type="button" class="primary" [disabled]="c.inspectionPending || enteredCode.trim().toUpperCase() !== c.inventoryCode" (click)="collect()">Confirmar entrega</button> }
+          }
+        </fieldset>
+      </form>
+    </section>
+    <section class="panel"><h2>Estado operativo</h2><p>Los cambios quedan registrados en el historial.</p>
+      <form (ngSubmit)="changeStatus()"><fieldset [disabled]="saving() || conflict() || sessionChanged()">
+        <label for="copy-next">Acción</label><select id="copy-next" name="status" [(ngModel)]="pendingStatus"><option value="">Selecciona una acción</option>@for (state of actions(); track state) { <option [value]="state">{{ state === 'maintenance' && c.status === 'lost' ? 'Registrar recuperación' : states[state] }}</option> }</select>
+        @if (pendingStatus) { <p class="notice">{{ pendingStatus === 'lost' ? 'Se cerrará el préstamo o se cancelará la recogida vinculada. El ejemplar dejará de estar disponible.' : pendingStatus === 'retired' ? 'La baja es definitiva. El historial se conserva.' : 'El ejemplar requiere inspección antes de volver a prestarse.' }}</p><label for="copy-reason">Motivo</label><textarea id="copy-reason" name="reason" [(ngModel)]="reason" required maxlength="1000"></textarea><button type="submit" [disabled]="!reason.trim()">Confirmar cambio</button> }
+      </fieldset></form>
+    </section>
+  </div>
+  <section class="panel"><h2>Etiqueta</h2><app-copy-label [copyId]="c.id" [code]="c.inventoryCode" [title]="book()?.title || 'Ejemplar'" /></section>
+  <section class="panel"><h2>Historial</h2><ol class="history">@for (event of history(); track event.id) { <li><time>{{ event.createdAt | date:'medium' }}</time><strong>{{ event.action }}</strong><span>{{ event.toStatus }}</span>@if (event.reason) { <p>{{ event.reason }}</p> }</li> } @empty { <li>No hay eventos registrados.</li> }</ol><nav aria-label="Páginas del historial"><button [disabled]="historyPage <= 1" (click)="loadHistory(-1)">Anterior</button><span>Página {{ historyPage }}</span><button [disabled]="historyPage * 20 >= historyTotal()" (click)="loadHistory(1)">Siguiente</button></nav></section>
+}

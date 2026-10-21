@@ -34,23 +34,25 @@
     "@angular/platform-browser": "20.3.34",
     "@angular/platform-browser-dynamic": "20.3.34",
     "@angular/router": "20.3.34",
+    "qr-scanner": "1.4.2",
+    "qrcode": "1.5.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.1"
   },
   "devDependencies": {
+    "@angular/build": "^20.3.40",
     "@angular/cli": "^20.3.40",
     "@angular/compiler-cli": "20.3.34",
     "@playwright/test": "^1.63.0",
     "@types/jasmine": "~5.1.0",
     "axe-core": "^4.13.0",
-    "jasmine-core": "~5.7.0",
-    "typescript": "~5.9.3",
-    "@angular/build": "^20.3.40",
-    "v8-to-istanbul": "^9.3.0",
     "istanbul-lib-coverage": "^3.2.2",
     "istanbul-lib-report": "^3.0.1",
-    "istanbul-reports": "^3.2.0"
+    "istanbul-reports": "^3.2.0",
+    "jasmine-core": "~5.7.0",
+    "typescript": "~5.9.3",
+    "v8-to-istanbul": "^9.3.0"
   },
   "overrides": {}
 }
