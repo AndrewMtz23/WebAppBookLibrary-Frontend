@@ -10,7 +10,7 @@
 </nav>
 <form class="filters" (ngSubmit)="apply()">
   <label class="search">Buscar libro, usuario o ID<input name="query" [(ngModel)]="draft.query" maxlength="200" placeholder="Título, nombre o identificador"></label>
-  <label>Estado<select name="status" [(ngModel)]="draft.status"><option value="">Todos</option><option value="outstanding">Pendientes</option><option value="active">Reservados</option><option value="overdue">Vencidos</option><option value="returned">Devueltos</option><option value="cancelled">Cancelados</option></select></label>
+  <label>Estado<select name="status" [(ngModel)]="draft.status"><option value="">Todos</option><option value="outstanding">Pendientes</option><option value="active">Reservados</option><option value="overdue">Vencidos</option><option value="returned">Devueltos</option><option value="cancelled">Cancelados</option><option value="lost">Perdidos</option></select></label>
   <label>Formato<select name="mediaType" [(ngModel)]="draft.mediaType"><option value="">Todos</option><option value="physical">Físico</option><option value="digital">Digital</option></select></label>
   <details class="advanced"><summary>Identidad, fechas y orden</summary><div class="form-grid">
     <label>ID de usuario<input name="userId" [(ngModel)]="draft.userId"></label><label>ID de libro<input name="bookId" [(ngModel)]="draft.bookId"></label>
@@ -50,7 +50,7 @@
       <h3>Historial de movimientos</h3><ol class="timeline">@for(event of detail.history; track $index) { <li><strong>{{ events[event.eventType] }}</strong><p>{{ date(event.timestamp) }}</p><small>{{ event.source === 'audit' ? 'Registro de auditoría' : 'Fecha registrada en el préstamo' }}{{ event.actorUsername ? ' · ' + event.actorUsername : '' }}</small></li> } @empty { <li>No hay movimientos registrados disponibles.</li> }</ol>
       @if(detail.historyTruncated) { <p class="muted">Se muestran los movimientos más recientes; el historial está limitado.</p> }
       @if(vm.pending(); as command) { <div class="confirmation"><h3>{{ command === 'return' ? 'Confirmar devolución física' : 'Confirmar cancelación' }}</h3><p>{{ command === 'return' ? 'Registrar la recepción de' : 'Cancelar el préstamo de' }} <strong>{{ detail.loan.bookTitle || detail.loan.bookId }}</strong> para <strong>{{ detail.loan.displayName || detail.loan.username || detail.loan.userId }}</strong>.</p><p>Préstamo {{ detail.loan.id }}</p><div class="actions"><button class="primary" (click)="vm.confirm()" [disabled]="vm.busy()">{{ vm.busy() ? 'Procesando…' : 'Confirmar' }}</button><button (click)="vm.dismiss()" [disabled]="vm.busy()">Volver</button></div></div> }
-      @else { <div class="actions">@if(vm.canAct('return')) { <button data-return class="primary" (click)="vm.request('return')">Registrar devolución</button> } @if(vm.canAct('cancel')) { <button class="danger" (click)="vm.request('cancel')">Cancelar préstamo</button> }</div> }
+      @else { <div class="actions">@if (detail.loan.copyId) { <a [routerLink]="['/librarian/copies', detail.loan.copyId]">Revisar ejemplar y devolución</a> }@if(vm.canAct('return')) { <button data-return class="primary" (click)="vm.request('return')">Registrar devolución</button> } @if(vm.canAct('cancel')) { <button class="danger" (click)="vm.request('cancel')">Cancelar préstamo</button> }</div> }
     }
   </section></div>
 }

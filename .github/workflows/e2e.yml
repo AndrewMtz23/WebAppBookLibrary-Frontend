@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   browser:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: AndrewMtz23/WebAppBookLibrary-Backend
-          ref: ${{ inputs.backend_ref || 'cf76d7d12001bcc58bdb6c65a331e746c6dd95fa' }}
+          ref: ${{ inputs.backend_ref || 'd4d4b1953d0509f816add7cb5d8f0e0140894356' }}
           path: backend
       - uses: actions/setup-node@v4
         with:
@@ -83,9 +83,9 @@ jobs:
           CIRCULATION_MODE: ${{ matrix.circulation_mode }}
         run: |
           if [ "$CIRCULATION_MODE" = active ]; then
-            npx playwright test e2e/circulation.spec.ts
+            npx playwright test e2e/circulation.spec.ts e2e/copies.spec.ts
           else
-            npx playwright test
+            npx playwright test --grep-invert "unit inventory supports"
           fi
       - name: Browser evidence
         if: always()

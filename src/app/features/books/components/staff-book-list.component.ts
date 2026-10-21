@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { BookSummary } from '../../../shared/models/book.model';
 import { PagedResult } from '../../../shared/models/paged-result.model';
 import { DEFAULT_STAFF_BOOK_QUERY, StaffBookQuery } from '../data-access/staff-books.models';
 
-@Component({ selector: 'app-staff-book-list', standalone: true, imports: [FormsModule], templateUrl: './staff-book-list.component.html', styleUrl: './staff-books.scss' })
+@Component({ selector: 'app-staff-book-list', standalone: true, imports: [FormsModule, RouterLink], templateUrl: './staff-book-list.component.html', styleUrl: './staff-books.scss' })
 export class StaffBookListComponent implements OnChanges {
   @Input() page: PagedResult<BookSummary> | null = null;
   @Input() query = { ...DEFAULT_STAFF_BOOK_QUERY };

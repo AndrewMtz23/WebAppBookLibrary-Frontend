@@ -36,7 +36,7 @@ export class StaffLoansFacade {
     this.detailRequest = this.api.detail(id).subscribe({ next: detail => { this.detail.set(detail); this.detailLoading.set(false); }, error: error => { this.detailLoading.set(false); this.detailError.set(this.message(error, error.status === 404 ? 'Este préstamo ya no está disponible.' : 'No pudimos consultar el estado actual.')); } });
   }
   close() { if (this.busy()) return; this.detailRequest?.unsubscribe(); this.selectedId.set(null); this.detail.set(null); this.pending.set(null); }
-  canAct(command: LoanCommand) { const loan = this.detail()?.loan; return !this.busy() && !this.detailLoading() && ['admin','librarian'].includes(this.auth.getUserRole() ?? '') && !!loan && ['active','overdue'].includes(loan.status) && (command === 'cancel' || loan.mediaType === 'physical'); }
+  canAct(command: LoanCommand) { const loan = this.detail()?.loan; return !this.busy() && !this.detailLoading() && ['admin','librarian'].includes(this.auth.getUserRole() ?? '') && !!loan && !loan.copyId && ['active','overdue'].includes(loan.status) && (command === 'cancel' || loan.mediaType === 'physical'); }
   request(command: LoanCommand) { if (this.canAct(command)) this.pending.set(command); }
   dismiss() { if (!this.busy()) this.pending.set(null); }
   confirm() {

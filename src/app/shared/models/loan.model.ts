@@ -7,9 +7,11 @@ export interface Loan {
   isReturned: boolean;
 }
 
-export type LoanStatus = 'active' | 'overdue' | 'returned' | 'cancelled';
+export type LoanStatus = 'active' | 'overdue' | 'returned' | 'cancelled' | 'lost';
 
 export interface LoanSummary {
+  copyId?: string | null;
+  copyInventoryCode?: string | null;
   policyVersion?: string | null;
   renewalCount?: number;
   checkedOutAt?: string | null;

@@ -20,7 +20,7 @@ import { LoanStatus } from '../../../../shared/models/loan.model';
 export class MyLibraryPageComponent {
   readonly facade = inject(MyLibraryFacade);
   private readonly analytics = inject(ReaderAnalyticsService);
-  readonly statusLabels: Record<LoanStatus, string> = { active: 'Activo', overdue: 'Vencido', returned: 'Devuelto', cancelled: 'Cancelado' };
+  readonly statusLabels: Record<LoanStatus, string> = { active: 'Activo', overdue: 'Vencido', returned: 'Devuelto', lost: 'Perdido', cancelled: 'Cancelado' };
   readonly sections: readonly { key: 'active' | 'dueSoon' | 'overdue' | 'history'; title: string; description: string }[] = [
     { key: 'active', title: 'Activos', description: 'Lecturas vigentes y accesos digitales.' },
     { key: 'dueSoon', title: 'Por vencer', description: 'Préstamos que vencen en los próximos tres días.' },

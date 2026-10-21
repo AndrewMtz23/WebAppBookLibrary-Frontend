@@ -4,7 +4,7 @@ import { timeout } from 'rxjs';
 
 export interface CirculationPolicy { mode: 'legacy' | 'active' | 'draining'; pickupHours: number; loanDays: number; renewalDays: number; maxRenewals: number; }
 export interface CirculationPage<T> { items: T[]; totalCount: number; }
-export interface Pickup { id: string; bookId: string; bookTitle: string; userDisplayName: string; status: string; pickupExpiresAt: string; version: number; }
+export interface Pickup { copyId?: string | null; id: string; bookId: string; bookTitle: string; userDisplayName: string; status: string; pickupExpiresAt: string; version: number; }
 export interface WaitEntry { id: string; bookId: string; bookTitle: string; status: string; queuePosition: number | null; }
 export interface Renewal { id: string; loanId: string; bookTitle: string; userDisplayName: string; status: string; originalDueAt: string; requestedDueAt: string; decisionReason: string | null; version: number; }
 
