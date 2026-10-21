@@ -6,7 +6,7 @@ test('unit inventory supports inspection, pickup, damaged return, recovery and r
   const qa = await (await request.get('/__qa')).json(); expect(qa.databaseName).toMatch(/^booklibrary_ui_test_/);
   const password = 'QaLocalOnly!2026';
   const auth = await (await request.post('/api/auth/login', { data: { email: 'admin@booklibrary.invalid', password } })).json();
-  const admin = { Authorization: `Bearer ${auth.token}` }; const bookId = qa.books[0].id;
+  const admin = { Authorization: `Bearer ${auth.token}` }; const bookId = qa.copyBookId; expect(bookId).toBeTruthy();
   const book = await (await request.get(`/api/books/${bookId}`, { headers: admin })).json(); expect(book.inventoryMode).toBe('unit');
   const units = await (await request.get(`/api/books/${bookId}/copies`, { headers: admin })).json();
   for (const unit of units.items) {
