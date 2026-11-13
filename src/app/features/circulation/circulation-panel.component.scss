@@ -7,5 +7,8 @@ article > div { min-width: 0; } h3 { margin: .4rem 0; overflow-wrap: anywhere; }
 .state { font-weight: 650; font-size: .8rem; color: var(--color-primary); }
 .actions, .filters, nav { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
 .filters { align-items: end; } label { display: grid; gap: .4rem; flex: 1; min-width: 12rem; } input, select { min-height: 44px; padding: .6rem; color: inherit; background: var(--color-surface); border: 1px solid var(--color-border, #808080); border-radius: 8px; font: inherit; max-width: 100%; box-sizing: border-box; }
+.filters { padding: 1.25rem; gap: 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); }
+.filters label { min-width: 0; font-weight: 700; }
+.filters input, .filters select { width: 100%; border-color: var(--color-border-strong); }
 nav { justify-content: center; } button { min-height: 44px; } :focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
 @media (max-width: 600px) { article { align-items: stretch; flex-direction: column; } .actions > button { flex: 1; } .filters { align-items: stretch; flex-direction: column; } }

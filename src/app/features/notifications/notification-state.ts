@@ -5,7 +5,7 @@ import { Observable, Subscription, finalize, takeUntil, timeout } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { SessionScopeService } from '../../core/auth/session-scope.service';
 
-export interface Notice { id: string; type: string; title: string; body: string; targetType: string; targetId: string; createdAt: string; readAt: string | null; dueAt: string | null; }
+export interface Notice { branchId?: string | null; id: string; type: string; title: string; body: string; targetType: string; targetId: string; createdAt: string; readAt: string | null; dueAt: string | null; }
 export interface NoticePage { items: Notice[]; nextCursor: number | null; readThrough: number; unreadCount: number; }
 export interface NoticePreferences { reminders: boolean; email: boolean; emailVerified: boolean; }
 

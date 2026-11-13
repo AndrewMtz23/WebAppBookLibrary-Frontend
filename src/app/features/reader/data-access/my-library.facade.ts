@@ -71,7 +71,7 @@ export class MyLibraryFacade {
   private hydrate(loans: readonly LoanSummary[]): void {
     if (!loans.length) { this.loansState.set([]); this.loading.set(false); return; }
     from(loans).pipe(
-      mergeMap((loan, index) => this.catalog.getById(loan.bookId).pipe(
+      mergeMap((loan, index) => loan.bookTitle ? of({ index, item: { ...loan, book: null } as LibraryLoan }) : this.catalog.getById(loan.bookId).pipe(
         map(book => ({ index, item: { ...loan, book } as LibraryLoan })),
         catchError(() => of({ index, item: { ...loan, book: null } as LibraryLoan }))
       ), 6),

@@ -53,6 +53,19 @@ describe('MyLibraryPageComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Historial');
   });
 
+  it('keeps loan identity and origin when the selected catalog cannot expose the book', () => {
+    TestBed.overrideProvider(CatalogService, { useValue: { getById: () => throwError(() => new HttpErrorResponse({ status: 404 })) } });
+    const loan = { id: 'loan-origin', bookId: 'exclusive-book', userId: 'reader', mediaType: 'physical' as const, status: 'returned' as const, reservedAt: '2026-09-01T12:00:00Z', dueAt: null, returnedAt: '2026-09-08T12:00:00Z', cancelledAt: null, notes: null, bookTitle: 'Origin catalog title', bookCoverUrl: 'https://example.test/cover.jpg', branchId: 'origin-branch', branchName: 'Origin branch' };
+    reader.getLoans.and.returnValue(of({ items: [loan], page: 1, pageSize: 100, totalItems: 1, totalPages: 1, hasNextPage: false, hasPreviousPage: false }));
+    const fixture = TestBed.createComponent(MyLibraryPageComponent);
+    fixture.detectChanges();
+    const card = fixture.nativeElement.querySelector('.loan-card') as HTMLElement;
+    expect(card.textContent).toContain('Origin catalog title');
+    expect(card.textContent).toContain('Origin branch');
+    expect(card.querySelector('a')?.getAttribute('href')).toContain('branch=origin-branch');
+    expect(card.querySelector('img')?.src).toBe('https://example.test/cover.jpg');
+  });
+
   it('shows a returned loan in Spanish with its return date instead of a pending due date', () => {
     const loan = { id: 'loan-1', bookId: 'book-1', userId: 'reader', mediaType: 'physical' as const, status: 'returned' as const, reservedAt: '2026-09-01T12:00:00Z', dueAt: '2026-09-22T12:00:00Z', returnedAt: '2026-09-08T12:00:00Z', cancelledAt: null, notes: null };
     reader.getLoans.and.returnValue(of({ items: [loan], page: 1, pageSize: 100, totalItems: 1, totalPages: 1, hasNextPage: false, hasPreviousPage: false }));

@@ -17,10 +17,11 @@
           <div class="loan-list">
             @for (loan of loans(section.key); track loan.id) {
               <article class="loan-card">
-                <div class="loan-cover">@if (loan.book?.coverUrl) { <img [src]="loan.book?.coverUrl" [alt]="'Portada de ' + loan.book?.title" /> } @else { <mat-icon>auto_stories</mat-icon> }</div>
+                <div class="loan-cover">@if (loan.bookCoverUrl || loan.book?.coverUrl) { <img [src]="loan.bookCoverUrl || loan.book?.coverUrl" [alt]="'Portada de ' + (loan.bookTitle || loan.book?.title)" /> } @else { <mat-icon>auto_stories</mat-icon> }</div>
                 <div class="loan-copy">
                   <p class="loan-status">{{ loan.mediaType === 'digital' ? 'Digital' : 'Físico' }} · {{ statusLabels[loan.status] }}</p>
-                  <h3><a [routerLink]="['/app/catalog', loan.bookId]">{{ loan.book?.title || 'Libro ' + loan.bookId }}</a></h3>
+                  <h3><a [routerLink]="['/app/catalog', loan.bookId]" [queryParams]="loan.branchId ? { branch: loan.branchId } : null">{{ loan.bookTitle || loan.book?.title || 'Libro ' + loan.bookId }}</a></h3>
+                  @if (loan.branchName) { <p>Sucursal: {{ loan.branchName }}</p> }
                   @if (loan.copyInventoryCode) { <p>Ejemplar: {{ loan.copyInventoryCode }}</p> }
                   @if (loan.status === 'returned') {
                     <p>{{ loan.returnedAt ? ('Devuelto el ' + (loan.returnedAt | date:'mediumDate')) : 'Devolución registrada' }}</p>
