@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        circulation_mode: [legacy, active]
+        circulation_mode: [active]
         branches_enabled: [false]
         include:
           - circulation_mode: active
