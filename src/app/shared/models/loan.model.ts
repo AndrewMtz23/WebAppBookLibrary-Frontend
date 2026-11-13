@@ -10,6 +10,10 @@ export interface Loan {
 export type LoanStatus = 'active' | 'overdue' | 'returned' | 'cancelled' | 'lost';
 
 export interface LoanSummary {
+  bookTitle?: string | null;
+  bookCoverUrl?: string | null;
+  branchId?: string | null;
+  branchName?: string | null;
   copyId?: string | null;
   copyInventoryCode?: string | null;
   policyVersion?: string | null;

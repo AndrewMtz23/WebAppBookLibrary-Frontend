@@ -1,9 +1,24 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { BranchContextService } from '../../../core/branches/branch-context.service';
 import { TestBed } from '@angular/core/testing';
 import { BookEditorComponent } from './book-editor.component';
 
 describe('BookEditorComponent', () => {
+  it('shows existing editions by ISBN without creating or merging a book', () => {
+    const branch = TestBed.inject(BranchContextService);
+    branch.setBranches([{id:'branch',code:'B',name:'Branch',timeZone:'UTC'}],true); branch.select('branch');
+    const component = TestBed.createComponent(BookEditorComponent).componentInstance;
+    component.form.controls.isbn.setValue('978-1234567890');
+    component.findIsbn();
+    const request = TestBed.inject(HttpTestingController).expectOne(r => r.url === '/api/branches/branch/catalog' && r.params.get('search') === '9781234567890');
+    expect(request.request.method).toBe('GET');
+    request.flush({items:[{book:{id:'existing',title:'Existing edition'}}]});
+    expect(component.isbnMatches().map(b => b.title)).toEqual(['Existing edition']);
+    component.form.controls.isbn.setValue('');
+    expect(component.isbnMatches()).toEqual([]);
+    TestBed.inject(HttpTestingController).verify();
+  });
   it('locks aggregate controls after unit inventory activation', () => {
     const fixture = TestBed.createComponent(BookEditorComponent);
     fixture.componentRef.setInput('record', { book: { title: 'Unit book', authors: ['Autora'], description: 'Descripción completa de más de veinte caracteres.', language: 'es', categoryIds: ['category-history'], genres: [], tags: [], mediaType: 'physical', totalCopies: 4, inventoryMode: 'unit' }, digitalResourceUrl: null });

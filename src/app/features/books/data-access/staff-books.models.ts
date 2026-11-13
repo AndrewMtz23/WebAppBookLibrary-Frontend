@@ -1,7 +1,8 @@
 import { BookDetail, MediaType } from '../../../shared/models/book.model';
 
-export interface BookManagement { book: BookDetail; digitalResourceUrl: string | null; }
+export interface BookManagement { book: BookDetail; digitalResourceUrl: string | null; catalogVersion?: number; catalogActive?: boolean; requiresApproval?: boolean; }
 export interface BookWriteRequest {
+  expectedMetadataVersion?: number;
   title: string; subtitle: string | null; authors: string[]; isbn: string | null;
   description: string; publisher: string | null; publishedDate: string | null;
   language: string; pageCount: number | null; genres?: string[]; categoryIds?: string[]; tags: string[];

@@ -1,11 +1,14 @@
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
+import { inject } from '@angular/core';
+import { BranchSelectorComponent } from '../../../core/branches/branch-selector.component';
+import { BranchContextService } from '../../../core/branches/branch-context.service';
 import { NotificationBellComponent } from '../../../features/notifications/notification-bell.component';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { A11yModule } from '@angular/cdk/a11y';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NavigationGroup, NavigationItem } from '../../../core/navigation/navigation.model';
 import { AppBrandComponent } from '../app-brand/app-brand.component';
 import { AvatarComponent } from '../avatar/avatar.component';
@@ -13,8 +16,11 @@ import { SiteFooterComponent } from '../site-footer/site-footer.component';
 import { ReaderNavbarComponent } from '../reader-navbar/reader-navbar.component';
 import { AdminFooterComponent } from '../admin-footer/admin-footer.component';
 
-@Component({ selector: 'app-workspace-shell', standalone: true, imports: [NotificationBellComponent, ThemeToggleComponent, A11yModule, AdminFooterComponent, ReaderNavbarComponent, AppBrandComponent, AvatarComponent, SiteFooterComponent, MatButtonModule, MatIconModule, MatTooltipModule, RouterLink, RouterLinkActive, RouterOutlet], templateUrl: './workspace-shell.component.html', styleUrls: ['./workspace-shell.component.scss'], changeDetection: ChangeDetectionStrategy.OnPush })
+@Component({ selector: 'app-workspace-shell', standalone: true, imports: [BranchSelectorComponent, NotificationBellComponent, ThemeToggleComponent, A11yModule, AdminFooterComponent, ReaderNavbarComponent, AppBrandComponent, AvatarComponent, SiteFooterComponent, MatButtonModule, MatIconModule, MatTooltipModule, RouterLink, RouterLinkActive, RouterOutlet], templateUrl: './workspace-shell.component.html', styleUrls: ['./workspace-shell.component.scss'], changeDetection: ChangeDetectionStrategy.OnPush })
 export class WorkspaceShellComponent {
+  readonly branches = inject(BranchContextService);
+  private readonly router = inject(Router);
+  get needsBranch(): boolean { return !/\/(branches|users|security|logs|profile|notifications|support|reading|favorites|my-library|book-changes)(?:[/?]|$)/.test(this.router.url); }
   private readonly sidebarStorageKey = 'booklibrary_sidebar_collapsed';
 
   @Input({ required: true }) navigation: readonly NavigationItem[] = [];

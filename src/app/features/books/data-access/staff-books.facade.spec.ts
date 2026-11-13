@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
@@ -23,7 +25,7 @@ describe('StaffBooksFacade', () => {
   beforeEach(() => {
     record.book.categoryIds = ['64b000000000000000000001'];
     record.book.categories = [{ id: '64b000000000000000000001', name: 'Historia', slug: 'historia', isActive: true }];
-    TestBed.configureTestingModule({ providers: [{ provide: CategoriesApi, useValue: { list: () => of({ items: record.book.categories, page: 1, totalPages: 1, hasNextPage: false, hasPreviousPage: false }) } }] });
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), { provide: CategoriesApi, useValue: { list: () => of({ items: record.book.categories, page: 1, totalPages: 1, hasNextPage: false, hasPreviousPage: false }) } }] });
     TestBed.configureTestingModule({ providers: [{ provide: MatSnackBar, useValue: { open: jasmine.createSpy('open') } }] });
     api = jasmine.createSpyObj<StaffBooksApi>('api', ['search', 'management', 'create', 'update', 'status', 'permanent']);
     api.search.and.returnValue(of(page)); api.management.and.returnValue(of(record));

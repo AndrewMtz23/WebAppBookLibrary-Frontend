@@ -13,6 +13,11 @@ export const READER_NAVIGATION_ITEMS: readonly NavigationItem[] = [
 
 const NAVIGATION_ITEMS: readonly NavigationItem[] = [
   ...READER_NAVIGATION_ITEMS,
+  { label: 'Sucursales', icon: 'domain', route: ['/admin/branches'], roles: ['admin'] },
+  { label: 'Catalogar', icon: 'playlist_add', route: ['/admin/catalog-membership'], roles: ['admin'] },
+  { label: 'Solicitudes', icon: 'fact_check', route: ['/admin/book-changes'], roles: ['admin'] },
+  { label: 'Catalogar', icon: 'playlist_add', route: ['/librarian/catalog-membership'], roles: ['librarian'] },
+  { label: 'Solicitudes', icon: 'fact_check', route: ['/librarian/book-changes'], roles: ['librarian'] },
   { label: "Ejemplares", icon: "inventory_2", route: ["/librarian/copies"], roles: ["librarian", "admin"] },
   { label: 'Circulación', icon: 'swap_horiz', route: ['/librarian/circulation'], roles: ['librarian'] },
   { label: 'Circulación', icon: 'swap_horiz', route: ['/admin/circulation'], roles: ['admin'] },
@@ -49,8 +54,8 @@ export const navigationGroupsForRole = (role: UserRole): readonly NavigationGrou
 
   if (role === 'admin') {
     return [
-      group('Gestión', 'dashboard_customize', select('Dashboard', 'Usuarios')),
-      group('Biblioteca', 'local_library', select('Ejemplares', 'Libros', 'Categorías', 'Préstamos', 'Circulación', 'Soporte', 'Reseñas')),
+      group('Gestión', 'dashboard_customize', select('Dashboard', 'Usuarios', 'Sucursales')),
+      group('Biblioteca', 'local_library', select('Catalogar', 'Solicitudes', 'Ejemplares', 'Libros', 'Categorías', 'Préstamos', 'Circulación', 'Soporte', 'Reseñas')),
       group('Control', 'admin_panel_settings', select('Logs', 'Seguridad', 'Sitio público', 'Mis lecturas'))
     ];
   }
@@ -58,7 +63,7 @@ export const navigationGroupsForRole = (role: UserRole): readonly NavigationGrou
   if (role === 'librarian') {
     return [
       group('Operación', 'space_dashboard', select('Dashboard', 'Préstamos', 'Circulación', 'Soporte')),
-      group('Biblioteca', 'local_library', select('Ejemplares', 'Libros', 'Sitio público', 'Mis lecturas'))
+      group('Biblioteca', 'local_library', select('Catalogar', 'Solicitudes', 'Ejemplares', 'Libros', 'Sitio público', 'Mis lecturas'))
     ];
   }
 

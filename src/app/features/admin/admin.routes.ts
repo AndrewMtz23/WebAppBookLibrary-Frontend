@@ -6,6 +6,9 @@ import { StaffShellComponent } from '../../core/layouts/staff-shell/staff-shell.
 export const ADMIN_ROUTES: Routes = [{
   path: '', component: StaffShellComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] },
   children: [
+    { path: 'catalog-membership', loadComponent: () => import('../branches/branch-catalog.component').then(m => m.BranchCatalogComponent) },
+    { path: 'book-changes', loadComponent: () => import('../branches/book-change-requests.component').then(m => m.BookChangeRequestsComponent) },
+    { path: 'branches', loadComponent: () => import('../branches/branches-page.component').then(m => m.BranchesPageComponent) },
     { path: 'reviews', loadComponent: () => import('../reviews/admin-reviews-page.component').then(m => m.AdminReviewsPageComponent) },
     { path: 'support', loadComponent: () => import('../support/staff-support-page.component').then(m => m.StaffSupportPageComponent) },
     { path: 'circulation', loadComponent: () => import('../circulation/circulation-page.component').then(m => m.CirculationPageComponent) },
