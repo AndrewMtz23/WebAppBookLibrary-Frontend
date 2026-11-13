@@ -32,6 +32,7 @@ export interface BookSummary {
 }
 
 export interface BookDetail extends BookSummary {
+  metadataVersion?: number;
   isbn: string | null;
   description: string;
   publisher: string | null;

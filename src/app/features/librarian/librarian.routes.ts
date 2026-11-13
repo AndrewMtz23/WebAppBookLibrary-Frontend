@@ -6,6 +6,8 @@ import { StaffShellComponent } from '../../core/layouts/staff-shell/staff-shell.
 export const LIBRARIAN_ROUTES: Routes = [{
   path: '', component: StaffShellComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['librarian', 'admin'] },
   children: [
+    { path: 'catalog-membership', loadComponent: () => import('../branches/branch-catalog.component').then(m => m.BranchCatalogComponent) },
+    { path: 'book-changes', loadComponent: () => import('../branches/book-change-requests.component').then(m => m.BookChangeRequestsComponent) },
     { path: "copies", loadComponent: () => import("../copies/copy-list.component").then(m => m.CopyListComponent) },
     { path: "copies/:id", loadComponent: () => import("../copies/copy-detail.component").then(m => m.CopyDetailComponent) },
     { path: 'support', loadComponent: () => import('../support/staff-support-page.component').then(m => m.StaffSupportPageComponent) },

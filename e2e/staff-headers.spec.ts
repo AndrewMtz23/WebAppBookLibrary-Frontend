@@ -10,7 +10,7 @@ for (const role of ['admin', 'librarian']) {
     await page.locator('input[name="password"]').fill('QaLocalOnly!2026');
     await page.getByRole('button', { name: 'Iniciar sesión', exact: false }).click();
     await expect(page).not.toHaveURL(/\/auth\//);
-    for (const module of role === 'admin' ? ['dashboard', 'users', 'books', 'loans', 'logs', 'security'] : ['dashboard', 'books', 'loans']) {
+    for (const module of role === 'admin' ? ['dashboard', 'users', 'books', 'loans', 'logs', 'security', 'branches', 'catalog-membership', 'book-changes', 'reviews', 'support'] : ['dashboard', 'books', 'loans']) {
       await page.goto(`/${role}/${module}`);
       const header = page.locator('app-staff-page-header');
       await expect(header).toBeVisible();

@@ -95,7 +95,12 @@
     [attr.inert]="isLogoutDialogOpen || isLoggingOut ? '' : null">
 
     @if (!guest) { <div class="mobile-notifications"><app-notification-bell /></div> }
-    <main id="main-content" class="workspace__content" tabindex="-1"><router-outlet /></main>
+    <main id="main-content" class="workspace__content" tabindex="-1">
+      <app-branch-selector />
+      @if (branches.ready() && (!needsBranch || !branches.enabled() || branches.selectedId())) {
+        @for (generation of [branches.generation()]; track generation) { <router-outlet /> }
+      }
+    </main>
     @if (variant === 'staff') { <app-admin-footer [username]="username" /> }
   </div>
 

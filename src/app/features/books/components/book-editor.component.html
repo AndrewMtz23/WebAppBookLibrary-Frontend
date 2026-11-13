@@ -10,6 +10,7 @@
       <label>Subtítulo<input formControlName="subtitle" maxlength="200">@if (invalid('subtitle')) { <small class="error">Máximo 200 caracteres.</small> }</label>
       <label>Autores *<input formControlName="authors" [attr.aria-invalid]="invalid('authors')">@if (invalid('authors')) { <small class="error">Entre 1 y 10 autores distintos, sin valores vacíos.</small> }</label>
       <label>ISBN<input formControlName="isbn" [attr.aria-invalid]="invalid('isbn')">@if (invalid('isbn')) { <small class="error">El ISBN debe tener 10 o 13 caracteres sin espacios ni guiones.</small> }</label>
+      @if (branches.enabled() && !record) { <div class="wide"><button type="button" (click)="findIsbn()" [disabled]="saving || form.controls.isbn.invalid || !form.controls.isbn.value">Buscar coincidencias de ISBN</button><p role="status">{{isbnMessage()}}</p>@for(match of isbnMatches();track match.id){<p>{{match.title}}</p>}</div> }
       <label class="wide">Descripción *<textarea rows="5" formControlName="description" maxlength="5000" [attr.aria-invalid]="invalid('description')"></textarea>@if (invalid('description')) { <small class="error">Escribe entre 20 y 5000 caracteres.</small> }</label>
     </div></fieldset>
     <fieldset [disabled]="saving"><legend>Publicación</legend><div class="form-grid">
@@ -32,6 +33,7 @@
         <label>URL del recurso digital (HTTPS) *<input type="url" formControlName="digitalResourceUrl" [attr.aria-invalid]="invalid('digitalResourceUrl')">@if (invalid('digitalResourceUrl')) { <small class="error">El recurso digital requiere una dirección HTTPS válida.</small> }</label>
       }
     </div></fieldset>
-    <footer><button type="button" (click)="cancel.emit()" [disabled]="saving">Cancelar</button><button class="primary" type="submit" [disabled]="saving">{{ saving ? 'Guardando…' : 'Guardar libro' }}</button></footer>
+    @if (record?.requiresApproval) { <p>Este título está compartido. Administración revisará los cambios antes de actualizarlo.</p> }
+    <footer><button type="button" (click)="cancel.emit()" [disabled]="saving">Cancelar</button><button class="primary" type="submit" [disabled]="saving">{{ saving ? 'Guardando…' : record?.requiresApproval ? 'Enviar solicitud' : 'Guardar libro' }}</button></footer>
   </form>
 </section>

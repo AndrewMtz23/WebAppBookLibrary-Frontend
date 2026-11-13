@@ -1,3 +1,4 @@
+import { StaffPageHeaderComponent } from '../../shared/ui/staff-page-header/staff-page-header.component';
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, ElementRef, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -7,7 +8,7 @@ import { Observable, Subject, finalize, takeUntil } from 'rxjs';
 import { SessionScopeService } from '../../core/auth/session-scope.service';
 import { ReviewService } from './review.service';
 import { AdminReviewDetail, MyReview, REVIEW_STATES, ReviewPage, ReviewReport, reviewError } from './review.models';
-@Component({selector:'app-admin-reviews',standalone:true,imports:[CommonModule,FormsModule,RouterLink],templateUrl:'./admin-reviews-page.component.html',styleUrl:'./reviews.scss'})
+@Component({selector:'app-admin-reviews',standalone:true,imports:[StaffPageHeaderComponent,CommonModule,FormsModule,RouterLink],templateUrl:'./admin-reviews-page.component.html',styleUrl:'./reviews.scss'})
 export class AdminReviewsPageComponent {
  private readonly api=inject(ReviewService);private readonly scope=inject(SessionScopeService);private readonly destroy=inject(DestroyRef);private readonly element=inject<ElementRef<HTMLElement>>(ElementRef);private readonly context=new Subject<void>();private readonly selection=new Subject<void>();
  readonly reviews=signal<ReviewPage<MyReview>|null>(null);readonly reports=signal<ReviewPage<ReviewReport>|null>(null);readonly detail=signal<AdminReviewDetail|null>(null);readonly loading=signal(false);readonly saving=signal(false);readonly error=signal('');readonly feedback=signal('');readonly conflict=signal(false);readonly sessionChanged=signal(false);readonly states=REVIEW_STATES;

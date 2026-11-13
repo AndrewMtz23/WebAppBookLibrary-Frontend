@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { BranchInterceptor } from './core/branches/branch.interceptor';
 
 registerLocaleData(localeEsMx);
 
@@ -17,6 +18,7 @@ registerLocaleData(localeEsMx);
   providers: [
     { provide: LOCALE_ID, useValue: 'es-MX' },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: BranchInterceptor, multi: true },
     provideHttpClient(withInterceptorsFromDi())
   ],
   bootstrap: [AppComponent]

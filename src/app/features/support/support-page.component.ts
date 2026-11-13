@@ -1,3 +1,4 @@
+import { StaffPageHeaderComponent } from '../../shared/ui/staff-page-header/staff-page-header.component';
 import { Component, DestroyRef, ElementRef, Input, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -8,7 +9,7 @@ import { SessionScopeService } from '../../core/auth/session-scope.service';
 import { SupportService } from './support.service';
 import { CATEGORY_LABELS, STATUS_LABELS, TicketSummary, supportError } from './support.models';
 import { SupportDetailComponent } from './support-detail.component';
-@Component({ selector: 'app-support-page', standalone: true, imports: [DatePipe, FormsModule, RouterLink, SupportDetailComponent], templateUrl: './support-page.component.html', styleUrl: './support.scss' })
+@Component({ selector: 'app-support-page', standalone: true, imports: [StaffPageHeaderComponent, DatePipe, FormsModule, RouterLink, SupportDetailComponent], templateUrl: './support-page.component.html', styleUrl: './support.scss' })
 export class SupportPageComponent implements OnInit {
   @Input() staff = false;
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef); private readonly api = inject(SupportService); private readonly scope = inject(SessionScopeService); private readonly destroy = inject(DestroyRef);

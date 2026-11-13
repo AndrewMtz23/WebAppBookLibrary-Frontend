@@ -1,4 +1,4 @@
-<main class="admin-page"><p class="eyebrow">Comunidad · Administración</p><h1>Reseñas y moderación</h1><p>Revisa reportes y decisiones. Ocultar una reseña no modifica las palabras de su autor.</p>
+<main class="admin-page"><app-staff-page-header icon="rate_review" title="Reseñas y moderación" description="Revisa reportes y decisiones. Ocultar una reseña no modifica las palabras de su autor." />
 <p class="notice" role="alert" tabindex="-1">{{error()}}</p><p class="notice" role="status" tabindex="-1">{{feedback()}}</p>
 @if(sessionChanged()){<p>La sesión cambió. Vuelve a abrir esta página.</p>}@else{
 @if(conflict()){<button (click)="refresh()">Actualizar antes de continuar</button>}

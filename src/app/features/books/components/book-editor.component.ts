@@ -1,6 +1,9 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, Output, inject } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, EventEmitter, Input, OnChanges, Output, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { CategorySelectorComponent } from '../../categories/category-selector.component';
+import { BranchContextService } from '../../../core/branches/branch-context.service';
 import { BookManagement, BookWriteRequest } from '../data-access/staff-books.models';
 
 const https: ValidatorFn = control => {
@@ -22,6 +25,11 @@ const list = (min: number, max: number): ValidatorFn => control => {
   templateUrl: './book-editor.component.html', styleUrl: './staff-books.scss'
 })
 export class BookEditorComponent implements OnChanges, AfterViewInit {
+  readonly branches = inject(BranchContextService);
+  private readonly http = inject(HttpClient);
+  private readonly destroy = inject(DestroyRef);
+  readonly isbnMatches = signal<{id:string;title:string}[]>([]);
+  readonly isbnMessage = signal('');
   @Input() record: BookManagement | null = null;
   @Input() saving = false;
   @Input() error = '';
@@ -44,7 +52,22 @@ export class BookEditorComponent implements OnChanges, AfterViewInit {
     coverUrl: this.fb.nonNullable.control('', https), mediaType: this.fb.nonNullable.control<'physical' | 'digital'>('physical'),
     digitalResourceUrl: this.fb.nonNullable.control(''), totalCopies: this.fb.control<number | null>(0)
   });
-  constructor() { this.form.controls.mediaType.valueChanges.subscribe(() => this.mediaValidators()); this.mediaValidators(); }
+  constructor() {
+    this.form.controls.mediaType.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => this.mediaValidators()); this.mediaValidators();
+    this.form.controls.isbn.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => { this.isbnMatches.set([]); this.isbnMessage.set(''); });
+  }
+  findIsbn(): void {
+    const isbn = this.form.controls.isbn.value.replace(/[\s-]/g, '');
+    const branch = this.branches.selectedId();
+    if (!branch || ![10,13].includes(isbn.length) || this.record) return;
+    this.isbnMessage.set('Buscando coincidencias…');
+    this.http.get<{items:{book:{id:string;title:string}}[]}>(`/api/branches/${branch}/catalog`,{params:{search:isbn,pageSize:20}})
+      .pipe(takeUntilDestroyed(this.destroy)).subscribe({next:result=>{
+        if (branch !== this.branches.selectedId() || isbn !== this.form.controls.isbn.value.replace(/[\s-]/g, '')) return;
+        this.isbnMatches.set(result.items.map(row=>row.book));
+        this.isbnMessage.set(result.items.length ? 'La edición ya existe. Puedes incluirla desde Catalogar, conservando su ficha.' : 'No se encontraron coincidencias.');
+      },error:()=>this.isbnMessage.set('No se pudieron consultar las coincidencias. Puedes reintentar.')});
+  }
   ngAfterViewInit() { this.element.nativeElement.querySelector<HTMLElement>('#editor-title')?.focus(); }
   ngOnChanges(changes: { [key: string]: unknown }) {
     if (!changes['record']) return;
@@ -53,9 +76,10 @@ export class BookEditorComponent implements OnChanges, AfterViewInit {
       description: book?.description ?? '', publisher: book?.publisher ?? '', publishedDate: book?.publishedDate?.slice(0, 10) ?? '', language: book?.language ?? 'es',
       pageCount: book?.pageCount ?? null, categoryIds: [...(book?.categoryIds ?? book?.categories?.map(c => c.id) ?? [])], tags: book?.tags.join(', ') ?? '', coverUrl: book?.coverUrl ?? '',
       mediaType: book?.mediaType ?? 'physical', digitalResourceUrl: this.record?.digitalResourceUrl ?? '', totalCopies: book?.totalCopies ?? 0 });
-    if (book?.inventoryMode === 'unit') { this.form.controls.totalCopies.disable(); this.form.controls.mediaType.disable(); }
+    if (book?.inventoryMode === 'unit' || (book && this.branches.enabled())) { this.form.controls.totalCopies.disable(); this.form.controls.mediaType.disable(); }
     else { this.form.controls.totalCopies.enable(); this.form.controls.mediaType.enable(); }
     this.submitted = false; this.mediaValidators();
+    if (!book && this.branches.enabled()) this.form.controls.totalCopies.disable();
   }
   private mediaValidators() {
     const digital = this.form.controls.mediaType.value === 'digital';
@@ -71,7 +95,7 @@ export class BookEditorComponent implements OnChanges, AfterViewInit {
     const value = this.form.getRawValue();
     const optional = (text: string) => text.trim() || null;
     const values = (text: string) => text.trim() ? text.split(',').map(item => item.trim()) : [];
-    this.save.emit({ ...value, title: value.title.trim(), subtitle: optional(value.subtitle), authors: values(value.authors), isbn: optional(value.isbn),
+    this.save.emit({ ...value, ...(this.record?.book.metadataVersion === undefined ? {} : { expectedMetadataVersion: this.record.book.metadataVersion }), title: value.title.trim(), subtitle: optional(value.subtitle), authors: values(value.authors), isbn: optional(value.isbn),
       description: value.description.trim(), publisher: optional(value.publisher), publishedDate: optional(value.publishedDate), language: value.language.trim(),
       tags: values(value.tags), coverUrl: optional(value.coverUrl),
       totalCopies: value.mediaType === 'physical' ? value.totalCopies : null,

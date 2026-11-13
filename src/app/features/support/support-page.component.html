@@ -1,5 +1,11 @@
-<main class="support-page">
+<main class="support-page" [class.staff-page]="staff">
+  @if(staff){
+    <app-staff-page-header icon="support_agent" title="Centro de soporte" description="Responde, da seguimiento y mantén cada conversación en su lugar.">
+      <a class="staff-header-link" routerLink="/app/support">Mis solicitudes personales →</a>
+    </app-staff-page-header>
+  } @else {
   <header class="page-heading"><div><p class="eyebrow">{{ staff ? 'Atención de biblioteca' : 'Estamos para ayudarte' }}</p><h1>{{ staff ? 'Centro de soporte' : 'Tus solicitudes' }}</h1><p>{{ staff ? 'Responde, da seguimiento y mantén cada conversación en su lugar.' : 'Un espacio privado para resolver dudas sobre tu cuenta y tus lecturas.' }}</p></div><a [routerLink]="staff ? '/app/support' : '/contact'">{{ staff ? 'Mis solicitudes personales' : 'Ayuda y contacto' }} →</a></header>
+  }
   @if (sessionChanged()) { <p role="status">La sesión cambió. Vuelve a abrir Soporte para consultar tu cuenta actual.</p> }
   <p id="support-page-error" class="error" role="alert" tabindex="-1">{{ error() }}</p><p class="feedback" role="status" tabindex="-1">{{ feedback() }}</p>
   <div class="support-layout" [class.staff-layout]="staff">
