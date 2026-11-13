@@ -22,6 +22,10 @@ jobs:
       fail-fast: false
       matrix:
         circulation_mode: [legacy, active]
+        branches_enabled: [false]
+        include:
+          - circulation_mode: active
+            branches_enabled: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,7 +33,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: AndrewMtz23/WebAppBookLibrary-Backend
-          ref: ${{ inputs.backend_ref || 'd4d4b1953d0509f816add7cb5d8f0e0140894356' }}
+          ref: ${{ inputs.backend_ref || '8b6eb37947f321ccbde9a89173b8b877b02892c8' }}
           path: backend
       - uses: actions/setup-node@v4
         with:
@@ -66,6 +70,7 @@ jobs:
       - name: Start QA application
         env:
           Circulation__Mode: ${{ matrix.circulation_mode }}
+          Branches__Enabled: ${{ matrix.branches_enabled }}
         run: |
           dotnet run --project backend/tools/BookLibrary.QaHost/BookLibrary.QaHost.csproj -c Release --no-restore --no-launch-profile > backend-qa.log 2>&1 &
           cd frontend
@@ -81,8 +86,11 @@ jobs:
         env:
           E2E_CHROME_CHANNEL: chromium
           CIRCULATION_MODE: ${{ matrix.circulation_mode }}
+          BRANCHES_ENABLED: ${{ matrix.branches_enabled }}
         run: |
-          if [ "$CIRCULATION_MODE" = active ]; then
+          if [ "$BRANCHES_ENABLED" = true ]; then
+            npx playwright test --config playwright.branches.config.ts
+          elif [ "$CIRCULATION_MODE" = active ]; then
             npx playwright test e2e/circulation.spec.ts e2e/copies.spec.ts
           else
             npx playwright test --grep-invert "unit inventory supports"
@@ -91,7 +99,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: integrated-browser-qa-${{ matrix.circulation_mode }}
+          name: integrated-browser-qa-${{ matrix.circulation_mode }}-branches-${{ matrix.branches_enabled }}
           path: |
             frontend/playwright-report/
             frontend/test-results/
