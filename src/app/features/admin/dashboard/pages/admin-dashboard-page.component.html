@@ -1,4 +1,4 @@
-<app-staff-page-header icon="space_dashboard" title="Vista general" description="Estado actual y actividad del periodo, separados para tomar decisiones sin comparaciones ficticias."></app-staff-page-header>
+<app-staff-page-header icon="space_dashboard" title="Vista general" description="Tu biblioteca de un vistazo: actividad, colección y prioridades."></app-staff-page-header>
 <app-dashboard-period-controls [period]="dashboard.period()" [busy]="dashboard.refreshing()" (periodChange)="dashboard.setPeriod($event)" (refresh)="dashboard.refreshAll()" />
 @if(dashboard.loading()){<section class="dashboard-skeleton" aria-label="Cargando dashboard" aria-busy="true">@for(item of [1,2,3,4];track item){<span></span>}</section>}
 @if(dashboard.error()){<section class="dashboard-error" role="alert"><p>{{dashboard.error()}}</p><button type="button" (click)="dashboard.refreshCore()">Reintentar indicadores</button></section>}
@@ -15,11 +15,21 @@
     <app-metric-card label="Agotados" [value]="data.outOfStockTitles" definition="Títulos físicos activos sin copias disponibles." [route]="['/admin/books']" [queryParams]="{available:false,mediaType:'physical',isActive:true}" />
   </section>
   <app-dashboard-series title="Reservas físicas y digitales" [periodLabel]="dashboard.period().from+'—'+dashboard.period().to+' · '+data.timezone" [points]="data.dailyReservations" />
-  <section class="rank-grid"><app-dashboard-rank eyebrow="Demanda" title="Títulos más reservados" [items]="top(data)" /><section class="distribution"><p class="eyebrow">Catálogo activo</p><h2>Distribución</h2><h3>Por medio</h3><ul>@for(item of data.activeTitlesByMedia;track item.key){<li><a routerLink="/admin/books" [queryParams]="{isActive:true,mediaType:item.key}"><span>{{item.key}}</span><strong>{{item.count}}</strong></a></li>}</ul><h3>Géneros principales</h3><ul>@for(item of data.activeTitlesByGenre;track item.key){<li><a routerLink="/admin/books" [queryParams]="{isActive:true,genre:item.key}"><span>{{item.key}}</span><strong>{{item.count}}</strong></a></li>}</ul></section></section>
+  <section class="breakdown-grid" aria-label="Estado y comparativas">
+    <app-dashboard-breakdown title="Estado de las cuentas" description="Todas las cuentas de la organización, al momento de la consulta." [stacked]="true" [items]="[{label:'Activas',value:data.activeUsers},{label:'Inactivas',value:data.inactiveAccounts}]" emptyText="No hay cuentas registradas." />
+    <app-dashboard-breakdown title="Reservas pendientes" description="Las vencidas forman parte del total pendiente. Sin filtro por fecha de creación." [stacked]="true" [items]="[{label:'Sin vencer',value:data.outstandingReservations-data.overdueReservations},{label:'Vencidas',value:data.overdueReservations}]" emptyText="No hay reservas pendientes." />
+    <app-dashboard-breakdown eyebrow="Comparativa de periodos" title="Ritmo de reservas" description="Reservas creadas en el periodo seleccionado frente al periodo anterior equivalente." unit="reservas" [items]="[{label:'Periodo actual',value:data.periodReservations.current},{label:'Periodo anterior',value:data.periodReservations.previous}]" emptyText="No hubo reservas en ninguno de los dos periodos." />
+  </section>
+  <section class="insight-grid">
+    <app-dashboard-distribution [media]="data.activeTitlesByMedia" [genres]="data.activeTitlesByGenre" />
+    <aside class="dashboard-rail" aria-label="Demanda y seguimiento">
+    <app-dashboard-rank eyebrow="Demanda del periodo" title="Títulos más reservados" [items]="top(data)" />
   <section class="partial-grid">
     <section class="panel"><header><div><p class="eyebrow">Atención</p><h2>Inventario</h2></div></header>@if(data.inventoryAttention.length===0){<p>Sin títulos físicos con cero o una copia.</p>}@else{<ul>@for(item of data.inventoryAttention;track item.id){<li><a routerLink="/admin/books" [queryParams]="{bookId:item.id,mediaType:'physical',isActive:true}">{{item.title}} · {{item.availableCopies}} disponibles</a></li>}</ul>}</section>
     <section class="panel"><header><div><p class="eyebrow">Administración</p><h2>Actividad reciente</h2></div><button type="button" (click)="dashboard.refreshActivity()">Actualizar</button></header>@if(dashboard.activityLoading()){<p aria-busy="true">Cargando actividad…</p>}@if(dashboard.activityError()){<p role="alert">{{dashboard.activityError()}}</p>}@else if(dashboard.activity().length===0){<p>Sin actividad administrativa en el periodo.</p>}@else{<ul>@for(item of dashboard.activity();track item.id){<li><a routerLink="/admin/logs" [queryParams]="{eventType:item.eventType,from:data.from,to:data.to}">{{item.eventType}} · {{item.actorUsername||'actor no disponible'}}</a></li>}</ul>}</section>
     <section class="panel"><header><div><p class="eyebrow">Seguridad</p><h2>Alertas operativas</h2></div><button type="button" (click)="dashboard.refreshSecurity()">Actualizar</button></header>@if(dashboard.securityLoading()){<p aria-busy="true">Cargando seguridad…</p>}@if(dashboard.securityError()){<p role="alert">{{dashboard.securityError()}}</p><p>El resumen de seguridad está temporalmente fuera de servicio.</p>}@else if(dashboard.security();as security){<strong class="panel__number">{{security.alerts}}</strong><a routerLink="/admin/security" [queryParams]="{from:dashboard.period().from,to:dashboard.period().to,timezone:dashboard.period().timezone}">Abrir seguridad →</a>}</section>
+  </section>
+    </aside>
   </section>
 }
 

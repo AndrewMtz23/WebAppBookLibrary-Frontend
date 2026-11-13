@@ -1,0 +1,30 @@
+:host { display: block; min-width: 0; }
+.distribution-panel { padding: 1.5rem; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-surface); }
+header { margin-bottom: 1.5rem; }
+.eyebrow { color: var(--color-primary); font-size: .7rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+h2 { margin: .4rem 0; font-family: var(--font-display); font-size: 1.25rem; }
+header > p:last-child, .note, .empty { color: var(--color-text-muted); font-size: .8rem; }
+.collection-grid { display: grid; grid-template-columns: minmax(180px, .8fr) minmax(0, 1.2fr); gap: 2rem; }
+.formats { align-self: center; }
+.donut-wrap { position: relative; width: min(100%, 220px); margin: 0 auto 1rem; }
+svg { display: block; width: 100%; }
+circle { fill: none; stroke-width: 18; }
+.ring-track { stroke: var(--color-border); }
+.donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.donut-center strong { font: 700 2.75rem var(--font-display); font-variant-numeric: tabular-nums; }
+.donut-center span { color: var(--color-text-muted); font-size: .8rem; }
+ul { list-style: none; padding: 0; margin: 0; }
+a { color: var(--color-text); text-decoration: none; }
+a:hover, a:focus-visible { color: var(--color-primary); }
+a:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 4px; border-radius: 4px; }
+.format-legend a { display: grid; grid-template-columns: .65rem 1fr auto 3.5rem; align-items: center; gap: .6rem; padding: .65rem 0; border-bottom: 1px solid var(--color-border); font-size: .85rem; }
+.swatch { width: .65rem; height: .65rem; border-radius: 3px; }
+small { text-align: right; color: var(--color-text-muted); }
+h3 { font-size: .9rem; margin: 0 0 .4rem; }
+.note { margin: 0 0 .8rem; }
+.genres a { display: block; padding: .4rem 0; }
+.bar-label { display: flex; justify-content: space-between; gap: 1rem; font-size: .8rem; margin-bottom: .35rem; }
+.bar-label > span { overflow-wrap: anywhere; }
+.bar-track { display: block; height: 6px; border-radius: 3px; background: var(--color-canvas); overflow: hidden; }
+.bar-track > span { display: block; height: 100%; border-radius: inherit; background: var(--color-primary); opacity: .8; }
+@media(max-width: 600px) { .collection-grid { grid-template-columns: 1fr; gap: 1.5rem; } }
